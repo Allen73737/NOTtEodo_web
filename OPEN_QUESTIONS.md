@@ -134,7 +134,7 @@ These are things I can't verify from the code, or decisions only you can make. E
 | Q15 | ₹ in copy |
 | Q16 | Port the capture parser (simplified) to TypeScript |
 | Q17 | Shopping, expenses and wardrobe shown side by side, not as one flow |
-| Q18 | "Evening review", not Zen mode |
+| Q18 | Zen mode exists (Home chip, `setCleanHomescreenMode`); my earlier search was truncated. The Zen beat stays |
 | Q21 | Disclose Google Fonts runtime fetching; hand-off recommends bundling and disabling it |
 | Q23 | Vercel; previews need a staging Supabase project, or the site runs in "offline mode" with build-time fallbacks |
 | Q24 | Persona order is mine |
