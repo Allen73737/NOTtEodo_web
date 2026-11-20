@@ -3,7 +3,9 @@
  * the device and on the server) and the app version into src/content/generated/.
  * Help, FAQ, feature copy and the in-browser "Ask Nodo" demo are built from it.
  */
-import { CHECK, GENERATED_HEADER, appFile, emit, requireApp } from "./lib/sync-util";
+import { readdirSync } from "node:fs";
+import { resolve } from "node:path";
+import { APP_DIR, CHECK, GENERATED_HEADER, appFile, emit, requireApp } from "./lib/sync-util";
 
 function main() {
   if (!requireApp("sync-content")) return;
@@ -23,7 +25,13 @@ function main() {
     versionCode: Number(version[2]),
   };
 
+  // The app's migrations, vendored so RLS tests run the real schema chain (supabase/tests).
+  const migDir = "backend/supabase/migrations";
+  const migrations = readdirSync(resolve(APP_DIR, migDir)).filter((f) => f.endsWith(".sql")).sort();
+  const vendored = migrations.map((f) => emit(`supabase/tests/app-migrations/${f}`, appFile(`${migDir}/${f}`)!));
+
   const ok = [
+    ...vendored,
     emit("src/content/generated/app_guide.json", JSON.stringify(parsed, null, 2) + "\n"),
     emit("src/content/generated/app.json", JSON.stringify(app, null, 2) + "\n"),
   ].every(Boolean);
