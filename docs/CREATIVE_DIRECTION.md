@@ -81,9 +81,9 @@ Format per chapter: **Beat** (what happens), **Copy** (draft headline, Bodoni it
 
 ### I. Hero: Ink in water
 - **Beat:** a suminagashi field fills the viewport. Oxblood rings spread on ivory water (linen on black in OLED). The cursor or finger drags the ink. "*Curate your everyday.*" rises word by word on the `kinetic_text` hinge, clearing from blur. The phone surfaces through the ink with the real **Home, Cards view** screenshot in the current theme. Three glass cards (Notes, Tasks, Money) drift with `scroll_depth`.
-- **CTAs:** Get it on Google Play ⟂(Q1) · Download APK (live version, size, date) · Open in app (Android, App Links only).
-- **Trust strip:** Free forever · No ads · No trackers · Works offline · Encrypted on your phone.
-- **Truth:** no ad/analytics SDKs in `pubspec.yaml`; `LocalStore` AES-256-GCM; offline-first per `app_guide.overview`. ("Free forever" is a promise only you can make: ⟂Q2.)
+- **CTAs (pre-launch, Q1):** **Download the APK** is primary (live version, size, date). Beside it, a *Google Play · Coming soon* badge: the official badge artwork, dimmed, with a small "Coming soon" label and no link. When `platform_config.play_live` flips to true, the badge becomes the primary link with no deploy needed. *Open in app* appears on Android only, via App Links.
+- **Trust strip:** Free · No ads · No trackers · Works offline · Encrypted on your phone. These are present-tense facts only. Nothing says "forever" or "ever" (Q2).
+- **Truth:** no ad/analytics SDKs in `pubspec.yaml`; `LocalStore` AES-256-GCM; offline-first per `app_guide.overview`.
 - **LCP:** the headline is HTML text painted before any WebGL.
 - **Lite:** a 4-second AVIF ink loop poster plus a static phone. **Reduced:** a static ink still.
 
@@ -142,8 +142,8 @@ Format per chapter: **Beat** (what happens), **Copy** (draft headline, Bodoni it
 ### XII. Nodo
 - **Beat:** the editorial AI glyph opens like an aperture. Beside it is the real `08_bento_nodo_ai` screenshot. Below it is a live box: "Ask Nodo about NOTtEodo". It answers *entirely in the browser* from `app_guide.json` (the same scoring as the app's on-device guide), with no network.
 - **Copy:** "*A companion that knows your day, and forgets on request.*"
-- **Explainer (three columns):** *On the device*: search over your own items, no network, no model. *In the cloud, if you sign in*: your question and the matching items go to our server and an AI provider; this is on by default and you can turn it off in Settings → Nodo assistant. *Memory you can see*: review and delete each memory, or all of them.
-- **Truth:** APP_AUDIT §8. The default-on cloud setting is stated plainly.
+- **Explainer (three columns):** *On the device*: search over your own items, no network, no model. *In the cloud, only if you say yes*: signed-in users are asked once; if they agree, the question and the matching items go to our server and an AI provider, which may not train on them and keeps nothing once it has answered. *Memory you can see*: review and delete each memory, or all of them.
+- **Truth:** APP_AUDIT §8 plus decisions D6, D8 and D9 in `OPEN_QUESTIONS.md`. **Launch blocker:** this copy is true only once the app ships cloud-AI opt-in and the hashed user ID, and Groq zero data retention is switched on. Until then the page shows the current behaviour, driven by `platform_config.nodo_cloud_opt_in`.
 
 ### XIII. Home-screen widgets
 - **Beat:** a phone home screen rotates slowly. Widget styles snap onto the grid one by one: sticky memo, daily checklist, Polaroid pin, outfit of the day, budget meter, voice memo, boarding pass, focus clock.
@@ -157,19 +157,20 @@ Format per chapter: **Beat** (what happens), **Copy** (draft headline, Bodoni it
 - **Links:** `/privacy`, `/security`.
 - **Truth:** `LocalStore`, `user_keys`/E2EE trigger, `delete-account`, no SDKs.
 
-### XV. Free, forever
-- **Beat:** "Subscriptions. Ads. Trackers. Paywalls." in huge Bodoni, struck through one by one by `ink_strike` as the reader scrolls. Then, after a held beat, "*None. Ever.*"
-- **Truth:** no billing or ad SDKs ⟂Q2 (whether you commit to it).
+### XV. Free, and nothing for sale
+- **Beat:** "Ads. Trackers. Data brokers." in huge Bodoni, each struck through by `ink_strike` as the reader scrolls. Then, after a held beat, "*Not here.*" A quiet line follows: "*NOTtEodo is free to use.*"
+- **Truth:** no ad, analytics or billing SDKs in the app today. Everything is present tense with no promise about the future (Q2: not free forever). The Terms reserve the right to add optional paid features later, with notice.
 
 ### XVI. Try it
 - **Beat:** the phone tilts toward the reader and the simulator wakes inside it. "*Don't take our word for it. Touch it.*" Three tappable demos: Capture, strike a task, set the Focus Dial. "Open the full simulator" goes to `/try`.
 
 ### XVII. Finale
-- **Beat:** the phone spins once and lands face-up on ivory paper (black velvet in OLED). Around it: the Play badge, Download APK, a QR code to `/open/release/latest`, and the live version number.
+- **Beat:** the phone spins once and lands face-up on ivory paper (black velvet in OLED). Around it: Download APK, a QR code to `/open/release/latest`, the live version number, and the *Google Play · Coming soon* badge (a real link once `play_live` is on).
 - **Copy:** "*Your life, curated.*" then **Download NOTtEodo.**
 
 ### Persistent elements
 - **Download pill:** Play on Android, a QR popover on desktop, APK as secondary. It hides during pinned spectacle and returns at chapter ends.
+- **Pre-launch tone (Q1):** the site reads as finished and confident, not as a teaser. There's no countdown, no "launching on …" date and no fake waitlist numbers. The only pre-launch signals are the *Coming soon* Play badge and an "Early access" eyebrow on `/download`.
 - **"Why people switch":** an honest objection handler before the finale covering privacy, free, offline, battery, export and deletion. Each answer links to the code-backed page.
 - **"Start where you are":** Student · Creative · Professional · Traveller. It re-orders chapters III–XI and the posters. It's stored in `localStorage` and never sent anywhere.
 - **Chapter rail:** Bodoni numerals I–XVII in the margin, plus a crown-dial scroll indicator.
@@ -188,7 +189,7 @@ Format per chapter: **Beat** (what happens), **Copy** (draft headline, Bodoni it
 ## 7. Copy voice: sample lines
 
 - Short, declarative, Bodoni italic for the line, DM Sans for one supporting sentence. No exclamation marks, no "revolutionary", no superlatives we can't prove.
-- Chapter lines (drafts): *Curate your everyday.* · *Two ways to see the same day.* · *Say it once. It finds its place.* · *Your thoughts, connected.* · *Cross it off. Feel it.* · *A small ritual, every day.* · *Time, well kept.* · *Every rupee, accounted for.* · *Dressed for the day. Packed for the trip.* · *Keep what mattered.* · *A companion that knows your day, and forgets on request.* · *Your day, before you open the app.* · *Nothing leaves without your word.* (used only if cloud AI defaults to off ⟂Q6; otherwise the line is *Encrypted on your phone.*) · *None. Ever.* · *Your life, curated.*
+- Chapter lines (drafts): *Curate your everyday.* · *Two ways to see the same day.* · *Say it once. It finds its place.* · *Your thoughts, connected.* · *Cross it off. Feel it.* · *A small ritual, every day.* · *Time, well kept.* · *Every rupee, accounted for.* · *Dressed for the day. Packed for the trip.* · *Keep what mattered.* · *A companion that knows your day, and forgets on request.* · *Your day, before you open the app.* · *Nothing leaves without your word.* (shown only when `nodo_cloud_opt_in` is on; otherwise the line is *Encrypted on your phone.*) · *Not here.* · *Your life, curated.*
 
 ---
 

@@ -2,13 +2,66 @@
 
 These are things I can't verify from the code, or decisions only you can make. Each has a default I'll use if you don't answer. **★ = blocks Phase 6 (Play compliance) or affects what's legally true.**
 
+---
+
+## Decisions (answered 21 Nov 2026)
+
+**D1, Play status (Q1).** Not live yet; the site should feel launch-ready.
+- The APK download is the primary CTA. The Google Play badge appears dimmed as *Coming soon*, with no link.
+- One switch, `platform_config.play_live`, flips every Play CTA live with no redeploy.
+- No countdowns, launch dates or waitlist numbers (ground rule 5).
+
+**D2, Pricing (Q2).** Not free forever.
+- All copy is present tense only: "Free", "No ads", "No trackers". Never "forever" or "ever".
+- Chapter XV is now "Ads. Trackers. Data brokers. *Not here.*"
+- The Terms reserve the right to add optional paid features later, with notice.
+
+**D5, Identity (Q5).** Use placeholders: `[DEVELOPER NAME]`, `[SUPPORT EMAIL]`, `[DOMAIN]`, `[POSTAL ADDRESS]`, `[GRIEVANCE OFFICER NAME / EMAIL]`. **Country: India.** So:
+- **Primary law:** the Digital Personal Data Protection Act 2023, with the DPDP Rules 2025 phasing in. Consent must be free, specific, informed and given by a clear affirmative act; there must be a way to withdraw it and a grievance contact.
+- **Also:** the IT Act 2000 and the SPDI Rules 2011, which require a named Grievance Officer in the privacy policy. Passwords and biometric settings count as sensitive data there.
+- The GDPR, UK GDPR and CCPA sections stay as "if you live in…" sections, because the APK is downloadable worldwide.
+- No `/imprint` page (that resolves Q25).
+
+**D6, Nodo cloud default (Q6). Recommendation: switch to opt-in before launch.**
+- **Why:** today, signing in silently turns on sending item context to a US AI provider. Under DPDP s.6, consent can't be implied from signing in for a separate purpose, and Play's User Data policy wants prominent disclosure before sending personal content to third parties.
+- **What changes:** the first time Nodo would go to the cloud, a one-time sheet says what is sent (your question, the matching items, a short summary of your app state, recent chat), to whom (our server, then Groq, USA), and what's kept (memory you can view and erase).
+  - It has two equal buttons: *Use cloud Nodo* and *Keep it on this phone*.
+  - The choice can be changed in Settings → Nodo assistant.
+  - Voice transcription asks the same way.
+- This goes into `APP_HANDOFF.md`, and the privacy policy is written for the opt-in behaviour.
+- **Launch blocker:** the app must ship this before the policy goes live.
+
+**D8, ID sent to Groq (Q8). Recommendation: send a pseudonym, not the account ID.**
+- Groq's API says the `user` field is "a unique identifier representing your end-user, which can help us monitor and detect abuse". It's useful, but it doesn't need to be the real Supabase UUID.
+- **Fix:** in `ai-assist`, send `HMAC-SHA256(user_id, AI_USER_SALT)`, truncated to 32 hex characters. It stays stable, so abuse tracking still works, but it can't be linked back to an account without the server secret.
+- This is an edge-function change in the app repo, so it goes in the hand-off. The policy then says "a random-looking identifier that is not your account ID".
+
+**D9, Groq retention and training (Q9).** From Groq's own documents, read 21 Nov 2026:
+- **Training:** the Services Agreement §4.2 says *"Groq is not permitted to use Inputs or Outputs for training or fine-tuning any AI Model Services or other models, unless explicitly granted permission or instructed by Customer."*
+- **Retention:** by default Groq doesn't keep inference data. But inputs and outputs *may* be logged when troubleshooting errors or investigating suspected abuse, kept *"for up to 30 days, unless legally required"*.
+- **Zero Data Retention (ZDR):** a self-serve setting at console.groq.com → Settings → Data Controls ("All customers may enable…"; the Agreement says "Eligible Customers"). It turns that logging off. It only disables batch and fine-tuning, which NOTtEodo doesn't use (it uses chat completions and Whisper transcription).
+- **DPA:** it's accepted automatically with the Services Agreement (effective 15 Oct 2025) and includes EU SCCs and the UK addendum.
+- **Location:** stored data is in US Google Cloud buckets; processing may happen in other countries where Groq or its subprocessors operate.
+- **→ Your action (2 minutes):** turn on ZDR for all features in the Groq console, and tell me when it's done.
+  - Once it's on, the policy says: *"Our AI provider, Groq, Inc. (USA), processes the request only to produce the answer. Its contract forbids using it to train models, and we have turned on its zero-data-retention setting, so it keeps no copy once the answer is returned."*
+  - Until then, the policy says *"may keep it for up to 30 days to investigate abuse"*.
+  - India: DPDP s.16 allows transfers to any country not on a government restricted list, and the US isn't on one.
+
+**D19, Signing keys (Q19).** No Play app exists yet, so set things up so the website APK and the future Play build share **one signing key**. Otherwise, people who sideload now could never update from Play: they'd have to uninstall, and because `allowBackup="false"` and the data is tied to the Keystore, uninstalling **erases their on-device data**.
+1. **Now:** create one long-lived release keystore (the *app signing key*) and sign every website APK with it. Never use debug signing for a public APK. `build.gradle` currently falls back to debug signing when `key.properties` is missing, and the hand-off adds a guard against that.
+2. **When creating the Play app:** at Play App Signing choose *Use a different key → Export and upload a key from Java keystore* (Google's PEPK tool) and upload **that same key**. Then create a separate *upload key* for submissions.
+3. **After launch:** keep signing website APKs with the app signing key, or download Play's signed universal APK from *App bundle explorer*.
+4. **Before relying on it:** test on a spare phone that a sideloaded APK updates from Play.
+
+`assetlinks.json` lists the app-signing-key SHA-256, plus the upload key's once it exists. Both are env placeholders (`ANDROID_CERT_SHA256_APP_SIGNING`, `ANDROID_CERT_SHA256_UPLOAD`), and the production build refuses to ship if they're empty.
+
+---
+
+## Still open
+
 ## Identity and placeholders
 | # | Question | Default if unanswered |
 |---|---|---|
-| Q1 ★ | Is NOTtEodo **live on Google Play** yet (or in closed testing)? If not, should the primary CTA be the APK until it is? | Play badge shown as "Coming to Google Play" (not a link) with APK primary, switched by `platform_config.play_live` |
-| Q2 ★ | Do you commit publicly to **"Free forever / no ads / no paywalls"**? It's a promise, not a code fact. | Use "Free. No ads. No trackers." without "forever"/"ever" until you confirm |
-| Q5 ★ | `[DEVELOPER NAME]`, `[SUPPORT EMAIL]`, `[DOMAIN]`, postal address (required for some jurisdictions and for a Play developer account with monetisation), your country of residence (decides GDPR rep / DPDP / imprint). | Placeholders, listed in the final report |
-| Q19 ★ | Play App Signing: is it enabled? I need the **upload key** and **app signing key** SHA-256 fingerprints for `assetlinks.json` (config only, never committed as secrets). Will the website APK be the Play-signed universal APK, or signed with your upload key? (The APK must match the Play build's signature, or sideload users can't update from Play.) | Fingerprints come from env vars; the build fails loudly if they're empty in production |
 
 ## Screenshots
 | # | Question | Default |
@@ -19,9 +72,6 @@ These are things I can't verify from the code, or decisions only you can make. E
 ## Privacy and policy facts
 | # | Question | Default |
 |---|---|---|
-| Q6 ★ | **Cloud Nodo is on by default** for signed-in users (`cloudAi != false`), so item context goes to Groq unless the user turns it off. Keep this default (the policy will say so plainly), or switch to opt-in in the hand-off? | Disclose as-is; recommend opt-in in APP_HANDOFF |
-| Q8 ★ | Groq receives `user: <Supabase user id>` with every request. OK to disclose as "a pseudonymous account ID", or remove it in the hand-off? | Disclose; recommend sending a salted hash instead |
-| Q9 ★ | Is Groq's **zero data retention** enabled on your Groq org? (Their default may retain for abuse monitoring.) I'll cite their published terms either way. | Policy says "retained per Groq's terms, not used for training (as stated in their terms)" with a link; no stronger claim |
 | Q10 ★ | Cloudinary region and Supabase region (for the international transfers section). | "Servers may be outside your country"; region filled from your answer |
 | Q11 | Exact on-device erase path: Settings → Backup & export → *Permanently Erase All Data*? (The old policy says Privacy & data.) | Use Backup & export, verified on device before launch |
 | Q12 ★ | Who are the users? Is the app aimed at India first (₹ in screenshots, DPDP Act), the EU, the US? Any users under 18 expected? | Rights sections for GDPR/UK GDPR, DPDP 2023 and CCPA/CPRA; "not for under-13s" (16 in the EEA where required) |
@@ -45,5 +95,4 @@ These are things I can't verify from the code, or decisions only you can make. E
 | Q17 | The brief's "shopping → expense → wardrobe" continuous path: I found no code linking Shopping to Expenses or Wardrobe. Is there one? | The chapter shows them side by side, not as one flow |
 | Q18 | "**Zen mode**": the code only has the *Evening review* dialog (`EveningZenReviewDialog`). Is there a Zen mode that collapses the UI? | The beat becomes "Evening review"; no Zen mode claim |
 | Q24 | The persona picker (Student · Creative · Professional · Traveller): any feature you want emphasised per persona? | My ordering, from the features list |
-| Q25 | Do you want an `/imprint` page (needed if you're based in Germany/Austria or run it commercially there)? | No |
 | Q26 | Roadmap: what's genuinely planned/"exploring"? | Empty roadmap page with an admin-managed list; hidden until it has one item |
