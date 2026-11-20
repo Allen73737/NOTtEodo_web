@@ -59,6 +59,9 @@
   cursor: pointer;
 }
 .sim__aa {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
   width: auto;
   padding: 0 10px;
   border-radius: 999px;

@@ -10,6 +10,9 @@ import { haptic, play } from "@/lib/sound";
  * (port of touch_aura), a context cursor for fine pointers, and the smart download pill.
  */
 export function Ambient({ downloadHref, label }: { downloadHref: string; label: string }) {
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) void navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+  }, []);
   return (
     <>
       <CrownDial />

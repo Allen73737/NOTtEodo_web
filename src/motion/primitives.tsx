@@ -149,12 +149,13 @@ export function InkStrike({
   return (
     <span className={`ink-strike ${struck ? "is-struck" : ""} ${scrub ? "is-scrub" : ""} ${className ?? ""}`}>
       {children}
-      <svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true">
-        <path
-          d="M1 6.4 C 18 6.9, 34 5.6, 52 5.2 S 86 4.1, 99 3.4"
-          pathLength={1}
-          style={scrub ? { strokeDashoffset: 1 - Math.max(0, Math.min(1, progress)) } : undefined}
-        />
+      <svg
+        viewBox="0 0 100 10"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+        style={scrub ? { clipPath: `inset(-50% ${(1 - Math.max(0, Math.min(1, progress))) * 100}% -50% 0)` } : undefined}
+      >
+        <path d="M1 6.4 C 18 6.9, 34 5.6, 52 5.2 S 86 4.1, 99 3.4" />
       </svg>
     </span>
   );

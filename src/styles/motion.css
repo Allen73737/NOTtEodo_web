@@ -61,15 +61,17 @@ html.reduced .kinetic__w {
   stroke-width: 2.4;
   vector-effect: non-scaling-stroke;
   stroke-linecap: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  transition: stroke-dashoffset var(--d-ink-strike-out) var(--e-ease-in-cubic);
 }
-.ink-strike.is-struck path {
-  stroke-dashoffset: 0;
-  transition: stroke-dashoffset var(--d-ink-strike) var(--e-ink-strike);
+/* Drawn left to right by revealing the stroke (dash maths with non-scaling strokes is unreliable). */
+.ink-strike svg {
+  clip-path: inset(-50% 100% -50% 0);
+  transition: clip-path var(--d-ink-strike-out) var(--e-ease-in-cubic);
 }
-.ink-strike.is-scrub path {
+.ink-strike.is-struck svg {
+  clip-path: inset(-50% 0 -50% 0);
+  transition: clip-path var(--d-ink-strike) var(--e-ink-strike);
+}
+.ink-strike.is-scrub svg {
   transition: none;
 }
 .ink-strike.is-struck,

@@ -11,6 +11,7 @@ import "@/styles/motion.css";
 import "@/styles/sections.css";
 import "@/styles/film.css";
 import "@/styles/simulator.css";
+import "@/styles/pages.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
