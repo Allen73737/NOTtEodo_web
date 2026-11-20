@@ -3,7 +3,6 @@
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Announcement } from "@/lib/db/types";
-import { supabaseBrowser } from "@/lib/supabase/client";
 
 const SAFE_URL = /^(https:\/\/|\/(?!\/))/;
 
@@ -18,6 +17,9 @@ export function AnnouncementBanner({ initial }: { initial: Announcement[] }) {
     } catch {
       /* storage blocked */
     }
+    // supabase-js loads lazily, after first paint, so it never weighs on initial JS.
+    let cleanup = () => {};
+    void import("@/lib/supabase/client").then(({ supabaseBrowser }) => {
     const sb = supabaseBrowser();
     if (!sb) return;
     const ch = sb
@@ -37,9 +39,9 @@ export function AnnouncementBanner({ initial }: { initial: Announcement[] }) {
         );
       })
       .subscribe();
-    return () => {
-      void sb.removeChannel(ch);
-    };
+    cleanup = () => void sb.removeChannel(ch);
+    });
+    return () => cleanup();
   }, []);
 
   const a = items.find((x) => !hidden.includes(x.id));
