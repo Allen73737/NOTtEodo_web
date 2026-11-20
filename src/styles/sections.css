@@ -232,3 +232,123 @@ code {
   margin: 14px 0;
   color: var(--c-text);
 }
+
+/* ---------- Download ---------- */
+.download-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: clamp(24px, 5vw, 80px);
+  align-items: start;
+}
+.download-visual {
+  display: grid;
+  justify-items: center;
+  position: sticky;
+  top: calc(var(--nav-h) + 40px);
+}
+@media (max-width: 860px) {
+  .download-grid {
+    grid-template-columns: 1fr;
+  }
+  .download-visual {
+    position: static;
+  }
+}
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 14px;
+  margin: 0;
+}
+.facts dt {
+  font: 600 0.7rem/1 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-text-soft);
+}
+.facts dd {
+  margin: 6px 0 0;
+  font-size: 1.05rem;
+}
+.checksum__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--c-field);
+  border-radius: var(--radius-md);
+  padding: 4px 4px 4px 12px;
+}
+.checksum code {
+  background: none;
+  padding: 0;
+  font-size: 0.78rem;
+  word-break: break-all;
+  flex: 1;
+}
+.release.is-fresh {
+  animation: fresh 1.4s var(--e-settle);
+}
+@keyframes fresh {
+  0% {
+    transform: scale(0.96);
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--c-accent) 40%, transparent);
+  }
+  60% {
+    box-shadow: 0 0 0 14px transparent;
+  }
+}
+.subscribe {
+  display: grid;
+  gap: 10px;
+}
+.notes p {
+  margin: 6px 0;
+}
+
+/* ---------- Status / open ---------- */
+.status-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--c-divider);
+}
+.status-list li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--c-divider);
+}
+.status-list__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--c-accent);
+}
+.status-list li[data-state="down"] .status-list__dot {
+  background: var(--c-error);
+  box-shadow: 0 0 0 5px color-mix(in oklab, var(--c-error) 20%, transparent);
+}
+.status-list li[data-state="unknown"] .status-list__dot {
+  background: var(--c-outline-variant);
+}
+.open-page {
+  padding-top: calc(var(--nav-h) + 96px);
+  padding-bottom: 96px;
+  display: grid;
+  gap: 18px;
+  justify-items: start;
+}
+.open-page__mark {
+  color: var(--c-accent);
+}
+.open-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: 18px;
+  width: 100%;
+  margin-top: 18px;
+}
