@@ -1,0 +1,390 @@
+/* App simulator: an HTML/CSS recreation of the Flutter UI, both themes, both views. */
+.sim-wrap {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+}
+.sim {
+  --s-card: var(--c-sheet);
+  --s-line: var(--c-hairline);
+  position: relative;
+  width: min(390px, 100%);
+  height: min(800px, 88vh);
+  border-radius: 46px;
+  border: 10px solid var(--c-ink);
+  background: var(--c-canvas);
+  box-shadow: var(--shadow-lift);
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  overflow: hidden;
+  isolation: isolate;
+  font-size: 14px;
+}
+:root[data-mode="dark"] .sim {
+  border-color: var(--c-surface-high);
+  box-shadow: 0 0 0 1px var(--c-outline), 0 40px 120px -40px var(--c-oxblood);
+}
+.sim__status {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 22px 2px;
+  font: 600 0.72rem/1 var(--font-mono);
+  color: var(--c-text-soft);
+}
+.sim__bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+}
+.sim__wordmark {
+  font: 600 1.15rem/1 var(--font-display);
+  margin-right: auto;
+}
+.sim__wordmark i,
+.sim__aa i {
+  color: var(--c-accent);
+  font-weight: 400;
+}
+.sim__icon,
+.sim__aa {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 0;
+  background: transparent;
+  color: var(--c-text);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.sim__aa {
+  width: auto;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--c-field);
+  font: 600 0.95rem/1 var(--font-display);
+}
+.sim__screen {
+  overflow: auto;
+  padding: 6px 16px 96px;
+}
+.sim__stack {
+  display: grid;
+  gap: 12px;
+}
+.sim__eyebrow {
+  margin: 0;
+  font: 700 0.66rem/1.2 var(--font-sans);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-accent);
+}
+.sim__h1 {
+  font: 600 1.9rem/1.05 var(--font-display);
+  margin: 0;
+}
+.sim__big {
+  font: 600 1.25rem/1.2 var(--font-display);
+  margin: 4px 0;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.sim__num {
+  font-family: var(--font-mono);
+}
+.sim__muted {
+  color: var(--c-text-soft);
+  font-size: 0.85rem;
+  margin: 0;
+}
+.sim__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sim__chip {
+  border: 0;
+  border-radius: 999px;
+  padding: 7px 12px;
+  background: var(--c-field);
+  color: var(--c-text);
+  font: 500 0.8rem/1 var(--font-sans);
+  cursor: pointer;
+}
+.sim__chip[aria-pressed="true"],
+.sim__primary {
+  background: var(--c-accent-fill);
+  color: var(--c-on-accent);
+}
+.sim__primary {
+  border: 0;
+  border-radius: 999px;
+  padding: 11px 22px;
+  font: 600 0.9rem/1 var(--font-sans);
+  cursor: pointer;
+}
+.sim__primary:disabled {
+  opacity: 0.5;
+}
+.sim__card {
+  background: var(--s-card);
+  border: 1px solid var(--s-line);
+  border-radius: 20px;
+  padding: 14px;
+  display: grid;
+  gap: 6px;
+}
+.sim--editorial .sim__card {
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--c-divider);
+  border-radius: 0;
+  padding: 12px 0;
+}
+.sim--editorial .sim__h1 {
+  font-size: 2.3rem;
+  font-weight: 500;
+}
+.sim__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 2px 0;
+}
+.sim__seal-card {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+.sim__seal {
+  --press: 0;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 0;
+  cursor: pointer;
+  background: radial-gradient(circle at 35% 30%, var(--c-blush), var(--c-oxblood) 60%, var(--c-noir));
+  color: color-mix(in oklab, var(--c-noir) 80%, transparent);
+  font: italic 600 2rem/1 var(--font-display);
+  transform: scale(calc(1 - var(--press) * 0.12));
+  box-shadow: inset 0 0 0 calc(var(--press) * 6px) color-mix(in oklab, var(--c-noir) 40%, transparent);
+  touch-action: none;
+}
+.sim__seal span {
+  opacity: var(--press);
+}
+.sim__seal.is-done span {
+  opacity: 1;
+}
+.sim__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.sim__task {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--c-divider);
+  cursor: pointer;
+}
+.sim__task input {
+  width: 18px;
+  height: 18px;
+}
+.sim__task .sim__muted {
+  margin-left: auto;
+}
+.sim__meter {
+  height: 6px;
+  border-radius: 6px;
+  background: var(--c-track);
+  overflow: hidden;
+}
+.sim__meter span {
+  display: block;
+  height: 100%;
+  background: var(--c-accent-fill);
+}
+.sim__dial {
+  position: relative;
+  width: 220px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid var(--c-hairline);
+  background: var(--c-sheet);
+  cursor: ns-resize;
+}
+.sim__dial i {
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  width: 1px;
+  height: 8px;
+  background: var(--c-text-soft);
+  transform-origin: 50% 104px;
+}
+.sim__dial i.major {
+  height: 14px;
+  width: 2px;
+  background: var(--c-text);
+}
+.sim__hand {
+  position: absolute;
+  left: calc(50% - 1.5px);
+  top: 22px;
+  width: 3px;
+  height: 88px;
+  border-radius: 3px;
+  background: var(--c-text);
+  transform-origin: 50% 88px;
+  transition: transform 300ms var(--e-settle);
+}
+.sim__pin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin: -5px;
+  border-radius: 50%;
+  background: var(--c-accent);
+}
+.sim__bubble {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 16px 16px 16px 4px;
+  background: var(--c-field);
+}
+.sim__bubble--me {
+  justify-self: end;
+  border-radius: 16px 16px 4px 16px;
+  background: var(--c-accent-fill);
+  color: var(--c-on-accent);
+}
+.sim__ask {
+  display: flex;
+  gap: 6px;
+}
+.sim__ask input,
+.sim__input {
+  flex: 1;
+  width: 100%;
+  border: 0;
+  border-radius: 14px;
+  padding: 12px;
+  background: var(--c-field);
+  color: var(--c-text);
+  font: inherit;
+}
+.sim__ask button {
+  border: 0;
+  border-radius: 14px;
+  padding: 0 14px;
+  background: var(--c-accent-fill);
+  color: var(--c-on-accent);
+  cursor: pointer;
+}
+.sim__nodo {
+  position: absolute;
+  right: 14px;
+  bottom: 86px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 1px solid var(--c-hairline);
+  background: var(--c-sheet);
+  color: var(--c-accent);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 3;
+}
+.sim__dock {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px;
+  border-radius: 999px;
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--c-hairline);
+  z-index: 3;
+}
+.sim__set,
+.sim__tab,
+.sim__plus {
+  border: 0;
+  background: transparent;
+  color: var(--c-text-soft);
+  cursor: pointer;
+}
+.sim__set {
+  font: 700 0.6rem/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  padding: 10px 6px;
+}
+.sim__tab {
+  flex: 1;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  font: 500 0.58rem/1 var(--font-sans);
+  padding: 4px 0;
+  border-radius: 999px;
+}
+.sim__tab[aria-current="page"] {
+  color: var(--c-accent);
+  background: color-mix(in oklab, var(--c-accent) 10%, transparent);
+}
+.sim__plus {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--c-accent-fill);
+  color: var(--c-on-accent);
+  display: grid;
+  place-items: center;
+}
+.sim__sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  padding: 20px;
+  border-radius: 28px 28px 0 0;
+  background: var(--c-sheet);
+  box-shadow: 0 -20px 40px -20px color-mix(in oklab, var(--c-ink) 30%, transparent);
+  display: grid;
+  gap: 10px;
+  animation: rise var(--d-entrance) var(--e-silk);
+}
+.sim__sheet form {
+  display: grid;
+  gap: 10px;
+}
+.sim__toast {
+  position: absolute;
+  left: 50%;
+  bottom: 150px;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: var(--c-inverse-surface);
+  color: var(--c-inverse-text);
+  font-size: 0.82rem;
+  white-space: nowrap;
+  z-index: 6;
+}
+.sim__label {
+  text-align: center;
+}
