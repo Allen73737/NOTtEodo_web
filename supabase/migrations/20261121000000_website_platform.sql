@@ -134,6 +134,7 @@ SELECT public._nt_attach_admin_triggers('platform_config', true);
 INSERT INTO public.platform_config (key, value) VALUES
     ('play_live', 'false'),
     ('nodo_cloud_opt_in', 'false'),
+    ('groq_zdr', 'false'),
     ('min_supported_version_code', '1'),
     ('latest_version_code', '1'),
     ('maintenance', '{"on": false, "message": ""}'),

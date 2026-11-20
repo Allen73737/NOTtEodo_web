@@ -15,7 +15,9 @@ export function appFile(rel: string): string | null {
  * Writes a generated file, or in --check mode reports drift instead.
  * Returns false when the committed file differs from what the app would generate.
  */
-export function emit(rel: string, content: string): boolean {
+export function emit(rel: string, raw: string): boolean {
+  // Line endings are normalised so Windows checkouts and CI compare equal.
+  const content = raw.replaceAll("\r\n", "\n");
   const target = resolve(ROOT, rel);
   const current = existsSync(target) ? readFileSync(target, "utf8") : null;
   if (CHECK) {

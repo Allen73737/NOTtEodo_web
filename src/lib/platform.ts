@@ -12,7 +12,10 @@ import { supabasePublic } from "@/lib/supabase/server";
  */
 export type PlatformConfig = {
   play_live: boolean;
+  /** True once the app asks before cloud Nodo (APP_HANDOFF D6). Changes privacy wording. */
   nodo_cloud_opt_in: boolean;
+  /** True once zero data retention is switched on in the Groq console (D9). */
+  groq_zdr: boolean;
   min_supported_version_code: number;
   latest_version_code: number;
   maintenance: { on: boolean; message: string };
@@ -26,6 +29,7 @@ const site = env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
 export const DEFAULT_CONFIG: PlatformConfig = {
   play_live: false,
   nodo_cloud_opt_in: false,
+  groq_zdr: false,
   min_supported_version_code: 1,
   latest_version_code: app.versionCode,
   maintenance: { on: false, message: "" },
