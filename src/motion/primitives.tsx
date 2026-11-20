@@ -110,7 +110,8 @@ export function KineticText({
   const go = start === "mount" ? mounted : seen;
   const words = text.split(" ");
   return (
-    <Tag ref={ref} className={`kinetic ${go ? "is-in" : ""} ${className ?? ""}`} aria-label={text}>
+    <Tag ref={ref} className={`kinetic ${go ? "is-in" : ""} ${className ?? ""}`}>
+      <span className="sr-only">{text}</span>
       {words.map((w, i) => (
         <Fragment key={i}>
           <span className="kinetic__mask" aria-hidden="true">
@@ -196,7 +197,8 @@ export function CountUp({ text, className }: { text: string; className?: string 
     return () => cancelAnimationFrame(raf);
   }, [seen, text]);
   return (
-    <span ref={ref} className={`t-num ${className ?? ""}`} aria-label={text}>
+    <span ref={ref} className={`t-num ${className ?? ""}`}>
+      <span className="sr-only">{text}</span>
       <span aria-hidden="true">{seen ? shown : text}</span>
     </span>
   );
@@ -207,7 +209,8 @@ export function CountUp({ text, className }: { text: string; className?: string 
 /** rolling_text.dart: digits roll like an odometer when the value changes; other characters crossfade. */
 export function RollingText({ value, className }: { value: string; className?: string }) {
   return (
-    <span className={`rolling t-num ${className ?? ""}`} aria-label={value} role="text">
+    <span className={`rolling t-num ${className ?? ""}`}>
+      <span className="sr-only">{value}</span>
       {value.split("").map((ch, i) =>
         /\d/.test(ch) ? (
           <span key={i} className="rolling__col" aria-hidden="true">
@@ -322,7 +325,8 @@ export function Scramble({ text, className }: { text: string; className?: string
     return () => clearInterval(id);
   }, [seen, text]);
   return (
-    <span ref={ref} className={`scramble ${className ?? ""}`} aria-label={text}>
+    <span ref={ref} className={`scramble ${className ?? ""}`}>
+      <span className="sr-only">{text}</span>
       <span aria-hidden="true">{out}</span>
     </span>
   );

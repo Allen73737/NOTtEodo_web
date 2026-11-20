@@ -14,7 +14,8 @@ const LETTERS: { ch: string; it?: boolean }[] = [
 /** NOTtEodo: the lowercase t and e are italic Bodoni Moda, as in the app's top bar. */
 export function Wordmark({ className, variant = "static", as: Tag = "span" }: Props) {
   return (
-    <Tag className={clsx("wordmark", `wordmark--${variant}`, className)} aria-label="NOTtEodo" translate="no">
+    <Tag className={clsx("wordmark", `wordmark--${variant}`, className)} translate="no">
+      <span className="sr-only">NOTtEodo</span>
       {LETTERS.map((l, i) => (
         <span
           key={i}

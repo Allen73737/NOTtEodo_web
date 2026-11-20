@@ -216,13 +216,13 @@ export default async function Home() {
 
       <Chapter id="wardrobe" n="X" title="Dressed for the day. Packed for the trip." italic={["Dressed", "Packed"]}>
         <div className="split">
-          <div className="outfit card pad" aria-label="Illustration: an outfit built from garments">
+          <div className="outfit card pad" role="group" aria-label="Illustration: an outfit built from garments">
             {["Linen shirt", "Oxblood scarf", "Ivory trousers", "Leather loafers"].map((g, i) => (
               <span key={g} className="outfit__piece" style={{ ["--i" as string]: i }}>{g}</span>
             ))}
             <p className="t-label">Garments with photos, season and fabric · an outfit-of-the-day widget</p>
           </div>
-          <div className="passport card pad" aria-label="Illustration: a travel stamp">
+          <div className="passport card pad" role="group" aria-label="Illustration: a travel stamp">
             <p className="t-eyebrow" style={{ color: "var(--c-bronze)" }}>Travel</p>
             <p className="passport__stamp">GOA · 12 DEC</p>
             <p className="muted">A countdown to departure, packing by essentials, clothing, electronics and toiletries, shared trip costs settled fairly.</p>
@@ -242,7 +242,7 @@ export default async function Home() {
               <path pathLength={1} d="M0 40 C 20 10, 40 70, 60 40 S 100 5, 120 40 S 160 75, 180 40 S 220 15, 240 40 S 280 70, 300 40 S 340 2, 360 40 S 400 78, 420 40 S 460 20, 480 40 S 520 66, 540 40 S 580 30, 600 40" />
             </svg>
           </div>
-          <div className="strip" aria-label="Posters">
+          <div className="strip" role="region" aria-label="Poster strip" tabIndex={0}>
             {["cover-notes-notes-light", "type-remember-light", "collage-light", "swiss-notes-light"].map((id) => (
               // eslint-disable-next-line @next/next/no-img-element
               <img key={id} src={`/posters/${id.split("-")[0] === "type" ? "typographic" : id.startsWith("cover") ? "covers" : id.startsWith("collage") ? "collage" : "swiss"}/${id}.webp`} alt="" loading="lazy" width={540} height={675} />
@@ -273,7 +273,7 @@ export default async function Home() {
       </Chapter>
 
       <Chapter id="widgets" n="XIII" title="Your day, before you open the app." italic={["before"]}>
-        <div className="homescreen" aria-label="Illustration: NOTtEodo widget styles on an Android home screen">
+        <div className="homescreen" role="group" aria-label="Illustration: NOTtEodo widget styles on an Android home screen">
           {["Sticky memo", "Daily checklist", "Polaroid pin", "Outfit of the day", "Budget meter", "Voice memo", "Boarding pass", "Focus clock"].map((w, i) => (
             <div key={w} className={`widget widget--${i}`} style={{ ["--i" as string]: i }}>
               <span className="t-label">{w}</span>

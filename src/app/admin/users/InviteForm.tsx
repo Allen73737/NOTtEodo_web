@@ -10,7 +10,7 @@ export function InviteForm() {
     <>
       <ActionForm action={createInvite} resetOnSuccess onDone={(r) => r.ok && setLink((r.data as { link: string }).link)}>
         <label className="field">
-          Note (who it's for)
+          Note (who it is for)
           <input className="input" name="note" maxLength={200} />
         </label>
         <label className="field">

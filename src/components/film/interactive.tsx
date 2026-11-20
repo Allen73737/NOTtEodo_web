@@ -282,7 +282,7 @@ export function StreakFill() {
   const days = 28;
   const filled = Math.round(band(p, 0.3, 0.75) * 21);
   return (
-    <div className="streak" aria-label="Illustration: a month of the day streak filling in">
+    <div className="streak" role="group" aria-label="Illustration: a month of the day streak filling in">
       {Array.from({ length: days }, (_, i) => (
         <span key={i} className={i < filled ? "is-on" : i === 9 ? "is-freeze" : ""} />
       ))}

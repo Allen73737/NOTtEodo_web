@@ -203,9 +203,11 @@ html.reduced .chapter--tall .chapter__sticky {
   transform: translateY(-50%);
   z-index: 40;
   display: grid;
-  gap: 6px;
+  gap: 0;
 }
 .rail a {
+  min-height: 24px;
+  min-width: 24px;
   display: flex;
   align-items: center;
   gap: 8px;

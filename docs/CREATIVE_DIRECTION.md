@@ -137,7 +137,7 @@ Format per chapter: **Beat** (what happens), **Copy** (draft headline, Bodoni it
 ### XI. Remember
 - **Beat:** journal pages turn in 3D with a deckled edge. A voice memo waveform is drawn in ink as it plays (a silent visual only). A horizontal moodboard strip runs inside the vertical scroll with an image trail. Then *Your week*, the weekly recap card. Finally a **Zen moment**: a button collapses the page to essentials for a breath, then restores it.
 - **Copy:** "*Keep what mattered.*"
-- **Truth:** journal plus voice memos, moodboard, weekly recap. **Zen mode ⟂Q18**: not found in the code under that name, so this beat is held until it's confirmed.
+- **Truth:** journal plus voice memos, moodboard, weekly recap. **Zen mode** exists (a Home chip; `setCleanHomescreenMode`), so this beat stays.
 
 ### XII. Nodo
 - **Beat:** the editorial AI glyph opens like an aperture. Beside it is the real `08_bento_nodo_ai` screenshot. Below it is a live box: "Ask Nodo about NOTtEodo". It answers *entirely in the browser* from `app_guide.json` (the same scoring as the app's on-device guide), with no network.

@@ -44,9 +44,11 @@ function screenUrl(screen: string, view: string, theme: string) {
 function Screen({ screen }: { screen: string }) {
   const theme = useTheme();
   const view = useView();
-  const tex = useTexture(screenUrl(screen, view, theme));
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = 8;
+  const tex = useTexture(screenUrl(screen, view, theme), (t) => {
+    const one = Array.isArray(t) ? t[0]! : t;
+    one.colorSpace = THREE.SRGBColorSpace;
+    one.anisotropy = 8;
+  });
   return (
     <mesh position={[0, 0, 0.058]}>
       <planeGeometry args={[1.08, 2.4]} />

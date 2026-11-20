@@ -15,3 +15,5 @@ public/screenshots/.*.sha
 next-env.d.ts
 *.tsbuildinfo
 poster-studio/.cache/
+/playwright-report
+/test-results
