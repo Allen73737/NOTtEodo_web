@@ -1,0 +1,136 @@
+/* ---------- Phone frame + theme/view-aware screenshots ---------- */
+.phone {
+  margin: 0;
+  width: 100%;
+  max-width: 360px;
+  padding: 10px;
+  border-radius: 46px;
+  background: linear-gradient(160deg, var(--c-ink-container), var(--c-ink) 60%);
+  box-shadow:
+    inset 0 0 0 1.5px color-mix(in oklab, var(--c-text-soft) 50%, transparent),
+    var(--shadow-lift);
+  position: relative;
+}
+:root[data-mode="dark"] .phone {
+  background: linear-gradient(160deg, var(--c-surface-high), var(--c-canvas) 60%);
+  box-shadow:
+    inset 0 0 0 1px var(--c-outline),
+    0 0 0 1px color-mix(in oklab, var(--c-blush) 22%, transparent),
+    0 40px 120px -40px color-mix(in oklab, var(--c-oxblood) 55%, transparent);
+}
+.phone__glass {
+  border-radius: 37px;
+  overflow: hidden;
+  position: relative;
+  background: var(--c-canvas);
+}
+.shot__stack {
+  position: relative;
+  width: 100%;
+}
+.shot__img,
+.shot__img img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.shot__img img {
+  object-fit: cover;
+  background-size: cover;
+}
+.shot__img {
+  opacity: 0;
+  transition: opacity var(--d-entrance) var(--e-silk);
+}
+:root:not([data-mode]) .shot__img[data-theme-img="light"][data-view-img="cards"],
+:root[data-mode="light"][data-view="cards"] .shot__img[data-theme-img="light"][data-view-img="cards"],
+:root[data-mode="light"][data-view="editorial"] .shot__img[data-theme-img="light"][data-view-img="editorial"],
+:root[data-mode="dark"][data-view="cards"] .shot__img[data-theme-img="dark"][data-view-img="cards"],
+:root[data-mode="dark"][data-view="editorial"] .shot__img[data-theme-img="dark"][data-view-img="editorial"] {
+  opacity: 1;
+  z-index: 1;
+}
+
+/* ---------- Page header ---------- */
+.page-head {
+  padding-top: calc(var(--nav-h) + clamp(72px, 12vw, 160px));
+  padding-bottom: clamp(40px, 7vw, 96px);
+  display: grid;
+  gap: 22px;
+}
+.page-head__title {
+  max-width: 14ch;
+}
+.page-head__lede {
+  max-width: 60ch;
+}
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  gap: clamp(14px, 2vw, 24px);
+}
+.pad {
+  padding: clamp(20px, 3vw, 32px);
+}
+.stack {
+  display: grid;
+  gap: 14px;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.muted {
+  color: var(--c-text-muted);
+}
+.swatch {
+  display: grid;
+  gap: 8px;
+}
+.swatch__chip {
+  height: 72px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--c-hairline);
+}
+.demo {
+  min-height: 220px;
+  display: grid;
+  align-content: space-between;
+  gap: 18px;
+}
+.demo__stage {
+  min-height: 110px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+.peek {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: color-mix(in oklab, var(--c-ink) 30%, transparent);
+  backdrop-filter: blur(10px);
+  animation: fade-in var(--d-standard) var(--e-silk);
+}
+.peek__card {
+  max-width: 460px;
+  animation: peek-in var(--d-card-peek) var(--e-card-peek);
+}
+@keyframes peek-in {
+  from {
+    transform: scale(0.86) translateY(20px);
+    opacity: 0;
+  }
+}
+code {
+  font: 500 0.9em var(--font-mono);
+  background: var(--c-field);
+  padding: 2px 6px;
+  border-radius: 6px;
+}

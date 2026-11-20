@@ -11,5 +11,6 @@ if(t==='light'||t==='dark'){d.dataset.theme=t;}
 if(v==='cards'||v==='editorial'){d.dataset.view=v;}else{d.dataset.view='cards';}
 if(localStorage.getItem('nt-motion')==='reduced'){d.classList.add('reduced');}}catch(e){d.dataset.view='cards';}
 var dark=d.dataset.theme?d.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+d.dataset.mode=dark?'dark':'light';
 var m=document.querySelector('meta[name="theme-color"]:not([media])');if(m)m.setAttribute('content',dark?'${colors.dark.canvas}':'${colors.light.canvas}');
 if(matchMedia('(prefers-reduced-motion: reduce)').matches)d.classList.add('reduced');})();`;

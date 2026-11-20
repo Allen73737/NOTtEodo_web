@@ -1,0 +1,269 @@
+/* Motion primitives (ports of frontend/lib/core/motion). Timings come from tokens.css. */
+
+/* kinetic_text: words flip up on a perspective hinge, clearing from blur */
+.kinetic {
+  display: inline;
+}
+.kinetic__mask {
+  display: inline-block;
+  overflow: clip;
+  overflow-clip-margin: 0.25em;
+  perspective: 600px;
+  vertical-align: top;
+  padding-bottom: 0.08em;
+}
+.kinetic__w {
+  display: inline-block;
+  transform-origin: 50% 100%;
+  transform: translateY(0.55em) rotateX(-75deg);
+  opacity: 0;
+  filter: blur(10px);
+  transition:
+    transform var(--d-kinetic) var(--e-silk),
+    opacity calc(var(--d-kinetic) * 0.7) var(--e-silk),
+    filter var(--d-kinetic) var(--e-silk);
+  transition-delay: calc(var(--i) * 90ms);
+}
+.kinetic.is-in .kinetic__w {
+  transform: none;
+  opacity: 1;
+  filter: none;
+}
+.kinetic__w.it {
+  font-style: italic;
+  font-weight: 400;
+}
+html.no-js .kinetic__w,
+html.reduced .kinetic__w {
+  transform: none;
+  opacity: 1;
+  filter: none;
+  transition: none;
+}
+
+/* ink_strike: hand-drawn line, left to right, rising slightly */
+.ink-strike {
+  position: relative;
+  display: inline-block;
+}
+.ink-strike svg {
+  position: absolute;
+  left: -2%;
+  width: 104%;
+  top: 46%;
+  height: 0.3em;
+  overflow: visible;
+  pointer-events: none;
+}
+.ink-strike path {
+  fill: none;
+  stroke: var(--c-accent);
+  stroke-width: 2.4;
+  vector-effect: non-scaling-stroke;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset var(--d-ink-strike-out) var(--e-ease-in-cubic);
+}
+.ink-strike.is-struck path {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset var(--d-ink-strike) var(--e-ink-strike);
+}
+.ink-strike.is-scrub path {
+  transition: none;
+}
+.ink-strike.is-struck,
+.ink-strike.is-scrub {
+  color: inherit;
+}
+.t-mega .ink-strike path,
+.t-display .ink-strike path {
+  stroke-width: 7;
+}
+
+/* rolling_text: odometer digits */
+.rolling {
+  display: inline-flex;
+}
+.rolling__col {
+  display: inline-block;
+  height: 1.15em;
+  overflow: hidden;
+  line-height: 1.15;
+}
+.rolling__strip {
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--d-rolling) var(--e-silk);
+}
+
+/* touch_sheen + edge_light */
+.sheen {
+  position: relative;
+  isolation: isolate;
+}
+.sheen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  background: radial-gradient(
+    420px circle at var(--sx, 50%) var(--sy, 50%),
+    color-mix(in oklab, var(--c-surface-lowest) 55%, transparent),
+    transparent 60%
+  );
+  transition: opacity var(--d-sheen-out) var(--e-ease-in-out-sine);
+}
+:root[data-mode="dark"] .sheen::before {
+  background: radial-gradient(
+    380px circle at var(--sx, 50%) var(--sy, 50%),
+    color-mix(in oklab, var(--c-blush) 16%, transparent),
+    transparent 62%
+  );
+}
+.sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  padding: 1px;
+  background: radial-gradient(
+    260px circle at var(--sx, 50%) var(--sy, 50%),
+    color-mix(in oklab, var(--c-accent) 60%, transparent),
+    transparent 70%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity var(--d-sheen-out) var(--e-ease-in-out-sine);
+}
+.sheen.is-lit::before,
+.sheen.is-lit::after {
+  opacity: 1;
+  transition-duration: var(--d-sheen-in);
+  transition-timing-function: var(--e-ease-out-cubic);
+}
+:root[data-view="editorial"] .sheen::before,
+:root[data-view="editorial"] .sheen::after {
+  display: none;
+}
+
+/* edge_light charge while holding (card_peek) */
+.is-charging {
+  --charge: 0;
+  animation: charge 450ms linear forwards;
+}
+@property --charge {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+@keyframes charge {
+  to {
+    --charge: 1;
+  }
+}
+.is-charging::after {
+  opacity: 1 !important;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    var(--c-accent) calc(var(--charge) * 50%),
+    transparent 0 calc(100% - var(--charge) * 50%),
+    var(--c-accent) 0
+  ) !important;
+}
+
+/* pressable */
+.pressable {
+  transition: transform var(--d-press-up) var(--e-ease-out-back);
+}
+.pressable:active {
+  transform: scale(0.975);
+  transition-duration: var(--d-press-down);
+  transition-timing-function: var(--e-ease-out);
+}
+@media (hover: hover) {
+  .pressable:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.magnetic {
+  display: inline-block;
+  transition: transform var(--d-entrance) var(--e-silk);
+}
+
+/* marquee */
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+  border-block: 1px solid var(--c-divider);
+  padding-block: 18px;
+}
+.marquee__track {
+  display: inline-flex;
+  gap: 0;
+  will-change: transform;
+}
+.marquee__track span {
+  font: italic 400 clamp(2rem, 6vw, 4.6rem) / 1 var(--font-display);
+  padding-inline: 0.4em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8em;
+}
+.marquee__track i {
+  font-style: normal;
+  font-size: 0.4em;
+  color: var(--c-accent);
+}
+
+.scramble {
+  font-family: var(--font-mono);
+}
+
+/* scroll_depth: rise in from the bottom edge, sink and fade past the top (scroll-driven CSS) */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    html:not(.reduced) .scroll-depth {
+      animation: depth linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+    html:not(.reduced) .scroll-fade {
+      animation: soften linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+  }
+}
+@keyframes depth {
+  0% {
+    transform: translateY(28px) scale(0.98);
+    opacity: 0.4;
+  }
+  22%,
+  72% {
+    transform: none;
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-24px) scale(0.94);
+    opacity: 0.25;
+  }
+}
+@keyframes soften {
+  to {
+    transform: translateY(18%);
+    opacity: 0.2;
+    filter: blur(4px);
+  }
+}

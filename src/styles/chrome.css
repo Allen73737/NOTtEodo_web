@@ -324,7 +324,7 @@
   background: var(--c-surface-lowest);
   border: 1px solid var(--c-hairline);
 }
-:root[data-theme="dark"] .qr {
+:root[data-mode="dark"] .qr {
   background: var(--c-inverse-surface);
 }
 .footer__play {

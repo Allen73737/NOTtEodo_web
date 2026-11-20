@@ -7,6 +7,7 @@ import { themeScript } from "@/lib/theme-script";
 import "@/styles/globals.css";
 import "@/styles/brand.css";
 import "@/styles/chrome.css";
+import "@/styles/motion.css";
 import "@/styles/sections.css";
 
 export const metadata: Metadata = {

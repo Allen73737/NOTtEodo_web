@@ -51,6 +51,7 @@ export function currentTheme(): Theme {
 export function applyTheme(theme: Theme) {
   const d = document.documentElement;
   d.dataset.theme = theme;
+  d.dataset.mode = theme;
   write(KEYS.theme, theme);
   const meta = document.querySelector('meta[name="theme-color"]:not([media])');
   meta?.setAttribute("content", getComputedStyle(d).getPropertyValue("--c-canvas").trim());
@@ -122,7 +123,11 @@ export function useSystemThemeSync() {
   useEffect(() => {
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const on = () => {
-      if (!document.documentElement.dataset.theme) notify();
+      const d = document.documentElement;
+      if (!d.dataset.theme) {
+        d.dataset.mode = mq.matches ? "dark" : "light";
+        notify();
+      }
     };
     mq.addEventListener("change", on);
     return () => mq.removeEventListener("change", on);
