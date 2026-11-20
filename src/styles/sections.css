@@ -352,3 +352,72 @@ code {
   width: 100%;
   margin-top: 18px;
 }
+
+/* ---------- Account ---------- */
+.memories,
+.feedback-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0;
+}
+.memories li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--c-divider);
+}
+.feedback-list li {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--c-divider);
+}
+.reply {
+  margin: 8px 0 0;
+  padding: 12px 16px;
+  border-left: 3px solid var(--c-accent);
+  background: var(--c-tint);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+.reply p {
+  margin: 4px 0;
+}
+.pw-meter {
+  display: grid;
+  gap: 6px;
+  font-weight: 400;
+  font-size: 0.82rem;
+  color: var(--c-text-soft);
+}
+.pw-meter__bar {
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--c-accent) calc((var(--s, 0) / 4) * 100%), var(--c-track) 0);
+}
+.pw-meter[data-score="0"] { --s: 0.4; }
+.pw-meter[data-score="1"] { --s: 1; }
+.pw-meter[data-score="2"] { --s: 2; }
+.pw-meter[data-score="3"] { --s: 3; }
+.pw-meter[data-score="4"] { --s: 4; }
+.age {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.check {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 0.95rem;
+}
+.check input {
+  margin-top: 4px;
+}
+select.input {
+  appearance: none;
+}
+textarea.input {
+  resize: vertical;
+}
