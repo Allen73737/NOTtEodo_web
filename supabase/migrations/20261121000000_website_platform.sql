@@ -140,7 +140,9 @@ INSERT INTO public.platform_config (key, value) VALUES
     ('maintenance', '{"on": false, "message": ""}'),
     ('urls', '{"privacy": "https://[DOMAIN]/privacy", "terms": "https://[DOMAIN]/terms", "delete_account": "https://[DOMAIN]/delete-account", "support": "https://[DOMAIN]/support", "help": "https://[DOMAIN]/help", "play": "https://play.google.com/store/apps/details?id=com.notteodo.notteodo", "website": "https://[DOMAIN]", "status": "https://[DOMAIN]/status"}'),
     ('flags', '{"release_emails": true, "testimonials": false, "roadmap": false}'),
-    ('hero', '{"eyebrow": "Notes. Tasks. Life.", "headline": "Curate your everyday.", "sub": ""}')
+    ('hero', '{"eyebrow": "Notes. Tasks. Life.", "headline": "Curate your everyday.", "sub": ""}'),
+    ('ai', '{"cloud_enabled": true, "note": ""}'),
+    ('posters', '{}')
 ON CONFLICT (key) DO NOTHING;
 
 -- ---------------------------------------------------------------------------

@@ -1,0 +1,273 @@
+/* Admin portal: the twin of admin_dashboard_screen.dart. Fast and quiet: no 3D, subtle motion only. */
+.mono-cap {
+  font: 600 0.72rem/1.2 var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.admin {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  min-height: 100dvh;
+}
+.admin__side {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow: auto;
+  border-right: 1px solid var(--c-hairline);
+  padding: 22px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: var(--c-canvas);
+}
+.admin__brand {
+  text-decoration: none;
+  display: grid;
+  gap: 2px;
+  font-size: 1.35rem;
+  padding: 0 8px;
+}
+.admin__brand .mono-cap {
+  color: var(--c-accent);
+}
+.admin__nav {
+  display: grid;
+  gap: 2px;
+}
+.admin__nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  padding: 9px 10px;
+  border-radius: var(--radius-md);
+  font: 500 0.9rem/1.2 var(--font-sans);
+  color: var(--c-text-muted);
+}
+.admin__nav a:hover {
+  background: color-mix(in oklab, var(--c-ink) 5%, transparent);
+  color: var(--c-text);
+}
+.admin__nav a[aria-current="page"] {
+  background: color-mix(in oklab, var(--c-accent) 10%, transparent);
+  color: var(--c-accent);
+  box-shadow: inset 2px 0 0 var(--c-accent);
+}
+:root[data-view="editorial"] .admin__nav a[aria-current="page"] {
+  background: none;
+  box-shadow: none;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
+.admin__me {
+  margin-top: auto;
+  display: grid;
+  gap: 6px;
+  padding: 0 8px;
+}
+.admin__email {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--c-text-soft);
+  word-break: break-all;
+}
+.admin__main {
+  padding: clamp(20px, 3vw, 40px);
+  display: grid;
+  gap: 24px;
+  align-content: start;
+  max-width: 1280px;
+}
+.admin-head {
+  display: grid;
+  gap: 6px;
+}
+.admin-head .mono-cap {
+  color: var(--c-accent);
+}
+.admin-head h1 {
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+.metric {
+  display: grid;
+  gap: 6px;
+}
+.metric__value {
+  font: 500 2rem/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.metric .mono-cap {
+  color: var(--c-text-soft);
+}
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.tbl th {
+  text-align: left;
+  font: 600 0.68rem/1.2 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-text-soft);
+  padding: 10px 10px 10px 0;
+  border-bottom: 1px solid var(--c-hairline);
+}
+.tbl td {
+  padding: 12px 10px 12px 0;
+  border-bottom: 1px solid var(--c-divider);
+  vertical-align: top;
+}
+.tbl-wrap {
+  overflow-x: auto;
+}
+.pill-state {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font: 600 0.7rem/1.4 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--c-field);
+}
+.pill-state[data-on="true"] {
+  background: var(--c-accent-fill);
+  color: var(--c-on-accent);
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+.preview {
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  border: 1px solid;
+}
+.preview[data-mode="light"] {
+  background: #F7F3EE;
+  color: #1D1C15;
+  border-color: #E2D8CF;
+}
+.preview[data-mode="dark"] {
+  background: #000000;
+  color: #F6F3ED;
+  border-color: #1E1E1E;
+}
+.preview[data-view="editorial"] {
+  border-width: 1px 0 0;
+  border-radius: 0;
+}
+.json {
+  font: 400 0.85rem/1.5 var(--font-mono);
+  min-height: 140px;
+}
+.architect-fab {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 30;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--c-hairline);
+  background: var(--c-sheet);
+  color: var(--c-accent);
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+}
+.architect {
+  gap: 14px;
+}
+.architect__log {
+  flex: 1;
+  overflow: auto;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+.architect__msg {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: var(--radius-lg);
+  white-space: pre-wrap;
+}
+.architect__msg--user {
+  background: var(--c-accent-fill);
+  color: var(--c-on-accent);
+  justify-self: end;
+}
+.architect__msg--assistant {
+  background: var(--c-field);
+}
+.admin-denied {
+  min-height: 100dvh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  text-align: center;
+  color: var(--c-accent);
+}
+.admin-denied h1,
+.admin-denied p {
+  color: var(--c-text);
+}
+.drop {
+  border: 1.5px dashed var(--c-outline-variant);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  text-align: center;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+}
+.drop[data-over="true"] {
+  border-color: var(--c-accent);
+  background: color-mix(in oklab, var(--c-accent) 6%, transparent);
+}
+.progress {
+  width: 100%;
+  height: 6px;
+  border-radius: 6px;
+  background: var(--c-track);
+  overflow: hidden;
+}
+.progress > span {
+  display: block;
+  height: 100%;
+  background: var(--c-accent-fill);
+  transition: width var(--d-quick) linear;
+}
+@media (max-width: 860px) {
+  .admin {
+    grid-template-columns: 1fr;
+  }
+  .admin__side {
+    position: static;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--c-hairline);
+  }
+  .admin__nav {
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    overflow-x: auto;
+  }
+  .admin__me {
+    display: none;
+  }
+}
