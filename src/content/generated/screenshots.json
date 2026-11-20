@@ -1,0 +1,666 @@
+{
+  "$comment": "Generated from the NOTtEodo app. Do not edit by hand.",
+  "count": 30,
+  "entries": [
+    {
+      "file": "01_bento_home_dark.png",
+      "screen": "expenses",
+      "view": "cards",
+      "theme": "dark",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "295358378dde1ebc60ef92cb6ea2dab894715c8f86837148eebdd231c4831363",
+      "blur": "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAADQAwCdASoMABsAPu1iqk2ppaQiMAgBMB2JZwAAW+zTazliv5gNUgAA/vKuBzzbQJ8et8K8xvxh9Hixs9i3ggYTdtShTHrMSo/YQK0bt03YEpwgk1vobIAA",
+      "sources": {
+        "webp": [
+          "/screenshots/expenses-cards-dark-480.webp 480w",
+          "/screenshots/expenses-cards-dark-960.webp 960w",
+          "/screenshots/expenses-cards-dark-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/expenses-cards-dark-480.avif 480w",
+          "/screenshots/expenses-cards-dark-960.avif 960w",
+          "/screenshots/expenses-cards-dark-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "01_bento_home_light.png",
+      "screen": "expenses",
+      "view": "cards",
+      "theme": "light",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "3008ff658c6ba2fd861cf79b3e6943d982732d533c555c2362411f804b8cb0e6",
+      "blur": "data:image/webp;base64,UklGRm4AAABXRUJQVlA4IGIAAAAQBACdASoMABsAPu1krU6ppaSiMAgBMB2JZwDG9CHe319dKNV0WNj0AAD+7UNmMZ5wf0PzXmjmMi5OTbPrIn2PHPwb7Zz3se6CL34dSJBqDBP/z1NHE53JQlb1w2FYRxGgAA==",
+      "sources": {
+        "webp": [
+          "/screenshots/expenses-cards-light-480.webp 480w",
+          "/screenshots/expenses-cards-light-960.webp 960w",
+          "/screenshots/expenses-cards-light-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/expenses-cards-light-480.avif 480w",
+          "/screenshots/expenses-cards-light-960.avif 960w",
+          "/screenshots/expenses-cards-light-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "01_home_dark.png",
+      "screen": "home",
+      "view": "editorial",
+      "theme": "dark",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "b55d93971f246b9b11a521d70bddf0cdf7dea7cfc2f3c719bf617dd4322d4626",
+      "blur": "data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAAAwAwCdASoMABsAPu1iqU2ppaOiMAgBMB2JaQAAerDlaXQAAP7w3bThnHiifcdhocpffuVLPyEbAT4T5He+3u7CHvqkcAAA",
+      "sources": {
+        "webp": [
+          "/screenshots/home-editorial-dark-480.webp 480w",
+          "/screenshots/home-editorial-dark-960.webp 960w",
+          "/screenshots/home-editorial-dark-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/home-editorial-dark-480.avif 480w",
+          "/screenshots/home-editorial-dark-960.avif 960w",
+          "/screenshots/home-editorial-dark-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "01_home_light.png",
+      "screen": "home",
+      "view": "editorial",
+      "theme": "light",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "2e1f0bb86934c607a7032bf0a999f17b31a42f734375ba6a1f2c82fe00e234c7",
+      "blur": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAACwAwCdASoMABsAPu1iqU2ppaOiMAgBMB2JaQDDNCHfk8fmpineAAD+7VCHEKizuxGeAdYYiXYD9fKISvmtFNFUuCtzxva8XC67AAAA",
+      "sources": {
+        "webp": [
+          "/screenshots/home-editorial-light-480.webp 480w",
+          "/screenshots/home-editorial-light-960.webp 960w",
+          "/screenshots/home-editorial-light-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/home-editorial-light-480.avif 480w",
+          "/screenshots/home-editorial-light-960.avif 960w",
+          "/screenshots/home-editorial-light-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "02_bento_notes_dark.png",
+      "screen": "travel",
+      "view": "cards",
+      "theme": "dark",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "34021ae9487b23021cdcd44cf7292aa67a3b2cb6861bbdbdb830632676902d5f",
+      "blur": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAABQAwCdASoMABsAPu1orU6ppiSiMAgBMB2JY1/2ADc4lzmiAAD+8NsvNev4zXbrZ/TVhOTcioFsymJd6FXikN71upCdgK+uj7GhjhVjrYcAAA==",
+      "sources": {
+        "webp": [
+          "/screenshots/travel-cards-dark-480.webp 480w",
+          "/screenshots/travel-cards-dark-960.webp 960w",
+          "/screenshots/travel-cards-dark-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/travel-cards-dark-480.avif 480w",
+          "/screenshots/travel-cards-dark-960.avif 960w",
+          "/screenshots/travel-cards-dark-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "02_bento_notes_light.png",
+      "screen": "travel",
+      "view": "cards",
+      "theme": "light",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "914cc97dc7b011360ee00ac80574db6ff901dbf3c3096f906c3705b05bfe8aff",
+      "blur": "data:image/webp;base64,UklGRm4AAABXRUJQVlA4IGIAAADwAwCdASoMABsAPu1orU6ppiSiMAgBMB2JZQDA3CHe7j31T6fOzwAAAP7tQ2YxkTaTbXHAlLQx4NrdaPIKSrShGHhO/N2sv3JvhkbAOdD0TuG7et/JHuaIFYqj6lkr/H8AAA==",
+      "sources": {
+        "webp": [
+          "/screenshots/travel-cards-light-480.webp 480w",
+          "/screenshots/travel-cards-light-960.webp 960w",
+          "/screenshots/travel-cards-light-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/travel-cards-light-480.avif 480w",
+          "/screenshots/travel-cards-light-960.avif 960w",
+          "/screenshots/travel-cards-light-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "02_notes_dark.png",
+      "screen": "notes",
+      "view": "editorial",
+      "theme": "dark",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "08691053bf120c08455064e91d66c45487044d6da9943ce06bf3b4138ea2a325",
+      "blur": "data:image/webp;base64,UklGRkoAAABXRUJQVlA4ID4AAABwAwCdASoMABsAPu1iqk2ppaQiMAgBMB2JaWR5ADdLHRyriAAA/vDuec8Ujq0OOQDCEzCLmXeOTbBAAAAAAA==",
+      "sources": {
+        "webp": [
+          "/screenshots/notes-editorial-dark-480.webp 480w",
+          "/screenshots/notes-editorial-dark-960.webp 960w",
+          "/screenshots/notes-editorial-dark-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/notes-editorial-dark-480.avif 480w",
+          "/screenshots/notes-editorial-dark-960.avif 960w",
+          "/screenshots/notes-editorial-dark-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "02_notes_light.png",
+      "screen": "notes",
+      "view": "editorial",
+      "theme": "light",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "7ae1cb9a16d355d407f487734d6afbe7a78398f266fe55b3dd4a97886eaddc34",
+      "blur": "data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAAAQAwCdASoMABsAPu1iqU2ppaOiMAgBMB2JaWScVH4V8gAA/vAx8sBIgGBlZkY2LnADHWx8jtfHyOi2AsBzYPVyy4AAAA==",
+      "sources": {
+        "webp": [
+          "/screenshots/notes-editorial-light-480.webp 480w",
+          "/screenshots/notes-editorial-light-960.webp 960w",
+          "/screenshots/notes-editorial-light-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/notes-editorial-light-480.avif 480w",
+          "/screenshots/notes-editorial-light-960.avif 960w",
+          "/screenshots/notes-editorial-light-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "03_bento_tasks_dark.png",
+      "screen": "journal",
+      "view": "cards",
+      "theme": "dark",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "dd49638bbdc6faa99a5c3cbfbd4a12861ab810f26787a364c38f024ce721ca9e",
+      "blur": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAABwAwCdASoMABsAPu1iqU2ppaQiMAgBMB2JZwDMHCHhykDU9SAA/vKuBz3JeTEgan9MVDC1bQF+pL6M3RgH2SFM0eTIB2mm41gs7sQAAAA=",
+      "sources": {
+        "webp": [
+          "/screenshots/journal-cards-dark-480.webp 480w",
+          "/screenshots/journal-cards-dark-960.webp 960w",
+          "/screenshots/journal-cards-dark-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/journal-cards-dark-480.avif 480w",
+          "/screenshots/journal-cards-dark-960.avif 960w",
+          "/screenshots/journal-cards-dark-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "03_bento_tasks_light.png",
+      "screen": "journal",
+      "view": "cards",
+      "theme": "light",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "5d5c4eca6d822ab20216747373d59838ff22bb997c213c30e3568b75f00d331f",
+      "blur": "data:image/webp;base64,UklGRmwAAABXRUJQVlA4IGAAAACwAwCdASoMABsAPu1iqk4ppaQiMAgBMB2JZwC7ACHfIh2gLS8tgAD+7UNmMZ32YU36s39Zb/HAtXXESyTfRP9B8sl/DqRINQYvk22z7ffMZrQHv3NECsVR9S0OtjElgAA=",
+      "sources": {
+        "webp": [
+          "/screenshots/journal-cards-light-480.webp 480w",
+          "/screenshots/journal-cards-light-960.webp 960w",
+          "/screenshots/journal-cards-light-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/journal-cards-light-480.avif 480w",
+          "/screenshots/journal-cards-light-960.avif 960w",
+          "/screenshots/journal-cards-light-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "03_tasks_dark.png",
+      "screen": "tasks",
+      "view": "editorial",
+      "theme": "dark",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "9f6ccb441e00d69a620914963648c55aebff3c004607b1a4b5403efd6b06307a",
+      "blur": "data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAACQAwCdASoMABsAPu1iqU2ppaQiMAgBMB2JaWVuADdNgFevFyAAAP7w/eI+/gCq+nPbDOP+W3Gsx6AA",
+      "sources": {
+        "webp": [
+          "/screenshots/tasks-editorial-dark-480.webp 480w",
+          "/screenshots/tasks-editorial-dark-960.webp 960w",
+          "/screenshots/tasks-editorial-dark-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/tasks-editorial-dark-480.avif 480w",
+          "/screenshots/tasks-editorial-dark-960.avif 960w",
+          "/screenshots/tasks-editorial-dark-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "03_tasks_light.png",
+      "screen": "tasks",
+      "view": "editorial",
+      "theme": "light",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "ced3d9d3392924a7b4abaa24492bfee6c2506435d7e1e8161f96a2969fe0401e",
+      "blur": "data:image/webp;base64,UklGRkoAAABXRUJQVlA4ID4AAABQAwCdASoMABsAPu1iqk2ppaQiMAgBMB2JaQC90DKHP/5MAAD+8DHyykQq1Y4MYrc6+ibQZRR0GDCi1wAAAA==",
+      "sources": {
+        "webp": [
+          "/screenshots/tasks-editorial-light-480.webp 480w",
+          "/screenshots/tasks-editorial-light-960.webp 960w",
+          "/screenshots/tasks-editorial-light-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/tasks-editorial-light-480.avif 480w",
+          "/screenshots/tasks-editorial-light-960.avif 960w",
+          "/screenshots/tasks-editorial-light-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "04_bento_planner_dark.png",
+      "screen": "moodboard",
+      "view": "cards",
+      "theme": "dark",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "a8a68bb3853d73710731132524b14d56c982d0242014779f34c0faa3ea39f8e5",
+      "blur": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAwAwCdASoMABsAPu1iqU2ppaOiMAgBMB2JaV2AADcoVU6wAP7w3RSqqN97peb68i8igCwn0HaYBl0aeqZFIazg9n832GCnYDhwAA==",
+      "sources": {
+        "webp": [
+          "/screenshots/moodboard-cards-dark-480.webp 480w",
+          "/screenshots/moodboard-cards-dark-960.webp 960w",
+          "/screenshots/moodboard-cards-dark-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/moodboard-cards-dark-480.avif 480w",
+          "/screenshots/moodboard-cards-dark-960.avif 960w",
+          "/screenshots/moodboard-cards-dark-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "04_bento_planner_light.png",
+      "screen": "moodboard",
+      "view": "cards",
+      "theme": "light",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "b6fe8bd905b51da7f61fccd98d9b34cfdf15b7d2c564679f6573816886225bdd",
+      "blur": "data:image/webp;base64,UklGRm4AAABXRUJQVlA4IGIAAACwAwCdASoMABsAPu1mq04ppaQiMAgBMB2JZwC+SCHe7j3Awp4WgAD+7TfQylPSJjr8Goz78nz+cGej9MIMi3WSxGsv3Xr+HUiQugaVYGm4NuJ96cnZEXcVR8XzEpxcbU0AAA==",
+      "sources": {
+        "webp": [
+          "/screenshots/moodboard-cards-light-480.webp 480w",
+          "/screenshots/moodboard-cards-light-960.webp 960w",
+          "/screenshots/moodboard-cards-light-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/moodboard-cards-light-480.avif 480w",
+          "/screenshots/moodboard-cards-light-960.avif 960w",
+          "/screenshots/moodboard-cards-light-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "04_plan_dark.png",
+      "screen": "planner",
+      "view": "editorial",
+      "theme": "dark",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "17f661815961b60a35ba88c3fd09dc5213e783ce01d2a0b6ab84ba9180d68578",
+      "blur": "data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAACQAwCdASoMABsAPu1iqU2ppaQiMAgBMB2JaQAAW/E6PIRVzDAAAP7yrgc9yb2AQyt1+WUEJo88yPAA",
+      "sources": {
+        "webp": [
+          "/screenshots/planner-editorial-dark-480.webp 480w",
+          "/screenshots/planner-editorial-dark-960.webp 960w",
+          "/screenshots/planner-editorial-dark-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/planner-editorial-dark-480.avif 480w",
+          "/screenshots/planner-editorial-dark-960.avif 960w",
+          "/screenshots/planner-editorial-dark-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "04_plan_light.png",
+      "screen": "planner",
+      "view": "editorial",
+      "theme": "light",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "60a113b2b7315ba6507edafdacef1908c112fa8d69861b57e5f05d1a3805afc8",
+      "blur": "data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAABQAwCdASoMABsAPu1iqU2ppaOiMAgBMB2JZwC7ADKHKkYYgAD+8DHyykQq03xtnzcIHdPpH64WnwAA",
+      "sources": {
+        "webp": [
+          "/screenshots/planner-editorial-light-480.webp 480w",
+          "/screenshots/planner-editorial-light-960.webp 960w",
+          "/screenshots/planner-editorial-light-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/planner-editorial-light-480.avif 480w",
+          "/screenshots/planner-editorial-light-960.avif 960w",
+          "/screenshots/planner-editorial-light-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "05_bento_habits_dark.png",
+      "screen": "expenses-nodo",
+      "view": "cards",
+      "theme": "dark",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "e868c5771d5bb8f25494f238285eee3619395d4408f5f013bd140db4ddcf6b89",
+      "blur": "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAADwAwCdASoMABsAPu1mqk4ppaOiMAgBMB2JZwAAW+zTazliJvFuXsoAAP7yrgc820CfHrfCvMb8YfR4wP7HSBbPNWn5xYmVhCEOLaoityssm/lF/4kcNAAA",
+      "sources": {
+        "webp": [
+          "/screenshots/expenses-nodo-cards-dark-480.webp 480w",
+          "/screenshots/expenses-nodo-cards-dark-960.webp 960w",
+          "/screenshots/expenses-nodo-cards-dark-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/expenses-nodo-cards-dark-480.avif 480w",
+          "/screenshots/expenses-nodo-cards-dark-960.avif 960w",
+          "/screenshots/expenses-nodo-cards-dark-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "05_bento_habits_light.png",
+      "screen": "expenses-nodo",
+      "view": "cards",
+      "theme": "light",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "f5cda2af3c972a91b1d5a74b754f434b3c75804481d8177182648c623d90ae18",
+      "blur": "data:image/webp;base64,UklGRnQAAABXRUJQVlA4IGgAAADwAwCdASoMABsAPu1orU6ppiSiMAgBMB2JZwDImCHe32RpgdHdOOAAAP7tQ2YxnnB/Q/NeaOYyLk5Ns+uO88Dd+1w099URqjmtvID2krednixTqhXxun2uXz4Pva97j6mUqUwypFIAAA==",
+      "sources": {
+        "webp": [
+          "/screenshots/expenses-nodo-cards-light-480.webp 480w",
+          "/screenshots/expenses-nodo-cards-light-960.webp 960w",
+          "/screenshots/expenses-nodo-cards-light-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/expenses-nodo-cards-light-480.avif 480w",
+          "/screenshots/expenses-nodo-cards-light-960.avif 960w",
+          "/screenshots/expenses-nodo-cards-light-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "05_habits_dark.png",
+      "screen": "habits",
+      "view": "editorial",
+      "theme": "dark",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "b1c60304386c4bb0dee34338119b335a115190ed284f7b5c991cb1399b314e62",
+      "blur": "data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAAAQAwCdASoMABsAPu1iqU2ppaQiMAgBMB2JaQAAerI+nZAA/vDuj4NaTfu3XZ0FBfYPu8YmqsJNAAAA",
+      "sources": {
+        "webp": [
+          "/screenshots/habits-editorial-dark-480.webp 480w",
+          "/screenshots/habits-editorial-dark-960.webp 960w",
+          "/screenshots/habits-editorial-dark-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/habits-editorial-dark-480.avif 480w",
+          "/screenshots/habits-editorial-dark-960.avif 960w",
+          "/screenshots/habits-editorial-dark-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "05_habits_light.png",
+      "screen": "habits",
+      "view": "editorial",
+      "theme": "light",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "d23cf769ce4dc03f821eb2b6542557a52fd15f995b6fc3b2e8b8ff2f69b74eb7",
+      "blur": "data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAABQAwCdASoMABsAPu1iqU2ppaQiMAgBMB2JaQC90DKHUTkQAAD+8DJP8Nmfxqeqe/VS5W9b3LJKn6gA",
+      "sources": {
+        "webp": [
+          "/screenshots/habits-editorial-light-480.webp 480w",
+          "/screenshots/habits-editorial-light-960.webp 960w",
+          "/screenshots/habits-editorial-light-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/habits-editorial-light-480.avif 480w",
+          "/screenshots/habits-editorial-light-960.avif 960w",
+          "/screenshots/habits-editorial-light-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "06_bento_expenses_dark.png",
+      "screen": "home",
+      "view": "cards",
+      "theme": "dark",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "7170d348e29775127a795b6f922fe082705118c27fa7b78eb11eceea2fd03f10",
+      "blur": "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAABQAwCdASoMABsAPu1iqk4ppaQiMAgBMB2JZ1nyADcoIQ3QAAD+8Lbj37GQI4lLnoHBNwXO4l/mJmYhTl/yJ8gtilasaV9uPOsiwlnaT79kI5HgcAAAAA==",
+      "sources": {
+        "webp": [
+          "/screenshots/home-cards-dark-480.webp 480w",
+          "/screenshots/home-cards-dark-960.webp 960w",
+          "/screenshots/home-cards-dark-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/home-cards-dark-480.avif 480w",
+          "/screenshots/home-cards-dark-960.avif 960w",
+          "/screenshots/home-cards-dark-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "06_bento_expenses_light.png",
+      "screen": "home",
+      "view": "cards",
+      "theme": "light",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "b8daa899cecd85480cf7601f09091b85d1afa81d173453aad9f9dab5eea82df4",
+      "blur": "data:image/webp;base64,UklGRnQAAABXRUJQVlA4IGgAAADQAwCdASoMABsAPu1krU2ppaSiMAgBMB2JZwDImCHRvRbGme1rMQAA/u1QhxGsbRY/YbwsAfqK8MrxlQrGnAE56AKMt7unb138P+3kTLP7RPSMHEqbxPVVv/u7oo7tRJi5plYzb/wAAA==",
+      "sources": {
+        "webp": [
+          "/screenshots/home-cards-light-480.webp 480w",
+          "/screenshots/home-cards-light-960.webp 960w",
+          "/screenshots/home-cards-light-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/home-cards-light-480.avif 480w",
+          "/screenshots/home-cards-light-960.avif 960w",
+          "/screenshots/home-cards-light-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "06_expenses_dark.png",
+      "screen": "expenses",
+      "view": "editorial",
+      "theme": "dark",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "b7f5c37508e372c5787c2f43449809f3c4e813cd27a9c462b33e4e7f2bdddb08",
+      "blur": "data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAACQAwCdASoMABsAPu1kqU2ppaOiMAgBMB2JaQAAetR8PnAE85AAAP7w7pm0rwduxB5R62lYMcXV009+qsjMQRB8oBW6bVKAAAA=",
+      "sources": {
+        "webp": [
+          "/screenshots/expenses-editorial-dark-480.webp 480w",
+          "/screenshots/expenses-editorial-dark-960.webp 960w",
+          "/screenshots/expenses-editorial-dark-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/expenses-editorial-dark-480.avif 480w",
+          "/screenshots/expenses-editorial-dark-960.avif 960w",
+          "/screenshots/expenses-editorial-dark-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "06_expenses_light.png",
+      "screen": "expenses",
+      "view": "editorial",
+      "theme": "light",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "ea767e51b386c937da4ef5381b21c4e15b9cb1ff915b51a88c84eafd2917874f",
+      "blur": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAQAwCdASoMABsAPu1iqU2ppaQiMAgBMB2JaWZAVH4WBWAA/vAy0gwWyXi6tjz6thC24sif+w87P3gV9UjlD3hr5F5cVGPT7oAAAA==",
+      "sources": {
+        "webp": [
+          "/screenshots/expenses-editorial-light-480.webp 480w",
+          "/screenshots/expenses-editorial-light-960.webp 960w",
+          "/screenshots/expenses-editorial-light-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/expenses-editorial-light-480.avif 480w",
+          "/screenshots/expenses-editorial-light-960.avif 960w",
+          "/screenshots/expenses-editorial-light-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "07_bento_dial_dark.png",
+      "screen": "quick-add",
+      "view": "cards",
+      "theme": "dark",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "a5e8a822990993a9a32f0e53c66859641898da2020fc97391e42a46781574706",
+      "blur": "data:image/webp;base64,UklGRkoAAABXRUJQVlA4ID4AAACwAgCdASoMABsAPu1kqk4ppaQiMAgBMB2JaQAAeyAA/vD657PS9Z1ZNG/xhHj2W8UE6pWt56v1FPJfYimAAA==",
+      "sources": {
+        "webp": [
+          "/screenshots/quick-add-cards-dark-480.webp 480w",
+          "/screenshots/quick-add-cards-dark-960.webp 960w",
+          "/screenshots/quick-add-cards-dark-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/quick-add-cards-dark-480.avif 480w",
+          "/screenshots/quick-add-cards-dark-960.avif 960w",
+          "/screenshots/quick-add-cards-dark-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "07_bento_dial_light.png",
+      "screen": "quick-add",
+      "view": "cards",
+      "theme": "light",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "182ed6b2b813d386d8e79b24dc53909647b2ae87dfdb4f5cf8410bbbd7ef8bd8",
+      "blur": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAACwAwCdASoMABsAPu1oqk6ppiQiMAgBMB2JaQABHui1Bay4gfrAAAD+9B69Wim6jO6eAjujaYIddrRiaa5PHf+WOJrY1nG9As33Rl0FKFAAAA==",
+      "sources": {
+        "webp": [
+          "/screenshots/quick-add-cards-light-480.webp 480w",
+          "/screenshots/quick-add-cards-light-960.webp 960w",
+          "/screenshots/quick-add-cards-light-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/quick-add-cards-light-480.avif 480w",
+          "/screenshots/quick-add-cards-light-960.avif 960w",
+          "/screenshots/quick-add-cards-light-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "07_focus_dial_dark.png",
+      "screen": "focus",
+      "view": "editorial",
+      "theme": "dark",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "e8910e6668f0acf96c6a4ce1c0e3cbcb9232ef0e1951900f76d63f5cabe173a5",
+      "blur": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAwAwCdASoMABsAPu1kqU4ppaOiMAgBMB2JaQAAewiP60SAAP7xDcH5tJLwEGmwdYirddYqzHi9Wq9UWif7hGIleg00l/JGyOAAAA==",
+      "sources": {
+        "webp": [
+          "/screenshots/focus-editorial-dark-480.webp 480w",
+          "/screenshots/focus-editorial-dark-960.webp 960w",
+          "/screenshots/focus-editorial-dark-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/focus-editorial-dark-480.avif 480w",
+          "/screenshots/focus-editorial-dark-960.avif 960w",
+          "/screenshots/focus-editorial-dark-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "07_focus_dial_light.png",
+      "screen": "focus",
+      "view": "editorial",
+      "theme": "light",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "b32846f54f560e8a199f213b51e1e32edd710bc9d0c694bcb74beaeaf1efb4a3",
+      "blur": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAABQAwCdASoMABsAPu1orU2ppqSiMAgBMB2JZwABHtJDqcibAAD++9uQS/pvsZE+k4McNothbN+0OxzmPByaj8l9Lt6+9I7T8NXNFBxPaBEaJ/ZIAAA=",
+      "sources": {
+        "webp": [
+          "/screenshots/focus-editorial-light-480.webp 480w",
+          "/screenshots/focus-editorial-light-960.webp 960w",
+          "/screenshots/focus-editorial-light-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/focus-editorial-light-480.avif 480w",
+          "/screenshots/focus-editorial-light-960.avif 960w",
+          "/screenshots/focus-editorial-light-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "08_bento_nodo_ai_dark.png",
+      "screen": "nodo",
+      "view": "cards",
+      "theme": "dark",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "98048c388922747a95815dcb9b98ad0766691a51815b3f0946c11205909a59ad",
+      "blur": "data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAADQAwCdASoMABsAPu1iqU2ppaQiMAgBMB2JaQAAW+q+lNxIThnilwAA/vQieTUIeTPr56Hh0oVfnJV0GxLzjccoENKGKAAA",
+      "sources": {
+        "webp": [
+          "/screenshots/nodo-cards-dark-480.webp 480w",
+          "/screenshots/nodo-cards-dark-960.webp 960w",
+          "/screenshots/nodo-cards-dark-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/nodo-cards-dark-480.avif 480w",
+          "/screenshots/nodo-cards-dark-960.avif 960w",
+          "/screenshots/nodo-cards-dark-1084.avif 1084w"
+        ]
+      }
+    },
+    {
+      "file": "08_bento_nodo_ai_light.png",
+      "screen": "nodo",
+      "view": "cards",
+      "theme": "light",
+      "width": 1084,
+      "height": 2412,
+      "sha256": "1fb83485a04b6679293669505bc704b4a10909441b07348a7ee78918b521a48d",
+      "blur": "data:image/webp;base64,UklGRmwAAABXRUJQVlA4IGAAAABwAwCdASoMABsAPu1iqU2ppaOiMAgBMB2JaQAA/xFpJ5/rlYAA/l6YQYAuxif2qCJ16gECPsJ/HTnnuMVua0iTpcMn9Q82JNfR1WUgLK8GGQUNZihR8zALn3o5/V+EAAA=",
+      "sources": {
+        "webp": [
+          "/screenshots/nodo-cards-light-480.webp 480w",
+          "/screenshots/nodo-cards-light-960.webp 960w",
+          "/screenshots/nodo-cards-light-1084.webp 1084w"
+        ],
+        "avif": [
+          "/screenshots/nodo-cards-light-480.avif 480w",
+          "/screenshots/nodo-cards-light-960.avif 960w",
+          "/screenshots/nodo-cards-light-1084.avif 1084w"
+        ]
+      }
+    }
+  ]
+}

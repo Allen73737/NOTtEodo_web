@@ -7,3 +7,10 @@ coverage/
 playwright-report/
 test-results/
 *.log
+
+# sync markers
+public/screenshots/.*.sha
+/test-results
+/.lighthouseci
+next-env.d.ts
+*.tsbuildinfo

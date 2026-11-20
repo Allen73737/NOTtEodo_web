@@ -1,0 +1,20 @@
+{
+  "$comment": "Hand-verified: what each app screenshot actually shows (docs/APP_AUDIT.md §13). Filenames in the app repo don't always match their content, so this map, not the filename, decides screen/view. Re-verify after recapturing.",
+  "files": {
+    "01_bento_home": { "screen": "expenses", "view": "cards", "note": "file is named home but shows Expenses" },
+    "01_home": { "screen": "home", "view": "editorial" },
+    "02_bento_notes": { "screen": "travel", "view": "cards", "note": "file is named notes but shows Travel (empty state)" },
+    "02_notes": { "screen": "notes", "view": "editorial" },
+    "03_bento_tasks": { "screen": "journal", "view": "cards", "note": "file is named tasks but shows Journal" },
+    "03_tasks": { "screen": "tasks", "view": "editorial" },
+    "04_bento_planner": { "screen": "moodboard", "view": "cards", "note": "file is named planner but shows Moodboard (empty state)" },
+    "04_plan": { "screen": "planner", "view": "editorial" },
+    "05_bento_habits": { "screen": "expenses-nodo", "view": "cards", "note": "file is named habits but shows Expenses with a Nodo note" },
+    "05_habits": { "screen": "habits", "view": "editorial" },
+    "06_bento_expenses": { "screen": "home", "view": "cards", "note": "file is named expenses but shows Home" },
+    "06_expenses": { "screen": "expenses", "view": "editorial" },
+    "07_bento_dial": { "screen": "quick-add", "view": "cards", "note": "file is named dial but shows Home with the Quick add sheet" },
+    "07_focus_dial": { "screen": "focus", "view": "editorial" },
+    "08_bento_nodo_ai": { "screen": "nodo", "view": "cards" }
+  }
+}

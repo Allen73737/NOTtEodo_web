@@ -96,3 +96,46 @@ These are things I can't verify from the code, or decisions only you can make. E
 | Q18 | "**Zen mode**": the code only has the *Evening review* dialog (`EveningZenReviewDialog`). Is there a Zen mode that collapses the UI? | The beat becomes "Evening review"; no Zen mode claim |
 | Q24 | The persona picker (Student · Creative · Professional · Traveller): any feature you want emphasised per persona? | My ordering, from the features list |
 | Q26 | Roadmap: what's genuinely planned/"exploring"? | Empty roadmap page with an admin-managed list; hidden until it has one item |
+
+---
+
+## Decisions, round 2 (21 Nov 2026, owner away; remaining questions decided by me)
+
+**D3/D4, Screenshots.** The owner wants demo data in place of the test data. I can't drive a real phone overnight, so:
+- The site uses the existing real screenshots through a hand-verified mapping (APP_AUDIT §13).
+- Every poster crops the greeting line, so "Football Freak" never appears.
+- `scripts/demo-data/` ships a clean demo dataset and a capture checklist, so the owner can recapture with the same filenames. The pipeline picks up new files automatically.
+
+**D10, Regions.** Supabase and Cloudinary are both hosted in India, so personal data rests in India. Groq (USA) only sees opted-in AI requests, and Resend (USA) only sees subscriber emails. Both are disclosed as cross-border transfers under DPDP s.16.
+
+**D12, Age.** The owner wants the app usable by anyone, and I've kept that as far as the law allows:
+- **On-device use (no account): every age.** NOTtEodo processes no personal data of the user on its servers in this mode.
+- **Accounts, sync and cloud Nodo: 18+, or under 18 with a parent or guardian's verifiable consent.** DPDP s.9 and Rule 10 require that consent before any personal data of a child (under 18) is processed. Sign-up asks for an age confirmation, and the hand-off adds the gate to the app.
+- **Play Console target audience: 13+.** Selecting under-13 groups pulls the app into the Families policy, which is designed for children's apps and would restrict the AI chat and cloud features. The rating questionnaire is answered honestly, so it will likely land at "Everyone"/"3+" because the content is benign. Target audience and content rating are different settings.
+
+**D20, Exact alarms and battery.** The owner keeps both *features*; only how they're requested changes, to avoid rejection:
+- `USE_EXACT_ALARM` is reserved by Play for alarm/timer/calendar-core apps and needs a declaration. Keep `SCHEDULE_EXACT_ALARM`, plus a one-tap "Allow exact reminders" screen. Alarms still fire at the exact minute once granted.
+- `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` (the direct exemption dialog) is only acceptable for chat/VoIP, safety, task-automation and device-companion apps. Replace it with `ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS`, which needs no permission: a "Keep reminders reliable" button opens the battery list, where the user picks NOTtEodo. Same result, no policy risk.
+- If the owner still wants to try `USE_EXACT_ALARM`, the planner/calendar argument goes in the declaration form. The hand-off includes both variants.
+
+**D13, Email (Resend).** Built:
+- A double opt-in list for "Tell me when NOTtEodo is on Google Play" and "Email me new versions" (`release_subscribers`).
+- Sending through the Resend HTTP API (server-only `RESEND_API_KEY`), with unsubscribe in every email.
+- Auth emails can also go through Resend SMTP (a dashboard setting; documented in RUNBOOKS).
+
+**D22, Admins.** Every admin (owner or sub-admin) has full rights. There's no role column. Guards: you can't remove the last admin, and every admin write is audited.
+
+**Defaults taken on everything else:**
+| Question | Decision |
+|---|---|
+| Q7 | Server-side invites and announcements |
+| Q11 | On-device erase is Settings → Backup & export → *Permanently Erase All Data* |
+| Q14 | No variable font: four static weights, with hover stepping between them, to keep the payload small |
+| Q15 | ₹ in copy |
+| Q16 | Port the capture parser (simplified) to TypeScript |
+| Q17 | Shopping, expenses and wardrobe shown side by side, not as one flow |
+| Q18 | "Evening review", not Zen mode |
+| Q21 | Disclose Google Fonts runtime fetching; hand-off recommends bundling and disabling it |
+| Q23 | Vercel; previews need a staging Supabase project, or the site runs in "offline mode" with build-time fallbacks |
+| Q24 | Persona order is mine |
+| Q26 | Roadmap hidden until an admin adds an item |
