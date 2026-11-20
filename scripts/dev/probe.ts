@@ -1,0 +1,21 @@
+import { chromium } from "@playwright/test";
+const [url = "http://localhost:3100/?film=full"] = process.argv.slice(2);
+const b = await chromium.launch();
+const p = await b.newPage({ viewport: { width: 1440, height: 820 } });
+await p.goto(url, { waitUntil: "load" });
+await p.waitForTimeout(2500);
+const r = await p.evaluate(() => {
+  const out: Record<string, unknown> = {};
+  const rail = document.querySelector(".rail") as HTMLElement;
+  out.rail = rail && { pos: getComputedStyle(rail).position, rect: rail.getBoundingClientRect().toJSON(), parent: rail.parentElement?.tagName };
+  out.docW = document.documentElement.scrollWidth;
+  const wide = [...document.querySelectorAll("body *")].filter((e) => e.getBoundingClientRect().right > 1460).slice(0, 8).map((e) => `${e.tagName}.${(e as HTMLElement).className?.toString().slice(0, 40)} ${Math.round(e.getBoundingClientRect().right)}`);
+  out.wide = wide;
+  const hero = document.querySelector(".hero__inner")!;
+  out.heroKids = [...hero.children].map((c) => `${(c as HTMLElement).className} h=${Math.round(c.getBoundingClientRect().height)} top=${Math.round(c.getBoundingClientRect().top)}`);
+  const sv = document.querySelector(".stage__view");
+  out.view = sv && { cls: (sv as HTMLElement).className, style: (sv as HTMLElement).getAttribute("style"), h: sv.getBoundingClientRect().height };
+  return out;
+});
+console.log(JSON.stringify(r, null, 1));
+await b.close();

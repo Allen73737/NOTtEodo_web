@@ -104,7 +104,7 @@ export function KineticText({
   italicWords?: string[];
   start?: "view" | "mount";
 }) {
-  const [ref, seen] = useInView<HTMLElement>({ threshold: 0.3 });
+  const [ref, seen] = useInView<HTMLElement>({ threshold: 0, rootMargin: "0px 0px -12% 0px" });
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const go = start === "mount" ? mounted : seen;

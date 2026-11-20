@@ -7,7 +7,7 @@ await page.addInitScript(([t, v]) => { localStorage.setItem("nt-theme", t!); loc
 const errors: string[] = [];
 page.on("pageerror", (e) => errors.push(String(e)));
 page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
-await page.goto(url, { waitUntil: "networkidle" });
+await page.goto(url, { waitUntil: "load", timeout: 120000 });
 await page.waitForTimeout(1800);
 await page.screenshot({ path: out, fullPage: full === "full" });
 if (errors.length) console.log("ERRORS:\n" + errors.slice(0, 10).join("\n"));

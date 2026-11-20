@@ -9,6 +9,7 @@ import "@/styles/brand.css";
 import "@/styles/chrome.css";
 import "@/styles/motion.css";
 import "@/styles/sections.css";
+import "@/styles/film.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
