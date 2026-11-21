@@ -27,10 +27,15 @@ await page.waitForTimeout(1500);
 const acts = await page.$$eval("[data-act]", (els) => els.map((e) => ({ id: (e as HTMLElement).dataset.act!, top: (e as HTMLElement).offsetTop, h: (e as HTMLElement).offsetHeight })));
 const info = await page.evaluate(() => ({ film: document.documentElement.dataset.film, ready: document.documentElement.classList.contains("journey-ready") }));
 console.log(JSON.stringify(info));
+// Pinned acts: capture early and late in each pin, so the travel and screen changes show.
+const vh = await page.evaluate(() => innerHeight);
 for (const a of acts) {
-  await page.evaluate((y) => window.scrollTo(0, y), a.top + a.h / 2 - 430);
-  await page.waitForTimeout(2200);
-  await page.screenshot({ path: `${out}/${String(acts.indexOf(a)).padStart(2, "0")}-${a.id}.png` });
+  const stops = a.id === "tour" ? [0.1, 0.45, 0.85] : [0.2, 0.75];
+  for (const lp of stops) {
+    await page.evaluate((y) => window.scrollTo(0, y), Math.round(a.top + lp * Math.max(0, a.h - vh)));
+    await page.waitForTimeout(1600);
+    await page.screenshot({ path: `${out}/${String(acts.indexOf(a)).padStart(2, "0")}-${a.id}-${Math.round(lp * 100)}.png` });
+  }
 }
 if (errors.length) console.log("ERRORS:\n" + [...new Set(errors)].slice(0, 15).join("\n"));
 await browser.close();

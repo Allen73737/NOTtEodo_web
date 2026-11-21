@@ -2,10 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { LOGO_MONOGRAM, LOGO_WORDMARK } from "@/components/brand/logo-paths";
+import { toggleTheme } from "@/motion/theme-wash";
 
 const WORDS = ["Notes.", "Tasks.", "Plans.", "Habits.", "Money.", "Wardrobe.", "Travel.", "Journal.", "Life."];
 const MIN_MS = 3600;
 const MAX_MS = 8000;
+/** Set once the title has played in this page load (module state resets on a full reload). */
+let played = false;
 
 /**
  * The opening title. Server-rendered, so its first act (the pen tracing the ribbon N, the ink
@@ -13,7 +16,8 @@ const MAX_MS = 8000;
  * adds the live part: a bezel that counts real loading, the logo tilting toward the pointer, and
  * the exit, where the camera dives through the ribbon itself and the page appears inside it.
  *
- * Once per browser session. Reduced motion gets a short, still version. Skippable at any point
+ * On every page load, in the visitor's theme (with a day/night switch of its own). Reduced motion
+ * gets a short, still version. Skippable at any point
  * (button, Esc or Enter), because a title that can't be skipped is a dark pattern.
  */
 export function Intro() {
@@ -26,12 +30,9 @@ export function Intro() {
   useEffect(() => {
     const html = document.documentElement;
     const el = root.current;
-    if (!el || html.classList.contains("intro-seen")) return setGone(true);
-    try {
-      sessionStorage.setItem("nt-intro", "1");
-    } catch {
-      /* storage blocked: the intro simply plays again next time */
-    }
+    // Plays on every page load; moving around the site and coming back home doesn't replay it.
+    if (!el || played) return setGone(true);
+    played = true;
     html.classList.add("intro-on");
     const reduced = html.classList.contains("reduced");
     // Timed from navigation start, so it lines up with the CSS that has been playing since first paint.
@@ -50,7 +51,6 @@ export function Intro() {
 
     const finish = () => {
       html.classList.remove("intro-on");
-      html.classList.add("intro-seen");
       setGone(true);
     };
 
@@ -135,6 +135,9 @@ export function Intro() {
 
       <div className="intro__stage" aria-hidden="true">
         <div className="intro__tilt">
+          <span className="intro__ripple" />
+          <span className="intro__ripple" style={{ animationDelay: "1.7s" }} />
+          <span className="intro__ripple" style={{ animationDelay: "1.95s" }} />
           <svg className="intro__bezel" viewBox="0 0 200 200">
             <defs>
               <mask id="intro-bezel-mask">
@@ -170,6 +173,9 @@ export function Intro() {
       <p className="intro__meta t-label" aria-hidden="true">
         Notes · Tasks · Life · for Android
       </p>
+      <button type="button" className="intro__mode t-label" onClick={(e) => toggleTheme({ x: e.clientX, y: e.clientY })}>
+        <span className="intro__mode-day">Day</span> / <span className="intro__mode-night">Night</span>
+      </button>
       <button type="button" className="intro__skip t-label" onClick={() => (root.current as (HTMLDivElement & { skip?: () => void }) | null)?.skip?.()}>
         Skip intro
       </button>

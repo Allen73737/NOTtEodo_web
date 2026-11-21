@@ -43,7 +43,7 @@ Supabase dashboard settings are in `docs/RUNBOOKS.md` → "Before launch".
 - **Tests:** 19 RLS tests, 19 unit tests (APK parser against the real 100 MB release APK, password policy and breach check, capture parser, guide search, assetlinks, poster determinism) and 22 Playwright scenarios per device. The functional ones pass. The axe checks pass on desktop when run serially; mobile axe timed out once under parallel load, so re-run it on CI.
 
 ## Deviations from the brief (honest list)
-- Scroll choreography uses CSS sticky plus one progress loop, not GSAP ScrollTrigger pinning. The 3D world uses drei Views on one persistent canvas, not a Theatre.js camera spline. There's no postprocessing (bloom/DOF) and no Rapier physics.
+- Scroll choreography uses CSS sticky pinning plus one progress loop, not GSAP ScrollTrigger. The 3D story is one fixed stage with a keyframe timeline, not a Theatre.js camera spline (see MOTION_SYSTEM.md). There's no postprocessing (bloom/DOF) and no Rapier physics.
 - Lite mode uses posters and real screenshots, not pre-rendered video sequences. Posters use HTML/CSS compositions, not R3F offscreen renders.
 - Legal pages and guides are authored in TSX, not MDX. No i18n library yet (all copy is English and RTL-safe CSS isn't audited). No size-limit, knip, Husky or Renovate configs.
 - A strict nonce CSP covers the signed-in areas only. Static pages use a CSP without inline-script nonces, because nonces force every page dynamic.

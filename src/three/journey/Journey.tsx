@@ -75,7 +75,7 @@ function Director() {
     const vp = state.viewport.getCurrentViewport(state.camera, [0, 0, 0]);
     live.portrait = vp.aspect < 0.9;
     live.half = vp.width / 2;
-    const target = sample(journey.acts, journey.f);
+    const target = sample(journey.acts, journey.t, journey.hold);
     if (!live.started) {
       // First frame: jump to the pose instead of flying in from the origin.
       Object.assign(live.phone, structuredClone(target.phone));
@@ -87,6 +87,7 @@ function Director() {
     for (const k of FX) live.fx[k] = THREE.MathUtils.damp(live.fx[k], target.fx[k], 4, dt);
     live.screen = target.screen;
     live.act = target.act;
+    live.screenIndex = target.screenIndex;
     place(live.phone.p, live.phoneWorld, vp.height);
     live.phoneScale = live.phone.s * (live.portrait ? 0.56 : 1);
 

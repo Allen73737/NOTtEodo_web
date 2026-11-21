@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import QRCode from "qrcode";
+import { Children } from "react";
 import { Monogram } from "@/components/brand/Monogram";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { FilmProvider } from "@/components/film/FilmProvider";
 import { Intro } from "@/components/film/Intro";
-import { AskNodo, CaptureDemo, ChapterRail, Deal, HeroInk, Letterpress, PersonaLede, PersonaPicker, StreakFill, StrikeBoard } from "@/components/film/interactive";
+import { AskNodo, CaptureDemo, ChapterRail, Deal, HeroInk, PersonaPicker, StreakFill, StrikeBoard } from "@/components/film/interactive";
 import { FocusDial, HoldSeal, Memories, SpendSlider, SpinPad, TaskTicker, ViewSwitch } from "@/components/film/story";
 import { Screenshot } from "@/components/shots/Screenshot";
 import { DownloadCta } from "@/components/site/DownloadCta";
@@ -29,6 +30,7 @@ const ACTS = [
   { id: "open", label: "One app", time: "06:30" },
   { id: "capture", label: "Capture", time: "07:05" },
   { id: "views", label: "Two views", time: "08:00" },
+  { id: "tour", label: "The tour", time: "09:00" },
   { id: "modules", label: "Every part", time: "09:30" },
   { id: "plan", label: "Plan", time: "10:15" },
   { id: "focus", label: "Focus", time: "11:30" },
@@ -39,6 +41,21 @@ const ACTS = [
   { id: "finale", label: "Tomorrow", time: "06:00" },
 ];
 
+/** The tour's screens, in the order the 3D phone shows them (keep in step with KEYS.tour.screens). */
+const TOUR = [
+  ["Home", "Your day at a glance: brief, focus, run and the next thing."],
+  ["Notes", "A notebook that links itself, and answers back."],
+  ["Tasks", "Plain words in, an ink line through when done."],
+  ["Planner", "Events and dated tasks on one timeline."],
+  ["Habits", "Small things, done often, with runs and freezes."],
+  ["Money", "Envelopes, subscriptions and what's safe to spend."],
+  ["Journal", "Entries with a mood, and voice that becomes text."],
+  ["Travel", "Countdowns, packing lists and shared trip costs."],
+  ["Moodboard", "Polaroids with a handwritten note on the back."],
+  ["Focus Dial", "A watchmaker's dial for deep work."],
+  ["Nodo", "A companion that answers from your own things."],
+];
+
 type ActProps = {
   id: string;
   n: string;
@@ -47,31 +64,50 @@ type ActProps = {
   /** Which side the copy sits on; the 3D object takes the other. */
   side?: "left" | "right" | "center";
   night?: boolean;
+  /** A giant outlined word that drifts behind the phone as the act scrolls. */
+  word?: string;
+  /** Act length in screens; the act stays pinned for all but the last one. */
+  len?: number;
   /** Shown instead of the 3D stage on the lite and reduced paths (and without JS). */
   visual?: React.ReactNode;
   className?: string;
   children: React.ReactNode;
 };
 
-function Act({ id, n, title, italic, side = "left", night, visual, className, children }: ActProps) {
+function Act({ id, n, title, italic, side = "left", night, word, len = 2.6, visual, className, children }: ActProps) {
   const a = ACTS.find((x) => x.id === id)!;
   return (
-    <section id={id} data-act={id} data-chapter={id} className={`act act--${side}${night ? " act--night" : ""} ${className ?? ""}`} aria-labelledby={`${id}-title`}>
+    <section
+      id={id}
+      data-act={id}
+      data-chapter={id}
+      className={`act act--${side}${night ? " act--night" : ""} ${className ?? ""}`}
+      style={{ ["--len" as string]: len }}
+      aria-labelledby={`${id}-title`}
+    >
+      <div className="act__back" aria-hidden="true">
+        {word && <p className="act__word">{word}</p>}
+      </div>
       <div className="act__pin">
         <div className="wrap act__grid">
           <div className="act__copy">
-            <p className="act__kicker">
+            <p className="act__kicker act__line" style={{ ["--k" as string]: 0 }}>
               <span className="act__n">{n}</span>
               <span className="act__time t-num">{a.time}</span>
               <span className="act__label">{a.label}</span>
             </p>
-            <h2 id={`${id}-title`} className="t-display act__title">
+            <h2 id={`${id}-title`} className="t-display act__title act__line" style={{ ["--k" as string]: 1 }}>
               <KineticText text={title} italicWords={italic} />
             </h2>
-            {children}
+            {Children.toArray(children).map((child, i) => (
+              <div key={i} className="act__line" style={{ ["--k" as string]: i + 2 }}>
+                {child}
+              </div>
+            ))}
           </div>
           {visual && side !== "center" && <div className="act__visual">{visual}</div>}
         </div>
+        <span className="act__progress" aria-hidden="true" />
       </div>
     </section>
   );
@@ -88,21 +124,25 @@ export default async function Home() {
       <Intro />
       <ChapterRail chapters={ACTS} />
 
-      {/* I. Dawn: the ribbon N floats in ink */}
-      <section id="hero" data-act="hero" data-chapter="hero" className="act act--left act--hero" aria-labelledby="hero-title">
-        <HeroInk />
+      {/* Dawn: the ribbon N turns in ink */}
+      <section id="hero" data-act="hero" data-chapter="hero" className="act act--left act--hero" style={{ ["--len" as string]: 1.8 }} aria-labelledby="hero-title">
+        <div className="act__back" aria-hidden="true">
+          <HeroInk />
+        </div>
         <div className="act__pin">
           <div className="wrap act__grid">
             <div className="act__copy hero__copy">
-              <p className="t-eyebrow">{cfg.hero.eyebrow}</p>
-              <h1 id="hero-title" className="t-mega hero__title">
+              <p className="t-eyebrow act__line" style={{ ["--k" as string]: 0 }}>{cfg.hero.eyebrow}</p>
+              <h1 id="hero-title" className="t-mega hero__title act__line" style={{ ["--k" as string]: 1 }}>
                 <KineticText text="Curate your everyday." italicWords={["everyday."]} start="mount" />
               </h1>
-              <p className="t-lede hero__lede">
+              <p className="t-lede hero__lede act__line" style={{ ["--k" as string]: 2 }}>
                 <Wordmark /> keeps your notes, tasks, plans, habits, money, wardrobe, travel and journal in one calm, private app for Android.
               </p>
-              <Magnetic>{cta}</Magnetic>
-              <ul className="trust" aria-label="Promises">
+              <div className="act__line" style={{ ["--k" as string]: 3 }}>
+                <Magnetic>{cta}</Magnetic>
+              </div>
+              <ul className="trust act__line" style={{ ["--k" as string]: 4 }} aria-label="Promises">
                 <li>No ads</li>
                 <li>No trackers</li>
                 <li>Works offline</li>
@@ -113,24 +153,18 @@ export default async function Home() {
               <Monogram size="min(52vmin, 420px)" className="hero__mark" />
             </div>
           </div>
+          <p className="hero__cue t-label" aria-hidden="true">
+            <span>Scroll to begin the day</span>
+            <i />
+          </p>
+          <p className="hero__tap t-label" aria-hidden="true">Tap the N</p>
         </div>
-        <p className="hero__cue t-label" aria-hidden="true">
-          <span>Scroll to begin the day</span>
-          <i />
-        </p>
-        <p className="hero__tap t-label" aria-hidden="true">Tap the N</p>
       </section>
 
-      <Act
-        id="open"
-        n="I"
-        title="One app for the whole day."
-        italic={["whole"]}
-        visual={<Screenshot screen="home" />}
-      >
+      <Act id="open" n="I" word="EVERYDAY" title="One app for the whole day." italic={["whole"]} visual={<Screenshot screen="home" />}>
         <p className="t-lede">
-          Morning plans, midday spending, the evening&rsquo;s journal. Everything you keep track of, kept in one place that
-          feels like paper and works without a connection.
+          Morning plans, midday spending, the evening&rsquo;s journal. Everything you keep track of, in one place that feels
+          like paper and works without a connection.
         </p>
         <div className="act__stats">
           <div>
@@ -148,79 +182,108 @@ export default async function Home() {
         </div>
       </Act>
 
-      <Act id="capture" n="II" side="right" title="Say it once. It finds its place." italic={["finds"]} visual={<Screenshot screen="quick-add" />}>
-        <p className="t-lede">
-          One line becomes a task, a note, an expense or an event. Try it: type anything and press Capture.
-        </p>
+      <Act id="capture" n="II" side="right" word="CAPTURE" title="Say it once. It finds its place." italic={["finds"]} visual={<Screenshot screen="quick-add" />}>
+        <p className="t-lede">One line becomes a task, a note, an expense or an event. Type anything and press Capture.</p>
         <CaptureDemo />
-        <p className="t-label">Also from the Quick Settings tile, the app icon&rsquo;s shortcuts, or the Android share sheet.</p>
       </Act>
 
-      <Act id="views" n="III" title="Two ways to see the same day." italic={["same", "day."]} visual={<Screenshot screen="home" />}>
+      <Act id="views" n="III" word="Aa" title="Two ways to see the same day." italic={["same", "day."]} visual={<Screenshot screen="home" />}>
         <p className="t-lede">
-          <strong>Cards</strong> is tactile and alive. <strong>Editorial</strong> is a quiet magazine page with rules instead of boxes.
-          Switch here and the phone, and this whole site, follow.
+          Keep scrolling and watch the phone change from <strong>Cards</strong>, tactile and alive, to <strong>Editorial</strong>,
+          a quiet magazine page. Or switch it yourself: this whole site follows.
         </p>
         <ViewSwitch />
         <SpinPad />
       </Act>
 
-      <Act id="modules" n="IV" side="center" title="Every part of life, in orbit." italic={["orbit."]} className="act--modules">
+      <section id="tour" data-act="tour" data-chapter="tour" className="act act--center act--tour" style={{ ["--len" as string]: 6, ["--n" as string]: TOUR.length }} aria-labelledby="tour-title">
+        <div className="act__back" aria-hidden="true">
+          <div className="tour__names">
+            {TOUR.map(([name], i) => (
+              <p key={name} className="tour__name" style={{ ["--i" as string]: i }}>{name}</p>
+            ))}
+          </div>
+        </div>
+        <div className="act__pin">
+          <div className="wrap tour__grid">
+            <div className="tour__head act__line" style={{ ["--k" as string]: 0 }}>
+              <p className="act__kicker">
+                <span className="act__n">IV</span>
+                <span className="act__time t-num">09:00</span>
+                <span className="act__label">The tour</span>
+              </p>
+              <h2 id="tour-title" className="t-h1 tour__title">
+                One phone. <span className="it">Every world.</span>
+              </h2>
+            </div>
+            <ol className="tour__caps">
+              {TOUR.map(([name, line], i) => (
+                <li key={name} className="tour__cap" style={{ ["--i" as string]: i }}>
+                  <span className="tour__idx t-num">{String(i + 1).padStart(2, "0")} / {String(TOUR.length).padStart(2, "0")}</span>
+                  <span className="tour__capname">{name}</span>
+                  <span className="tour__line">{line}</span>
+                </li>
+              ))}
+            </ol>
+            <div className="tour__ticks" aria-hidden="true">
+              {TOUR.map(([name], i) => (
+                <span key={name} style={{ ["--i" as string]: i }} />
+              ))}
+            </div>
+            <div className="tour__lite">
+              <Screenshot screen="home" />
+            </div>
+          </div>
+          <span className="act__progress" aria-hidden="true" />
+        </div>
+      </section>
+
+      <Act id="modules" n="V" side="center" title="Every part of life, in orbit." italic={["orbit."]} className="act--modules" len={2.4}>
         <div className="act__lite">
           <Deal />
         </div>
         <div className="act__foot">
           <p className="t-lede act__centerlede">Fourteen parts, one calm system. Tap a card to open it.</p>
           <PersonaPicker />
-          <PersonaLede />
           <Marquee items={modules.map((m) => m.name)} />
         </div>
       </Act>
 
-      <Act id="plan" n="V" title="Cross it off. Feel it." italic={["Feel"]} visual={<Screenshot screen="tasks" />}>
+      <Act id="plan" n="VI" word="TODAY" title="Cross it off. Feel it." italic={["Feel"]} visual={<Screenshot screen="tasks" />}>
         <p className="t-lede">Write tasks the way you&rsquo;d say them. Finishing one draws an ink line through it. Go on:</p>
         <TaskTicker items={["Call the bank about the card", "Submit the lab report", "Book train to Pune", "Water the plants"]} />
-        <p className="muted">Today · Upcoming · Anytime · Done. Events and dated tasks share one planner timeline.</p>
       </Act>
 
-      <Act id="focus" n="VI" title="Time, well kept." italic={["well", "kept."]} visual={<Screenshot screen="focus" />}>
+      <Act id="focus" n="VII" word="FOCUS" title="Time, well kept." italic={["well", "kept."]} visual={<Screenshot screen="focus" />}>
         <p className="t-lede">
-          A watchmaker&rsquo;s dial for deep work, with ambient sound, lock-screen controls and a Quick Settings tile. Scroll
-          faster and the movement runs faster.
+          A watchmaker&rsquo;s dial for deep work, with ambient sound and lock-screen controls. Scroll faster and the movement
+          runs faster.
         </p>
         <FocusDial />
       </Act>
 
-      <Act id="money" n="VII" side="right" title="Every rupee, accounted for." italic={["accounted"]} visual={<Screenshot screen="expenses" />}>
-        <p className="t-lede">See what you can spend today, not just this month. Move the budget and watch it change:</p>
+      <Act id="money" n="VIII" side="right" word="₹" title="Every rupee, accounted for." italic={["accounted"]} visual={<Screenshot screen="expenses" />}>
+        <p className="t-lede">See what you can spend today, not just this month. Move the budget:</p>
         <SpendSlider />
-        <Letterpress />
       </Act>
 
-      <Act id="evening" n="VIII" night title="A small ritual, every evening." italic={["ritual,"]} visual={<Screenshot screen="habits" />}>
-        <p className="t-lede">
-          Close the day with a check-in: the wax seal presses the ribbon N. Runs grow, freezes cover the days life gets in the
-          way, and badges arrive with a small ceremony.
-        </p>
+      <Act id="evening" n="IX" night word="RITUAL" title="A small ritual, every evening." italic={["ritual,"]} className="act--evening" visual={<Screenshot screen="habits" />}>
+        <p className="t-lede">Close the day with a check-in. The wax seal presses the ribbon N, and your run grows by one.</p>
         <HoldSeal />
         <StreakFill />
       </Act>
 
-      <Act id="nodo" n="IX" night title="A companion that forgets on request." italic={["forgets"]} visual={<Screenshot screen="nodo" />}>
+      <Act id="nodo" n="X" night word="NODO" title="A companion that forgets on request." italic={["forgets"]} visual={<Screenshot screen="nodo" />}>
         <AskNodo />
         <Memories />
-        <p className="t-label">
-          {cfg.nodo_cloud_opt_in
-            ? "Without an account, Nodo works on the device. Cloud answers only if you say yes."
-            : "Without an account, Nodo works on the device. Signed in, cloud answers can be switched off any time."}
-        </p>
       </Act>
 
       <Act
         id="privacy"
-        n="X"
+        n="XI"
         side="right"
         night
+        word="YOURS"
         title="Nothing for sale. Everything yours."
         italic={["yours."]}
         // eslint-disable-next-line @next/next/no-img-element
@@ -231,43 +294,25 @@ export default async function Home() {
           <Scramble text="AES-256-GCM · ANDROID KEYSTORE · OPTIONAL E2E PASSPHRASE" />
         </p>
         <p className="muted">
-          Encrypted on your phone. Synced data is end-to-end encrypted if you set a passphrase; without one it is protected in
-          transit and at rest. <Link href="/privacy">Privacy policy</Link> · <Link href="/security">Security</Link>
+          Synced data is end-to-end encrypted if you set a passphrase; without one it is protected in transit and at rest.{" "}
+          <Link href="/privacy">Privacy policy</Link> · <Link href="/security">Security</Link>
         </p>
       </Act>
 
-      <section id="finale" data-act="finale" data-chapter="finale" className="act act--left act--finale" aria-labelledby="finale-title">
-        <div className="act__pin">
-          <div className="wrap act__grid">
-            <div className="act__copy">
-              <p className="act__kicker">
-                <span className="act__n">XI</span>
-                <span className="act__time t-num">06:00</span>
-                <span className="act__label">Tomorrow</span>
-              </p>
-              <h2 id="finale-title" className="t-display">
-                <KineticText text="Your life, curated." italicWords={["curated."]} />
-              </h2>
-              <p className="t-h3">
-                Get <Wordmark /> for Android.
-              </p>
-              <Magnetic>{cta}</Magnetic>
-              <div className="row" style={{ gap: 18 }}>
-                <div className="qr" aria-hidden="true" dangerouslySetInnerHTML={{ __html: qr }} />
-                <p className="t-label" style={{ maxWidth: 220 }}>
-                  Scan with your Android phone · version {release?.version_name ?? APP.versionName}
-                </p>
-              </div>
-              <p className="t-label">
-                Or <Link href="/try">try it in your browser first</Link>.
-              </p>
-            </div>
-            <div className="act__visual">
-              <Screenshot screen="home" />
-            </div>
-          </div>
+      <Act id="finale" n="XII" word="TOMORROW" title="Your life, curated." italic={["curated."]} className="act--finale" len={2} visual={<Screenshot screen="home" />}>
+        <p className="t-h3">
+          Get <Wordmark /> for Android.
+        </p>
+        <Magnetic>{cta}</Magnetic>
+        <div className="row" style={{ gap: 18 }}>
+          <div className="qr" aria-hidden="true" dangerouslySetInnerHTML={{ __html: qr }} />
+          <p className="t-label" style={{ maxWidth: 220 }}>
+            Scan with your Android phone · version {release?.version_name ?? APP.versionName}
+            <br />
+            Or <Link href="/try">try it in your browser first</Link>.
+          </p>
         </div>
-      </section>
+      </Act>
 
       {testimonials.length > 0 && cfg.flags.testimonials && (
         <section className="section wrap" aria-label="What people say">

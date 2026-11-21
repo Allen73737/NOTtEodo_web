@@ -21,7 +21,9 @@ All durations and curves come from `src/content/generated/tokens.ts` / `src/styl
 
 **Deviations from the brief (honest list):**
 - Scroll choreography uses CSS sticky + a single rAF progress loop instead of GSAP ScrollTrigger pinning (more robust with React and with reduced motion); GSAP is installed but not required.
-- The 3D world uses one persistent canvas with drei `<View>` per chapter rather than one camera on a Theatre.js spline. No Theatre.js state is committed.
+- The homepage is one fixed 3D stage (`src/three/journey/`) behind pinned acts. Each act is `--len` screens tall; its copy and back layers are sticky. The scroll loop (`FilmProvider`) writes `--a`, `--lp` and `--x` per act, so all copy motion is a pure CSS function of scroll. The 3D timeline (`timeline.ts`) gives each act a `from` and a `to` pose and a list of `screens`. The phone travels between the poses while the act is pinned, and its screen steps through the list with an ink-bleed shader. The tour captions use the same index formula as the phone, so they change together.
+- The opening title (`Intro.tsx`) plays on every page load, in the visitor's theme (with its own day/night switch). Its first part is pure CSS from first paint. It exits by diving through the ribbon N, using an SVG mask. It can be skipped with a button, Esc or Enter, and reduced motion gets a short still version.
+- The logo is traced from the app's PNGs by `scripts/trace-logo.ts` and is always one colour (`currentColor`).
 - No `@react-three/postprocessing` (bloom/DOF) and no Rapier physics: the card deal is CSS-driven by scroll progress.
 - Shaders live as strings in TS modules (no raw-file loader).
 - Lite mode uses posters and real screenshots as fallbacks, not pre-rendered video sequences.

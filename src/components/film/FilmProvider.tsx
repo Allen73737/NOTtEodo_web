@@ -21,12 +21,15 @@ export const progress = new Map<string, number>();
 export const scrollState = { velocity: 0 };
 
 /**
- * Where the reader is in the story. `f` is a float act index: 2.0 means act 2 is centred and
- * holding; 2.5 means halfway between acts 2 and 3. The 3D stage interpolates its keyframes on it.
+ * Where the reader is in the story. `t` is the act index plus the share of that act scrolled
+ * (2.4 = 40% through act 2). `hold` is each act's pinned share of its height; `lp` is each act's
+ * progress through its pinned part (0..1). The 3D stage and the act objects read these.
  */
 export const journey = {
-  f: 0,
+  t: 0,
   acts: [] as string[],
+  hold: [] as number[],
+  lp: new Map<string, number>(),
   /** Pointer position, -1..1 on both axes. */
   pointer: { x: 0, y: 0 },
   /** Extra phone spin from dragging (radians), and whether a drag is under way. */
@@ -36,8 +39,15 @@ export const journey = {
 
 const Journey = dynamic(() => import("@/three/journey/Journey"), { ssr: false });
 
-/** Time spent holding still in the middle of each act, as a share of its height. */
-const HOLD = 0.36;
+/** Writes a CSS variable only when it changed, so idle frames cost no style work. */
+const varCache = new WeakMap<HTMLElement, Record<string, string>>();
+function setVar(el: HTMLElement, name: string, value: string) {
+  const c = varCache.get(el) ?? {};
+  if (c[name] === value) return;
+  c[name] = value;
+  varCache.set(el, c);
+  el.style.setProperty(name, value);
+}
 
 export function FilmProvider({ children }: { children: ReactNode }) {
   const [mode, setMode] = useState<FilmMode>("reduced");
@@ -51,7 +61,8 @@ export function FilmProvider({ children }: { children: ReactNode }) {
     const nav = navigator as Navigator & { connection?: { saveData?: boolean }; deviceMemory?: number; getBattery?: () => Promise<{ level: number; charging: boolean }> };
     let cancelled = false;
     (async () => {
-      // deviceMemory is capped at 8 and often reports 4 on capable laptops, so only very small values count.
+      // Any device with WebGL2 gets the 3D story, unless it asks to save data, has almost no memory or
+      // is nearly out of battery. (deviceMemory is capped at 8 and often reports 4 on capable laptops.)
       let lite = Boolean(nav.connection?.saveData) || (nav.deviceMemory !== undefined && nav.deviceMemory < 2);
       if (!document.createElement("canvas").getContext("webgl2")) lite = true;
       try {
@@ -59,16 +70,6 @@ export function FilmProvider({ children }: { children: ReactNode }) {
         if (b && !b.charging && b.level < 0.15) lite = true;
       } catch {
         /* not available */
-      }
-      if (!lite) {
-        try {
-          const { getGPUTier } = await import("detect-gpu");
-          const gpu = await getGPUTier({ benchmarksURL: "/gpu-benchmarks" });
-          // Tier 1 integrated GPUs handle this scene well; only blocklisted or unusable ones drop to lite.
-          lite = gpu.type === "BLOCKLISTED" || (gpu.tier === 0 && gpu.type !== "FALLBACK");
-        } catch {
-          /* no benchmark data: WebGL2 is enough */
-        }
       }
       if (!cancelled) setMode(lite ? "lite" : "full");
     })();
@@ -91,23 +92,29 @@ export function FilmProvider({ children }: { children: ReactNode }) {
         const r = el.getBoundingClientRect();
         const v = Math.max(0, Math.min(1, (vh - r.top) / (r.height + vh)));
         progress.set(el.dataset.chapter!, v);
-        el.style.setProperty("--p", v.toFixed(4));
+        setVar(el, "--p", v.toFixed(3));
       }
-      // Story position: hold in the middle of each act, travel across the boundaries.
-      const anchor = vh * 0.5;
-      let f = 0;
+      // Story position. Acts are contiguous, so exactly one has its top above the viewport top.
+      // Each act also gets CSS variables for scroll-scrubbed motion:
+      //   --a  screens scrolled since the act's top reached the viewport top (negative while it arrives)
+      //   --lp progress through its pinned part, 0..1
+      //   --x  progress of its exit, 0..1, once it un-pins
+      let t = 0;
       for (let i = 0; i < acts.length; i++) {
-        const r = acts[i]!.getBoundingClientRect();
-        if (i === acts.length - 1 || r.bottom > anchor) {
-          const local = Math.max(0, Math.min(1, (anchor - r.top) / r.height));
-          const c = local - 0.5;
-          const h = HOLD / 2;
-          const off = Math.abs(c) <= h ? 0 : (Math.sign(c) * (Math.abs(c) - h)) / (0.5 - h) / 2;
-          f = Math.max(0, Math.min(acts.length - 1, i + off));
-          break;
-        }
+        const el = acts[i]!;
+        const r = el.getBoundingClientRect();
+        const pin = Math.max(1, r.height - vh);
+        const hold = pin / r.height;
+        journey.hold[i] = hold;
+        const lp = Math.max(0, Math.min(1, -r.top / pin));
+        const x = Math.max(0, Math.min(1, (-r.top - pin) / vh));
+        journey.lp.set(el.dataset.act!, lp);
+        setVar(el, "--a", Math.max(-2, Math.min(4, -r.top / vh)).toFixed(3));
+        setVar(el, "--lp", lp.toFixed(3));
+        setVar(el, "--x", x.toFixed(3));
+        if (r.top <= 0 && (r.bottom > 0 || i === acts.length - 1)) t = i + Math.max(0, Math.min(1, -r.top / r.height));
       }
-      journey.f = f;
+      journey.t = t;
       // The stage fades out as the last act leaves, so it never sits over the footer.
       const end = acts[acts.length - 1]?.getBoundingClientRect();
       if (end) document.documentElement.style.setProperty("--journey-out", Math.max(0, Math.min(1, (vh * 0.6 - end.bottom) / (vh * 0.45))).toFixed(3));

@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { journey } from "@/components/film/FilmProvider";
 import { FX, type Fx, type Pose } from "./timeline";
 
 const pose = (): Pose => ({ p: [0, 0, 0], r: [0, 0, 0], s: 1, v: 0 });
@@ -14,6 +15,7 @@ export const live = {
   fx: Object.fromEntries(FX.map((k) => [k, 0])) as Record<Fx, number>,
   screen: "home",
   act: "hero",
+  screenIndex: 0,
   portrait: false,
   /** Half the viewport width in world units at z = 0. */
   half: 3,
@@ -27,6 +29,9 @@ export function place(p: readonly [number, number, number], out: THREE.Vector3, 
   if (live.portrait) return out.set(p[0] * live.half * 0.18, p[1] * 0.6 + vh * 0.2, p[2]);
   return out.set(p[0] * live.half, p[1], p[2]);
 }
+
+/** An act's progress through its pinned part, 0..1. */
+export const lpOf = (act: string) => journey.lp.get(act) ?? 0;
 
 export const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 export const ease = (x: number) => 1 - Math.pow(1 - clamp01(x), 3);

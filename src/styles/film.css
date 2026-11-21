@@ -13,20 +13,36 @@ html.journey-ready .journey {
   opacity: calc(1 - var(--journey-out, 0));
 }
 
-/* Acts: tall sections; the copy scrolls past while the 3D object holds, then travels. */
+/*
+ * Acts are pinned scenes. Each is --len screens tall; its two sticky layers hold for all but the
+ * last screen, then scroll away as the next act arrives:
+ *   .act__back  below the 3D stage (giant words, the hero ink, the night wipe)
+ *   .act__pin   above the 3D stage (the copy)
+ * The scroll loop writes --a (screens since the act's top passed the viewport top; negative while
+ * it arrives), --lp (progress through the pin, 0..1) and --x (exit, 0..1). Every motion below is a
+ * pure function of those, so it is scrubbed by the scroll, forwards and backwards.
+ */
 .act {
   position: relative;
-  min-height: 165svh;
-  display: grid;
-  align-items: center;
-  overflow-x: clip;
+  height: calc(var(--len, 2.6) * 100svh);
+}
+.act__back {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  margin-bottom: -100svh;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 .act__pin {
-  width: 100%;
-  min-height: 100svh;
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  z-index: 2;
   display: grid;
   align-items: center;
-  padding-block: calc(var(--nav-h) + 32px) 48px;
+  padding-block: calc(var(--nav-h) + 20px) 32px;
 }
 .act__grid {
   display: grid;
@@ -38,46 +54,82 @@ html.journey-ready .journey {
   grid-column: 1 / span 5;
   grid-row: 1;
   position: relative;
-  z-index: 2;
   display: grid;
-  gap: clamp(18px, 2vw, 28px);
+  gap: clamp(14px, 1.8vw, 24px);
   align-content: center;
 }
 .act--right .act__copy {
   grid-column: 8 / span 5;
 }
+
+/* Each line of copy rises out of blur as the act arrives, staggered by --k, and drifts up and away
+   at different speeds as it leaves. */
+.act__line {
+  --in: clamp(0, calc((var(--a, 5) + 0.8 - var(--k, 0) * 0.075 - var(--delay, 0)) * 2.4), 1);
+  --out: var(--x, 0);
+  opacity: calc(var(--in) - var(--out) * 1.4);
+  transform: translate3d(0, calc((1 - var(--in)) * 72px - var(--out) * (30px + var(--k, 0) * 22px)), 0);
+  filter: blur(calc((1 - var(--in)) * 10px + var(--out) * 6px));
+}
+
+/* The giant outlined word behind the phone, drifting across as the act scrolls. */
+.act__word {
+  position: absolute;
+  top: 52%;
+  left: 0;
+  margin: 0;
+  white-space: nowrap;
+  font: italic 400 clamp(7rem, 24vw, 24rem) / 0.9 var(--font-display);
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1.2px color-mix(in oklab, var(--c-text) 20%, transparent);
+  transform: translate3d(calc(30vw - var(--lp, 0.5) * 70vw), -50%, 0);
+  opacity: calc(clamp(0, calc(var(--a, 5) + 0.9), 1) - var(--x, 0));
+}
+.act--right .act__word {
+  transform: translate3d(calc(-40vw + var(--lp, 0.5) * 60vw), -50%, 0);
+}
+
+/* A hairline at the foot of each pinned scene shows how far through it you are. */
+.act__progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: calc(var(--lp, 0) * 100%);
+  background: var(--c-accent);
+  opacity: calc(1 - var(--x, 0) * 2);
+}
+
 .act__visual {
   grid-column: 7 / span 6;
   grid-row: 1;
   position: relative;
-  z-index: 2;
   display: grid;
   place-items: center;
-  transition: opacity 600ms var(--e-silk);
 }
 .act--right .act__visual {
   grid-column: 1 / span 5;
 }
 .act__visual .phone,
 .act__visual img {
-  max-width: min(330px, 100%);
+  max-width: min(320px, 100%);
 }
 .act__visual img {
   border-radius: var(--radius-2xl);
   max-width: 100%;
 }
-/* With the 3D stage, the visual column stays empty: that's where the object travels. */
+/* With the 3D stage, the visual column stays empty: that's where the phone travels. */
 html[data-film="full"] .act__visual {
   visibility: hidden;
-  opacity: 0;
 }
 .act__title {
   max-width: 13ch;
   margin: 0;
-  font-size: calc(clamp(2.5rem, 5vw, 5.2rem) * var(--ed, 1));
+  font-size: calc(clamp(2.4rem, 4.6vw, 4.8rem) * var(--ed, 1));
 }
 .act .board .t-display {
-  font-size: calc(clamp(2rem, 3.8vw, 3.6rem) * var(--ed, 1));
+  font-size: calc(clamp(1.8rem, 3.2vw, 3rem) * var(--ed, 1));
 }
 .act--modules .marquee {
   width: 100%;
@@ -89,6 +141,128 @@ html[data-film="full"] .act__visual {
 }
 .act--center .act__title {
   max-width: 18ch;
+}
+
+/* Evening: night falls as a circle of ink spreading from where the seal sits. */
+.act--evening {
+  --delay: 0.4;
+}
+:root:not([data-mode="dark"]) .act.act--evening.act--night {
+  background: var(--c-canvas);
+}
+:root:not([data-mode="dark"]) .act--evening .act__back::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--c-inverse-surface);
+  clip-path: circle(calc(clamp(0, calc((var(--a, 5) + 0.85) * 1.2), 1.5) * 80vmax) at 72% 55%);
+}
+:root:not([data-mode="dark"]) .act--evening .act__word {
+  -webkit-text-stroke-color: color-mix(in oklab, var(--c-inverse-text) 18%, transparent);
+}
+
+/* The tour: centre stage, the phone steps through the app; captions and names change in step. */
+.tour__grid {
+  position: relative;
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  align-items: center;
+}
+.tour__head {
+  grid-column: 1;
+  display: grid;
+  gap: 10px;
+  align-self: start;
+}
+.tour__title {
+  margin: 0;
+}
+.tour__caps {
+  grid-column: 1;
+  grid-row: 2;
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: 15rem;
+}
+/* --seg runs 0..1 while caption i is the current one (the 3D phone uses the same formula). */
+.tour__cap,
+.tour__name {
+  --seg: calc(var(--lp, 0) * var(--n) * 0.92 + 0.25 - var(--i));
+  --c: calc(var(--seg) - 0.5);
+  --vis: clamp(0, calc((0.5 - max(var(--c), calc(var(--c) * -1))) * 7), 1);
+}
+.tour__cap {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  gap: 10px;
+  opacity: var(--vis);
+  transform: translate3d(0, calc(var(--c) * -110px), 0);
+  filter: blur(calc((1 - var(--vis)) * 8px));
+}
+.tour__idx {
+  font: 500 0.85rem/1 var(--font-mono);
+  color: var(--c-accent);
+  letter-spacing: 0.08em;
+}
+.tour__capname {
+  font: 400 clamp(2.4rem, 4.4vw, 4.4rem) / 1 var(--font-display);
+  letter-spacing: -0.02em;
+}
+.tour__line {
+  font: italic 400 clamp(1.05rem, 1.5vw, 1.35rem) / 1.35 var(--font-display);
+  color: var(--c-text-muted);
+  max-width: 24ch;
+}
+.tour__ticks {
+  grid-column: 3;
+  grid-row: 2;
+  justify-self: end;
+  display: grid;
+  gap: 10px;
+}
+.tour__ticks span {
+  --seg: calc(var(--lp, 0) * var(--n) * 0.92 + 0.25 - var(--i));
+  --on: clamp(0, calc(1 - max(calc(var(--seg) - 0.5), calc(0.5 - var(--seg))) * 2.2), 1);
+  display: block;
+  height: 2px;
+  width: calc(16px + var(--on) * 40px);
+  margin-left: auto;
+  background: var(--c-text);
+  opacity: calc(0.25 + var(--on) * 0.75);
+}
+.tour__names {
+  position: absolute;
+  inset: 0;
+}
+.tour__name {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: 0;
+  white-space: nowrap;
+  font: italic 400 clamp(6rem, 19vw, 19rem) / 1 var(--font-display);
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1.2px color-mix(in oklab, var(--c-text) 22%, transparent);
+  opacity: var(--vis);
+  transform: translate3d(calc(-50% + var(--c) * -60vw), -50%, 0) scale(calc(0.9 + var(--vis) * 0.1));
+}
+.tour__lite {
+  grid-column: 2;
+  grid-row: 2;
+  justify-self: center;
+}
+.tour__lite .phone {
+  max-width: 280px;
+}
+html[data-film="full"] .tour__lite {
+  visibility: hidden;
 }
 
 /* Kicker: numeral · time of day · label */
@@ -141,8 +315,9 @@ html[data-film="full"] .act__visual {
   text-align: center;
   min-height: calc(100svh - var(--nav-h) - 80px);
 }
-.act--center .act__foot {
+.act--center .act__line:last-child {
   margin-top: auto;
+  width: 100%;
 }
 .act__centerlede {
   margin: 0;
@@ -186,9 +361,6 @@ html[data-film="full"] .act__lite {
 }
 
 /* Hero */
-.act--hero {
-  min-height: 100svh;
-}
 .act--hero .act__copy {
   grid-column: 1 / span 6;
 }
@@ -197,7 +369,6 @@ html[data-film="full"] .act__lite {
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 0;
 }
 .hero__ink--still,
 .ink-field[data-fallback="true"] {
@@ -226,6 +397,7 @@ html[data-film="full"] .act__lite {
   color: var(--c-text);
 }
 .hero__cue {
+  opacity: calc(1 - var(--lp, 0) * 4);
   position: absolute;
   left: 50%;
   bottom: 26px;
@@ -288,6 +460,9 @@ html[data-film="full"] .hero__tap {
 /* Finale */
 .act--finale .act__copy {
   grid-column: 1 / span 6;
+}
+.act--finale {
+  --delay: 0.2;
 }
 .qr {
   width: 96px;
@@ -421,8 +596,52 @@ html[data-film="full"] .hero__tap {
   /* If scripts never run, the title still steps aside. */
   animation: intro-failsafe 0s 9s forwards;
 }
-html.no-js .intro,
-html.intro-seen .intro {
+html.no-js .intro {
+  display: none;
+}
+.intro__ripple {
+  position: absolute;
+  inset: 18%;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  opacity: 0;
+  animation: intro-ripple 1.6s var(--e-silk) 1.45s forwards;
+}
+@keyframes intro-ripple {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+}
+.intro__mode {
+  position: absolute;
+  left: clamp(18px, 4vw, 48px);
+  top: clamp(18px, 4vh, 40px);
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid var(--c-hairline);
+  background: transparent;
+  color: var(--c-text-soft);
+  cursor: pointer;
+}
+.intro__mode-day,
+.intro__mode-night {
+  transition: color var(--d-quick);
+}
+:root:not([data-mode="dark"]) .intro__mode-day,
+:root[data-mode="dark"] .intro__mode-night {
+  color: var(--c-text);
+  font-weight: 700;
+}
+.intro.is-leaving .intro__mode {
+  opacity: 0;
+}
+html.reduced .intro__ripple {
   display: none;
 }
 html.intro-on {
@@ -930,8 +1149,15 @@ html.reduced .intro__words .intro__line {
 /* ---------- Phones and narrow screens ---------- */
 @media (max-width: 860px) {
   .act {
-    min-height: 0;
+    height: auto;
+    min-height: 150svh;
+  }
+  .act__pin {
+    position: relative;
+    height: auto;
+    min-height: 100svh;
     align-items: start;
+    padding-block: calc(var(--nav-h) + 24px) 56px;
   }
   .act__grid {
     grid-template-columns: minmax(0, 1fr);
@@ -949,15 +1175,13 @@ html.reduced .intro__words .intro__line {
   .act__visual {
     order: -1;
   }
-  .act__pin {
-    padding-block: calc(var(--nav-h) + 24px) 56px;
+  .act__line {
+    --in: clamp(0, calc((var(--a, 5) + 1.1 - var(--k, 0) * 0.05) * 2.4), 1);
+    --out: 0;
   }
-  /* With 3D, the object sits in the top half of the screen and the copy rides over it on paper. */
-  html[data-film="full"] .act {
-    min-height: 150svh;
-  }
+  /* With 3D, the phone sits in the top of the screen and the copy rides over it on paper. */
   html[data-film="full"] .act__pin {
-    padding-top: 72svh;
+    padding-top: 70svh;
   }
   html[data-film="full"] .act--hero .act__pin {
     padding-top: 50svh;
@@ -979,6 +1203,41 @@ html.reduced .intro__words .intro__line {
   html[data-film="full"] .act--center .act__copy {
     min-height: 0;
   }
+  .act--center .act__copy {
+    min-height: 0;
+  }
+  /* The tour stays pinned on phones: phone above, captions below. */
+  .act--tour {
+    height: calc(var(--len) * 100svh);
+  }
+  .act--tour .act__pin,
+  html[data-film="full"] .act--tour .act__pin {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    min-height: 0;
+    padding-block: calc(var(--nav-h) + 16px) 24px;
+  }
+  /* Phone in the top half; heading and the current caption below it. */
+  .tour__grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto auto;
+  }
+  .tour__head {
+    grid-row: 2;
+  }
+  .tour__caps {
+    grid-column: 1;
+    grid-row: 3;
+    height: 9.5rem;
+  }
+  .tour__ticks,
+  .tour__lite {
+    display: none;
+  }
+  .tour__capname {
+    font-size: 2.2rem;
+  }
   .act__stats {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -993,16 +1252,43 @@ html.reduced .intro__words .intro__line {
   }
 }
 
-/* Reduced motion: no smooth scroll or travel; acts are ordinary, compact sections. */
+/* Reduced motion: no pinning, scrubbing or travel; acts are ordinary, compact sections. */
 html.reduced .act {
-  min-height: 0;
+  height: auto;
+}
+html.reduced .act__pin,
+html.reduced .act__back {
+  position: relative;
+  height: auto;
+  margin-bottom: 0;
+}
+html.reduced .act__back {
+  display: none;
 }
 html.reduced .act__pin {
-  min-height: 0;
   padding-block: clamp(72px, 10vw, 140px);
 }
 html.reduced .act--hero .act__pin {
   min-height: 100svh;
+}
+html.reduced .act__line {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+html.reduced .tour__caps {
+  height: auto;
+  display: grid;
+  gap: 24px;
+}
+html.reduced .tour__cap {
+  position: static;
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+html.reduced .tour__ticks {
+  display: none;
 }
 
 /* Shared helpers used by other pages */
