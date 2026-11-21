@@ -1,5 +1,6 @@
 "use client";
 
+import { Wordmark } from "@/components/brand/Wordmark";
 import { Check, Copy } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -62,7 +63,7 @@ export function LiveRelease({ initial }: { initial: Release | null }) {
         {fresh && <span className="chip">Just released</span>}
       </div>
       <p className="t-h2">
-        NOT<span className="it" style={{ color: "var(--c-accent)" }}>te</span>odo {release.version_name}
+        <Wordmark /> {release.version_name}
       </p>
       <dl className="facts">
         <div>

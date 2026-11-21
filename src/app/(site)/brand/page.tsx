@@ -9,18 +9,18 @@ export const metadata: Metadata = { title: "Brand guidelines", description: "How
 export default function BrandPage() {
   return (
     <>
-      <PageHeader eyebrow="Brand" title="Ivory, oxblood, and an italic t and e." italic={["italic"]} />
+      <PageHeader eyebrow="Brand" title="One ink. One ribbon. One name." italic={["ribbon."]} />
       <section className="prose-wrap legal__body">
         <div className="legal__section">
           <h2 className="t-h3">The wordmark</h2>
           <p className="t-h1"><Wordmark /></p>
-          <p>Bodoni Moda. The lowercase <em>t</em> and <em>e</em> are italic and in the accent colour; the rest is upright. Always written NOTtEodo in plain text.</p>
+          <p>Upright serif capitals with a lowercase <em>t</em>: always written <strong>NOTtEodo</strong>, capital N, O, T and E. The logo is one colour only, the colour of the text around it (ink on ivory, ivory on black). Never tint, outline, recolour or add effects to it.</p>
         </div>
         <div className="legal__section">
           <h2 className="t-h3">The ribbon N</h2>
-          <div className="row" style={{ gap: 24, color: "var(--c-accent)" }}>
+          <div className="row" style={{ gap: 24 }}>
             <Monogram size={120} />
-            <div className="card pad" style={{ background: colors.dark.canvas, color: colors.dark.accent }}><Monogram size={80} /></div>
+            <div className="card pad" style={{ background: colors.dark.canvas, color: colors.dark.text }}><Monogram size={80} /></div>
           </div>
           <p>Clear space: at least the width of one loop on every side. Minimum size: 24 px.</p>
         </div>

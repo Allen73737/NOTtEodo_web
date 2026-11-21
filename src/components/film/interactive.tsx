@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Monogram } from "@/components/brand/Monogram";
-import { Wordmark } from "@/components/brand/Wordmark";
 import { Screenshot } from "@/components/shots/Screenshot";
 import { modulesFor, personas, type Module } from "@/content/site";
 import { parseCapture, type Parsed } from "@/lib/capture";
@@ -38,62 +36,6 @@ export function useChapterProgress(id: string) {
 }
 const band = (p: number, a: number, b: number) => Math.max(0, Math.min(1, (p - a) / (b - a)));
 
-/* ------------------------------------------------------------- preloader */
-
-/** Wordmark and ribbon N draw themselves; a lost-wax bar shows real load progress. Once per session, ≤2.2 s, skippable. */
-export function Preloader() {
-  const [show, setShow] = useState(false);
-  const [pct, setPct] = useState(0);
-  useEffect(() => {
-    if (document.documentElement.classList.contains("reduced")) return;
-    try {
-      if (sessionStorage.getItem("nt-preloaded")) return;
-      sessionStorage.setItem("nt-preloaded", "1");
-    } catch {
-      return;
-    }
-    setShow(true);
-    const started = performance.now();
-    let done = false;
-    const finish = () => {
-      if (done) return;
-      done = true;
-      setPct(100);
-      setTimeout(() => setShow(false), 380);
-    };
-    const tick = () => {
-      if (done) return;
-      const imgs = [...document.images];
-      const loaded = imgs.filter((i) => i.complete).length / Math.max(1, imgs.length);
-      const fonts = document.fonts.status === "loaded" ? 1 : 0.4;
-      setPct(Math.round(Math.min(98, (loaded * 0.6 + fonts * 0.4) * 100)));
-      if (performance.now() - started > 2200 || (loaded > 0.9 && fonts === 1 && performance.now() - started > 1400)) finish();
-      else requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-    const skip = (e: KeyboardEvent | PointerEvent) => {
-      if (e.type === "pointerdown" || (e as KeyboardEvent).key === "Escape") finish();
-    };
-    addEventListener("keydown", skip);
-    addEventListener("pointerdown", skip);
-    return () => {
-      removeEventListener("keydown", skip);
-      removeEventListener("pointerdown", skip);
-    };
-  }, []);
-  if (!show) return null;
-  return (
-    <div className={`preloader${pct >= 100 ? " is-done" : ""}`} role="status" aria-label="Loading">
-      <Monogram size={88} draw className="preloader__mark" />
-      <Wordmark variant="stroke" className="preloader__word" />
-      <div className="preloader__bar" aria-hidden="true">
-        <span style={{ width: `${pct}%` }} />
-      </div>
-      <p className="t-label">Press Esc to skip</p>
-    </div>
-  );
-}
-
 /* ------------------------------------------------------------- ink hero */
 
 export function HeroInk() {
@@ -103,8 +45,8 @@ export function HeroInk() {
 
 /* ------------------------------------------------------------ chapter rail */
 
-const NUMERALS = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII"];
-export function ChapterRail({ chapters }: { chapters: { id: string; label: string }[] }) {
+/** The day so far: each act's time of day, with the current one lit. Doubles as chapter links. */
+export function ChapterRail({ chapters }: { chapters: { id: string; label: string; time?: string }[] }) {
   const [active, setActive] = useState(0);
   useEffect(() => {
     const io = new IntersectionObserver(
@@ -118,14 +60,16 @@ export function ChapterRail({ chapters }: { chapters: { id: string; label: strin
     return () => io.disconnect();
   }, [chapters]);
   return (
-    <nav className="rail no-print" aria-label="Chapters">
-      {chapters.map((c, i) => (
-        <a key={c.id} href={`#${c.id}`} aria-current={i === active ? "true" : undefined} title={c.label}>
-          <span className="rail__num">{NUMERALS[i]}</span>
-          <span className="rail__label">{c.label}</span>
-        </a>
-      ))}
-    </nav>
+    <>
+      <nav className="rail no-print" aria-label="Chapters">
+        {chapters.map((c, i) => (
+          <a key={c.id} href={`#${c.id}`} aria-current={i === active ? "true" : undefined} title={c.label}>
+            <span className="rail__num">{c.time ?? i + 1}</span>
+            <span className="rail__label">{c.label}</span>
+          </a>
+        ))}
+      </nav>
+    </>
   );
 }
 
@@ -195,7 +139,7 @@ export function AaWipe() {
 export function Deal() {
   const [persona] = usePersona();
   const list = modulesFor(persona).slice(0, 14);
-  const p = useChapterProgress("deal");
+  const p = useChapterProgress("modules");
   return (
     <ul className="deal" style={{ ["--deal" as string]: band(p, 0.15, 0.5) }}>
       {list.map((m, i) => (
@@ -278,7 +222,7 @@ export function StrikeList({ items, chapter }: { items: string[]; chapter: strin
 
 /** The streak calendar filling day by day as the chapter scrolls (an illustration of the app's month view). */
 export function StreakFill() {
-  const p = useChapterProgress("rhythm");
+  const p = useChapterProgress("evening");
   const days = 28;
   const filled = Math.round(band(p, 0.3, 0.75) * 21);
   return (
@@ -369,8 +313,8 @@ export function AskNodo() {
 
 /* ------------------------------------------------------------- strike board */
 
-export function StrikeBoard() {
-  const p = useChapterProgress("free");
+export function StrikeBoard({ chapter = "privacy" }: { chapter?: string }) {
+  const p = useChapterProgress(chapter);
   const words = ["Ads.", "Trackers.", "Data brokers."];
   const after = band(p, 0.62, 0.72);
   return (

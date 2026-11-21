@@ -1,5 +1,6 @@
 "use client";
 
+import { Wordmark } from "@/components/brand/Wordmark";
 import {
   BookOpen,
 
@@ -109,7 +110,7 @@ export function Simulator() {
             <Menu size={18} />
           </button>
           <span className="sim__wordmark">
-            NOT<i>te</i>odo
+            <Wordmark />
           </span>
           <button className="sim__icon" aria-label="Search" onClick={() => say("Universal Spotlight searches everything in the app.")}>
             <Search size={17} />

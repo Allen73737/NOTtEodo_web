@@ -31,6 +31,9 @@
   font-size: 1.3rem;
   color: var(--c-text);
   margin-right: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
 .nav__links {
   display: flex;

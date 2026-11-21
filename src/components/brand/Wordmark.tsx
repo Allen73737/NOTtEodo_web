@@ -1,31 +1,22 @@
 import { clsx } from "clsx";
+import { LOGO_WORDMARK } from "./logo-paths";
 
 type Props = {
   className?: string;
-  /** static: plain type · kinetic: letters rise in sequence · stroke: outlined type that fills */
+  /** static: the logo lettering · kinetic: written in from left to right · stroke: outlined, then filled */
   variant?: "static" | "kinetic" | "stroke";
   as?: "span" | "h1" | "p";
 };
 
-const LETTERS: { ch: string; it?: boolean }[] = [
-  { ch: "N" }, { ch: "O" }, { ch: "T" }, { ch: "t", it: true }, { ch: "e", it: true }, { ch: "o" }, { ch: "d" }, { ch: "o" },
-];
-
-/** NOTtEodo: the lowercase t and e are italic Bodoni Moda, as in the app's top bar. */
+/** NOTtEodo, as lettered in the app's logo. One colour only: it takes the surrounding text colour. */
 export function Wordmark({ className, variant = "static", as: Tag = "span" }: Props) {
+  const { d, w, h } = LOGO_WORDMARK;
   return (
     <Tag className={clsx("wordmark", `wordmark--${variant}`, className)} translate="no">
       <span className="sr-only">NOTtEodo</span>
-      {LETTERS.map((l, i) => (
-        <span
-          key={i}
-          aria-hidden="true"
-          className={clsx("wordmark__ch", l.it && "wordmark__it")}
-          style={{ ["--i" as string]: i }}
-        >
-          {l.ch}
-        </span>
-      ))}
+      <svg viewBox={`0 0 ${w} ${h}`} className="wordmark__svg" aria-hidden="true" style={{ aspectRatio: `${w} / ${h}` }}>
+        <path d={d} fillRule="evenodd" pathLength={1} />
+      </svg>
     </Tag>
   );
 }

@@ -26,7 +26,7 @@ export async function sendEmail(o: { to: string; subject: string; html: string; 
 export function emailHtml(title: string, body: string, cta?: { label: string; url: string }, footer = "") {
   return `<!doctype html><html><body style="margin:0;background:#F7F3EE;font-family:Georgia,serif;color:#1D1C15">
 <div style="max-width:520px;margin:0 auto;padding:40px 28px">
-<p style="font-size:26px;margin:0 0 28px">NOT<i style="color:#7A1F2B">te</i>odo</p>
+<p style="font-size:26px;margin:0 0 28px;color:#1D1C15">NOTtEodo</p>
 <h1 style="font-size:28px;font-weight:normal;line-height:1.2;margin:0 0 16px">${title}</h1>
 <div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#424849">${body}</div>
 ${cta ? `<p style="margin:28px 0"><a href="${cta.url}" style="background:#7A1F2B;color:#FFFFFF;text-decoration:none;padding:14px 22px;border-radius:999px;font-family:Arial,sans-serif;font-size:15px">${cta.label}</a></p>` : ""}

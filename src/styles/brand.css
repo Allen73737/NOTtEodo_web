@@ -1,81 +1,84 @@
+/* The logo is one colour, always: it inherits the text colour and is never tinted. */
 .wordmark {
-  font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  white-space: nowrap;
   display: inline-flex;
   align-items: baseline;
+  white-space: nowrap;
+  line-height: 1;
+  color: inherit;
 }
-.wordmark__ch {
+.wordmark__svg {
   display: inline-block;
+  height: 0.8em;
+  width: auto;
+  fill: currentColor;
+  vertical-align: -0.04em;
+  overflow: visible;
 }
-.wordmark__it {
-  font-style: italic;
-  font-weight: 400;
-  color: var(--c-accent);
-  margin-inline: -0.01em;
+.wordmark--kinetic .wordmark__svg {
+  clip-path: inset(-10% 100% -10% 0);
+  animation: wm-write 1.4s var(--e-silk) 0.15s forwards;
 }
-.wordmark--kinetic .wordmark__ch {
-  animation: wm-rise var(--d-kinetic) var(--e-silk) both;
-  animation-delay: calc(var(--i) * var(--d-stagger-step));
-}
-@keyframes wm-rise {
-  from {
-    transform: translateY(0.4em) rotateX(-70deg);
-    opacity: 0;
-    filter: blur(8px);
-  }
-}
-.wordmark--stroke .wordmark__ch {
-  color: transparent;
-  -webkit-text-stroke: 1px var(--c-text);
-  animation: wm-fill 1.6s var(--e-silk) both;
-  animation-delay: calc(400ms + var(--i) * 70ms);
-}
-.wordmark--stroke .wordmark__it {
-  -webkit-text-stroke-color: var(--c-accent);
-}
-@keyframes wm-fill {
+@keyframes wm-write {
   to {
-    color: var(--c-text);
+    clip-path: inset(-10% -2% -10% 0);
   }
 }
-.wordmark--stroke .wordmark__it {
-  animation-name: wm-fill-accent;
-}
-@keyframes wm-fill-accent {
-  to {
-    color: var(--c-accent);
-  }
-}
-
-.monogram--draw path {
+.wordmark--stroke path {
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 1.2;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
+  animation:
+    logo-pen 1.6s var(--e-ease-in-out-cubic) forwards,
+    logo-flood 0.8s var(--e-silk) 1.3s forwards;
 }
-.monogram--draw .monogram__loop {
-  animation: mono-draw 1.15s var(--e-ease-in-out-cubic) forwards;
+
+.monogram {
+  fill: currentColor;
+  color: inherit;
+  overflow: visible;
 }
-.monogram--draw .monogram__tail {
-  animation: mono-draw 0.55s var(--e-silk) 0.84s forwards;
+.monogram--draw path {
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 5;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation:
+    logo-pen 1.4s var(--e-ease-in-out-cubic) forwards,
+    logo-flood 0.7s var(--e-silk) 1.1s forwards;
 }
-@keyframes mono-draw {
+@keyframes logo-pen {
   to {
     stroke-dashoffset: 0;
+  }
+}
+@keyframes logo-flood {
+  to {
+    fill: currentColor;
+    stroke-width: 0;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .wordmark--kinetic .wordmark__ch,
-  .wordmark--stroke .wordmark__ch {
+  .wordmark--kinetic .wordmark__svg {
     animation: none;
-    color: inherit;
+    clip-path: none;
   }
+  .wordmark--stroke path,
   .monogram--draw path {
     animation: none !important;
-    stroke-dashoffset: 0;
+    fill: currentColor;
+    stroke: none;
   }
 }
+html.reduced .wordmark--kinetic .wordmark__svg {
+  animation: none;
+  clip-path: none;
+}
+html.reduced .wordmark--stroke path,
 html.reduced .monogram--draw path {
   animation: none !important;
-  stroke-dashoffset: 0;
+  fill: currentColor;
+  stroke: none;
 }

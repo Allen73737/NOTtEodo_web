@@ -6,7 +6,7 @@
 import { pathToFileURL } from "node:url";
 import { join } from "node:path";
 import { colors } from "../src/content/generated/tokens";
-import { MONOGRAM } from "../src/components/brand/monogram-paths";
+import { LOGO_MONOGRAM, LOGO_WORDMARK } from "../src/components/brand/logo-paths";
 
 export type Theme = "light" | "dark";
 export type Size = { w: number; h: number };
@@ -55,18 +55,19 @@ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000
 box-shadow:${t === "light" ? `0 60px 120px -50px ${c.noir}99, inset 0 0 0 2px ${c["text-soft"]}80` : `0 0 0 1.5px ${c.outline}, 0 60px 160px -40px ${c.oxblood}aa`}}
 .phone .scr{width:100%;height:100%;border-radius:4.4%/2%;overflow:hidden;background:${c.canvas}}
 .phone img{width:100%;height:100%;object-fit:cover;display:block}
-.wm{font-family:Bodoni,serif;font-weight:600;letter-spacing:-.02em}
-.wm i{font-style:italic;font-weight:400;color:${c.accent}}
+.wm{display:inline-block;line-height:1}
+.wm svg{height:.8em;width:auto;fill:currentColor;display:block}
 ${extraCss}
 </style></head><body>${body}<div class="grain"></div></body></html>`;
 }
 
-export const wordmark = () => `<span class="wm">NOT<i>te</i>odo</span>`;
+/** The logo lettering, traced from the app's logo. One colour: it inherits the text colour. */
+export const wordmark = () =>
+  `<span class="wm"><svg viewBox="0 0 ${LOGO_WORDMARK.w} ${LOGO_WORDMARK.h}"><path fill-rule="evenodd" d="${LOGO_WORDMARK.d}"/></svg></span>`;
 
-const mono = (stroke: string, size: number, w = 4.1) =>
-  `<svg viewBox="0 0 100 100" width="${size}" height="${size}" fill="none" stroke="${stroke}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${Object.values(MONOGRAM)
-    .map((d) => `<path d="${d}"/>`)
-    .join("")}</svg>`;
+/** The ribbon N, traced from the app's logo, in one colour. */
+const mono = (ink: string, size: number) =>
+  `<svg viewBox="0 0 ${LOGO_MONOGRAM.w} ${LOGO_MONOGRAM.h}" width="${size}" height="${size}" fill="${ink}"><path fill-rule="evenodd" d="${LOGO_MONOGRAM.d}"/></svg>`;
 
 /** A phone with a screenshot; `focus` crops toward a vertical position (0 top … 1 bottom). */
 function phone(file: string, x: number, y: number, w: number, opts: { rotate?: number; focus?: number; aspect?: number } = {}) {
@@ -280,7 +281,7 @@ ${o.files
       <img src="${shotUrl(f)}" style="width:100%;height:${w * 1.5}px;object-fit:cover;object-position:50% 30%;display:block"></div>`;
   })
   .join("")}
-<div style="position:absolute;left:470px;top:760px">${mono(c.accent, 150, 5)}</div>
+<div style="position:absolute;left:470px;top:760px">${mono(c.text, 150)}</div>
 <svg style="position:absolute;left:0;top:930px" width="${s.w}" height="40"><path d="M0 20 C 160 8, 300 34, 480 18 S 820 6, ${s.w} 24" stroke="${c.accent}" stroke-width="2.4" fill="none"/></svg>
 <div style="position:absolute;left:64px;right:64px;bottom:64px">
   <h2 class="serif" style="font-size:110px;line-height:.92;font-weight:500;letter-spacing:-.03em">${o.title}</h2>
@@ -317,7 +318,7 @@ export function featureGraphic(t: Theme) {
   <p class="serif it" style="font-size:40px;margin-top:22px;color:${c.text}">Curate your everyday.</p>
   <p class="mono" style="font-size:16px;margin-top:22px;color:${c.accent}">Notes · Tasks · Habits · Money · Focus</p>
 </div>
-<div style="position:absolute;right:70px;top:90px">${mono(c.accent, 320, 4.4)}</div>`,
+<div style="position:absolute;right:70px;top:90px">${mono(c.text, 320)}</div>`,
   );
 }
 
@@ -333,6 +334,6 @@ export function og(o: { t: Theme; eyebrow: string; title: string; italic?: strin
   <h1 class="serif" style="font-size:84px;line-height:.98;font-weight:500;letter-spacing:-.03em;margin-top:26px">${o.title}${o.italic ? ` <span class="it acc">${o.italic}</span>` : ""}</h1>
 </div>
 <div style="position:absolute;left:72px;bottom:64px;font-size:48px">${wordmark()}</div>
-${o.file ? phone(o.file, 800, 70, 300, { focus: o.focus, aspect: 2.4, rotate: 4 }) : `<div style="position:absolute;right:72px;bottom:56px">${mono(c.accent, 200, 4.6)}</div>`}`,
+${o.file ? phone(o.file, 800, 70, 300, { focus: o.focus, aspect: 2.4, rotate: 4 }) : `<div style="position:absolute;right:72px;bottom:56px">${mono(c.text, 200)}</div>`}`,
   );
 }

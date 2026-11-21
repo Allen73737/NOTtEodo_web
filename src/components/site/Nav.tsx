@@ -5,6 +5,7 @@ import { Menu, Search, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Monogram } from "@/components/brand/Monogram";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { footerGroups, nav } from "@/content/site";
 import { SoundToggle, ThemeToggle, ViewToggle } from "./Toggles";
@@ -27,6 +28,7 @@ export function Nav() {
     <header className={`nav no-print${compact ? " nav--compact" : ""}`}>
       <div className="nav__bar glass">
         <Link href="/" className="nav__brand" aria-label="NOTtEodo home">
+          <Monogram size={26} className="nav__mark" />
           <Wordmark />
         </Link>
         <nav aria-label="Primary" className="nav__links">
