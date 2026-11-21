@@ -4,11 +4,13 @@ import { Monogram } from "@/components/brand/Monogram";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { GITHUB_URL, footerGroups } from "@/content/site";
 import { siteUrl } from "@/lib/env";
-import { getConfig } from "@/lib/platform";
+import { getConfig, getRoadmap } from "@/lib/platform";
 import { SoundToggle, ThemeToggle, ViewToggle } from "./Toggles";
 
 export async function Footer() {
-  const config = await getConfig();
+  const [config, roadmap] = await Promise.all([getConfig(), getRoadmap()]);
+  // The roadmap page only exists once an admin has published something on it.
+  const hidden = new Set(config.flags.roadmap && roadmap.length > 0 ? [] : ["/roadmap"]);
   const qr = await QRCode.toString(`${siteUrl}/open/release/latest`, {
     type: "svg",
     margin: 0,
@@ -62,7 +64,7 @@ export async function Footer() {
             <div key={g.title}>
               <p className="t-label">{g.title}</p>
               <ul>
-                {g.links.map((l) => (
+                {g.links.filter((l) => !hidden.has(l.href)).map((l) => (
                   <li key={l.href}>
                     <Link href={l.href}>{l.label}</Link>
                   </li>

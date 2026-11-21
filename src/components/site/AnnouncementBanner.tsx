@@ -18,8 +18,14 @@ export function AnnouncementBanner({ initial }: { initial: Announcement[] }) {
       /* storage blocked */
     }
     // supabase-js loads lazily, after first paint, so it never weighs on initial JS.
-    let cleanup = () => {};
+    // If the effect is torn down before the import resolves (strict mode, fast navigation), never
+    // subscribe: a second subscriber would get the already-subscribed channel back and throw.
+    let cancelled = false;
+    let cleanup = () => {
+      cancelled = true;
+    };
     void import("@/lib/supabase/client").then(({ supabaseBrowser }) => {
+    if (cancelled) return;
     const sb = supabaseBrowser();
     if (!sb) return;
     const ch = sb

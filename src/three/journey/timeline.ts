@@ -11,7 +11,7 @@
  */
 export type V3 = [number, number, number];
 export type Pose = { p: V3; r: V3; s: number; v: number };
-export type Fx = "chips" | "orbit" | "gears" | "bars" | "seal" | "motes" | "vault" | "halo";
+export type Fx = "chips" | "orbit" | "gears" | "bars" | "seal" | "motes" | "halo";
 type Scene = { phone: Pose; mono: Pose; fx: Partial<Record<Fx, number>> };
 export type Key = { from: Scene; to: Scene; screens: string[] };
 
@@ -86,10 +86,10 @@ export const KEYS: Record<string, Key> = {
     to: { mono: away, phone: pose([0.44, 0, 0.2], [0.02, 3 * TAU - 0.15, 0], 1.0), fx: { motes: 1 } },
     screens: ["nodo"],
   },
-  // Privacy: a vault closes around the phone.
+  // Privacy: the phone steps back into the dark and turns away a little: nothing leaves it.
   privacy: {
-    from: { mono: away, phone: pose([-0.46, -0.05, 0], [0.1, 3 * TAU + 0.5, 0], 0.82), fx: { vault: 1 } },
-    to: { mono: away, phone: pose([-0.46, -0.05, -0.1], [0.06, 3 * TAU + 0.2, 0], 0.8), fx: { vault: 1 } },
+    from: { mono: away, phone: pose([-0.46, -0.05, 0], [0.1, 3 * TAU + 0.5, 0], 0.82), fx: {} },
+    to: { mono: away, phone: pose([-0.46, -0.05, -0.1], [0.06, 3 * TAU + 0.2, 0], 0.8), fx: {} },
     screens: ["home"],
   },
   // Tomorrow: the phone makes one slow full turn (its back, with the ribbon N, catches the light
@@ -101,7 +101,7 @@ export const KEYS: Record<string, Key> = {
   },
 };
 
-export const FX: Fx[] = ["chips", "orbit", "gears", "bars", "seal", "motes", "vault", "halo"];
+export const FX: Fx[] = ["chips", "orbit", "gears", "bars", "seal", "motes", "halo"];
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const smooth = (t: number) => t * t * (3 - 2 * t);

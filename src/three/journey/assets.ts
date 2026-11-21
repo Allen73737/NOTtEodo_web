@@ -119,25 +119,3 @@ export function cardTexture(eyebrow: string, title: string, line: string | undef
   t.anisotropy = 8;
   return t;
 }
-
-/** Ciphertext-looking glyphs for the vault's glass. */
-export function cipherTexture(ink: string): THREE.CanvasTexture {
-  const cv = document.createElement("canvas");
-  cv.width = cv.height = 512;
-  const ctx = cv.getContext("2d")!;
-  ctx.fillStyle = ink;
-  ctx.font = `600 20px ${cssFont("--font-mono", "monospace")}`;
-  const glyphs = "0123456789ABCDEF";
-  let seed = 11;
-  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  for (let y = 22; y < 512; y += 26) {
-    let s = "";
-    for (let i = 0; i < 34; i++) s += glyphs[Math.floor(rnd() * 16)];
-    ctx.globalAlpha = 0.25 + rnd() * 0.75;
-    ctx.fillText(s, 6, y);
-  }
-  const t = new THREE.CanvasTexture(cv);
-  t.wrapS = t.wrapT = THREE.RepeatWrapping;
-  t.colorSpace = THREE.SRGBColorSpace;
-  return t;
-}

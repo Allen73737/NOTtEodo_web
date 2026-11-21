@@ -6,6 +6,13 @@
  *     (cards, buttons, tables, inputs) turns light-on-dark without its own rules
  *   - the bento grid for features, interludes, the simulator stage, the end band and an ink footer
  * Palette only: ivory, ink, oxblood family, bronze, linen.
+ *
+ * One colour rule, the same on every page (the homepage follows the day: ivory by day, ink by night):
+ *   ivory    reading. Every chapter by default; cards are ivory sheets.
+ *   ink      proof and hands-on: at most one band per page (the simulator stage, Nodo's demo,
+ *            verifying the download, the features interlude) and the footer.
+ *   oxblood  action and emphasis only: buttons, italic words, chapter numerals, and one wine band,
+ *            the closing call to action above the footer. Never a background anywhere else.
  */
 
 /* ---------- Atmosphere ---------- */
@@ -48,11 +55,9 @@
 
 /* ---------- Bands: tokens re-tinted for light-on-dark ---------- */
 .chapter--ink,
-.chapter--wine,
 .interlude,
 .stage-band,
-.footer,
-.act--modules {
+.footer {
   --c-text: #f6f3ed;
   --c-text-muted: color-mix(in oklab, #F6F3ED 86%, transparent);
   --c-text-soft: #A89C9C;
@@ -72,15 +77,8 @@
   --shadow-card: 0 30px 60px -40px rgb(0 0 0 / 0.6);
   color: var(--c-text);
 }
-.chapter--wine,
-.interlude,
-.stage-band,
-.act--modules {
-  --c-accent: #e9e4d9;
-  --c-accent-fill: #1a1614;
-}
 .chapter--ink .card,
-.chapter--wine .card,
+.interlude .card,
 .stage-band .card,
 .footer .card {
   background: var(--c-sheet);
@@ -91,20 +89,18 @@
   position: relative;
   padding-block: clamp(64px, 9vw, 140px);
 }
-.chapter + .chapter:not(.chapter--ink, .chapter--wine) .chapter__grid {
+.chapter + .chapter:not(.chapter--ink) .chapter__grid {
   border-top: 1px solid var(--c-divider);
   padding-top: clamp(48px, 6vw, 96px);
 }
-.chapter + .chapter:not(.chapter--ink, .chapter--wine) {
+.chapter + .chapter:not(.chapter--ink) {
   padding-top: 0;
 }
 .chapter--ink + .chapter,
-.chapter--wine + .chapter,
 .interlude + .chapter {
   padding-top: clamp(64px, 9vw, 140px) !important;
 }
 .chapter--ink + .chapter .chapter__grid,
-.chapter--wine + .chapter .chapter__grid,
 .interlude + .chapter .chapter__grid {
   border-top: 0 !important;
   padding-top: 0 !important;
@@ -118,11 +114,6 @@
   background:
     radial-gradient(60vw 40vw at 90% 0%, color-mix(in oklab, #8E2433 40%, transparent), transparent 70%),
     #0f0d0d;
-}
-.chapter--wine {
-  background:
-    radial-gradient(50vw 40vw at 10% 100%, color-mix(in oklab, #5A1620 70%, transparent), transparent 70%),
-    var(--c-oxblood);
 }
 .chapter__grid {
   display: grid;
@@ -297,25 +288,25 @@
 .bento > .feature-card--poster:first-child .feature-card__line {
   font-size: clamp(1.8rem, 3vw, 2.8rem);
 }
-/* Cards without a poster take turns in wine and ink, so the grid has colour and rhythm. */
-.bento > .feature-card:not(.feature-card--poster):nth-child(3n + 1) {
-  background: var(--c-oxblood);
-  border-color: transparent;
-  --c-text: #f6f3ed;
-  --c-text-soft: color-mix(in oklab, #F6F3ED 82%, transparent);
-  --c-text-muted: color-mix(in oklab, #F6F3ED 82%, transparent);
-  --c-accent: #f6f3ed;
+/* Cards are ivory sheets; an oxblood rule draws across the top of the one under the pointer. */
+.bento > .feature-card {
+  position: relative;
+  overflow: clip;
 }
-.bento > .feature-card:not(.feature-card--poster):nth-child(3n + 2) {
-  background: #1a1614;
-  border-color: transparent;
-  --c-text: #f6f3ed;
-  --c-text-soft: #A89C9C;
-  --c-text-muted: #A89C9C;
-  --c-accent: #D0485A;
+.bento > .feature-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: var(--c-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 700ms var(--e-silk);
+  z-index: 1;
 }
-:root[data-mode="dark"] .bento > .feature-card:not(.feature-card--poster):nth-child(3n + 2) {
-  background: var(--c-ink-container);
+.bento > .feature-card:hover::before,
+.bento > .feature-card:focus-visible::before {
+  transform: scaleX(1);
 }
 .bento .feature-card .muted {
   color: var(--c-text-soft);
@@ -343,9 +334,16 @@
   isolation: isolate;
   padding-block: clamp(96px, 15vw, 220px);
   background:
-    radial-gradient(70vw 50vw at 100% 0%, color-mix(in oklab, #D0485A 35%, transparent), transparent 70%),
-    radial-gradient(60vw 50vw at 0% 100%, color-mix(in oklab, #5A1620 80%, transparent), transparent 70%),
-    var(--c-oxblood);
+    radial-gradient(60vw 40vw at 100% 0%, color-mix(in oklab, #8E2433 35%, transparent), transparent 70%),
+    #1a1614;
+}
+:root[data-mode="dark"] .interlude {
+  background:
+    radial-gradient(60vw 40vw at 100% 0%, color-mix(in oklab, #8E2433 40%, transparent), transparent 70%),
+    #0f0d0d;
+}
+.interlude__line .it {
+  color: var(--c-accent);
 }
 .interlude__mark {
   position: absolute;
@@ -403,8 +401,13 @@
   position: relative;
   padding-block: clamp(48px, 7vw, 110px);
   background:
-    radial-gradient(60vw 40vw at 50% 0%, color-mix(in oklab, #D0485A 30%, transparent), transparent 70%),
-    linear-gradient(180deg, var(--c-oxblood), var(--c-noir));
+    radial-gradient(60vw 40vw at 50% 0%, color-mix(in oklab, #8E2433 35%, transparent), transparent 70%),
+    #1a1614;
+}
+:root[data-mode="dark"] .stage-band {
+  background:
+    radial-gradient(60vw 40vw at 50% 0%, color-mix(in oklab, #8E2433 40%, transparent), transparent 70%),
+    #0f0d0d;
 }
 .stage-band__inner {
   display: grid;
@@ -421,16 +424,16 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #f6f3ed;
-  box-shadow: 0 0 0 0 color-mix(in oklab, #F6F3ED 60%, transparent);
+  background: #d0485a;
+  box-shadow: 0 0 0 0 color-mix(in oklab, #D0485A 60%, transparent);
   animation: live-dot 1.8s ease-out infinite;
 }
 @keyframes live-dot {
   70% {
-    box-shadow: 0 0 0 10px color-mix(in oklab, #F6F3ED 0%, transparent);
+    box-shadow: 0 0 0 10px color-mix(in oklab, #D0485A 0%, transparent);
   }
   100% {
-    box-shadow: 0 0 0 0 color-mix(in oklab, #F6F3ED 0%, transparent);
+    box-shadow: 0 0 0 0 color-mix(in oklab, #D0485A 0%, transparent);
   }
 }
 
@@ -602,21 +605,7 @@
   position: relative;
 }
 
-/* ---------- Homepage: the modules act is a wine room ---------- */
-.act--modules .act__back::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(60vw 50vw at 50% 40%, color-mix(in oklab, #D0485A 35%, transparent), transparent 70%),
-    var(--c-oxblood);
-  clip-path: circle(calc(clamp(0, calc((var(--a, 5) + 1.05) * 1.25), 1.5) * 80vmax) at 50% 50%);
-}
-.act--modules .marquee {
-  color: var(--c-text);
-}
-
-/* The simulator keeps the app's own tokens inside the wine stage. */
+/* The simulator keeps the app's own tokens inside the ink stage. */
 .stage-band .sim {
   --c-text: #1d1c15;
   --c-text-muted: #424849;

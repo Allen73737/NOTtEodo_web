@@ -53,7 +53,8 @@ test("theme and view persist with no flash of the wrong theme", async ({ page })
   // Read before hydration-time effects: the inline head script must already have applied both.
   const attrs = await page.evaluate(() => [document.documentElement.dataset.theme, document.documentElement.dataset.view, document.documentElement.dataset.mode]);
   expect(attrs).toEqual(["dark", "editorial", "dark"]);
-  const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  // The root paints the canvas (the body stays clear so the atmosphere layer shows through).
+  const bg = await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor);
   expect(bg).toBe("rgb(0, 0, 0)");
 });
 

@@ -2,13 +2,13 @@
 
 import { Environment, Lightformer } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { journey } from "@/components/film/FilmProvider";
 import { colors } from "@/content/generated/tokens";
 import { useTheme } from "@/lib/prefs";
 import { live, place } from "./live";
-import { Bars, Chips, Dust, Halo, Monogram3D, Motes, Movement, Orbit, Phone, Seal, Vault } from "./objects";
+import { Bars, Chips, Dust, Halo, Monogram3D, Motes, Movement, Orbit, Phone, Seal } from "./objects";
 import { FX, sample, type Pose } from "./timeline";
 
 const TAU = Math.PI * 2;
@@ -44,6 +44,7 @@ export default function Journey() {
       <Rig />
       <Dust />
       <Suspense fallback={null}>
+        <Stage>
         <Monogram3D />
         <Halo />
         <Phone />
@@ -53,10 +54,30 @@ export default function Journey() {
         <Bars />
         <Seal />
         <Motes />
-        <Vault />
+        </Stage>
       </Suspense>
     </Canvas>
   );
+}
+
+/**
+ * Everything on the stage, lifted together on portrait screens as the act copy rises: the copy
+ * pushes the phone up and off the top rather than covering it. The lift follows the copy exactly
+ * on the way up and eases back down when the next act opens its stage window, so the phone drops
+ * back in instead of popping.
+ */
+function Stage({ children }: { children: React.ReactNode }) {
+  const g = useRef<THREE.Group>(null);
+  const lift = useRef(0);
+  useFrame((state, delta) => {
+    const el = g.current;
+    if (!el) return;
+    const px = live.portrait ? journey.push : 0;
+    const want = (px / state.size.height) * state.viewport.getCurrentViewport(state.camera, [0, 0, 0]).height;
+    lift.current = want >= lift.current ? want : THREE.MathUtils.damp(lift.current, want, 5, Math.min(delta, 1 / 20));
+    el.position.y = lift.current;
+  });
+  return <group ref={g}>{children}</group>;
 }
 
 function dampPose(cur: Pose, to: Pose, lambda: number, dt: number) {
@@ -89,7 +110,7 @@ function Director() {
     live.act = target.act;
     live.screenIndex = target.screenIndex;
     place(live.phone.p, live.phoneWorld, vp.height);
-    live.phoneScale = live.phone.s * (live.portrait ? 0.56 : 1);
+    live.phoneScale = live.phone.s * (live.portrait ? 0.7 : 1);
 
     // Drag spin settles to the nearest whole turn when released.
     if (!journey.dragging) journey.spin = THREE.MathUtils.damp(journey.spin, Math.round(journey.spin / TAU) * TAU, 2.4, dt);

@@ -19,8 +19,8 @@ export function Chapter({
   label: string;
   title?: React.ReactNode;
   lede?: React.ReactNode;
-  /** "ink": a dark band; "wine": an oxblood band. */
-  tone?: "ink" | "wine";
+  /** "ink": the page's one dark band, for proof and hands-on sections (see folio.css). */
+  tone?: "ink";
   children: React.ReactNode;
 }) {
   const head = id ? `${id}-head` : undefined;
@@ -49,7 +49,7 @@ export function Chapter({
   );
 }
 
-/** A full-bleed oxblood band with one large line that drifts as it passes. */
+/** A full-bleed ink band with one large line that drifts as it passes. */
 export function Interlude({ children, sub }: { children: React.ReactNode; sub?: React.ReactNode }) {
   return (
     <section className="interlude" aria-label="Interlude">

@@ -4,11 +4,15 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { LOGO_MONOGRAM } from "@/components/brand/logo-paths";
 import { nav } from "@/content/site";
-import { ambient, ambientEnergy, haptic, play, soundOn } from "@/lib/sound";
+import { haptic, play } from "@/lib/sound";
 
 /** Keep in step with the curtain keyframes in editorial.css. */
 const COVER_MS = 420;
 const LIFT_MS = 640;
+/** A slow load: show the loading line on the sheet. */
+const SLOW_MS = 1200;
+/** A stalled client navigation: fall back to an ordinary page load, so a click always arrives. */
+const HARD_MS = 9000;
 
 /** The destination's name, shown large on the sheet while it loads. */
 function nameFor(pathname: string, text: string | null) {
@@ -26,7 +30,8 @@ function nameFor(pathname: string, text: string | null) {
  *
  * Curtain: clicking an internal link starts the navigation at once and sweeps two sheets (wine,
  * then ink) up over the page with the destination's name and the ribbon N; as soon as the new
- * page is in and the sheet has covered (420 ms), it lifts away and the page's opening rises in. Back/forward navigation gets the lift only. Modified
+ * page is in and the sheet has covered (420 ms), it lifts away and the page's opening rises in. A
+ * slow load shows a loading line; a stalled one falls back to a full page load. Modified
  * clicks, new tabs, downloads, hash links and reduced motion are left alone.
  *
  * Micro-interactions, delegated from the document so every page gets them:
@@ -52,7 +57,7 @@ export function Transitions() {
     let t2: ReturnType<typeof setTimeout> | undefined;
     const t1 = setTimeout(() => {
       scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
-      el.classList.remove("is-covering");
+      el.classList.remove("is-covering", "is-waiting");
       el.classList.add("is-lifting");
       document.documentElement.classList.add("page-enter");
       play("land");
@@ -91,14 +96,15 @@ export function Transitions() {
         el.classList.add("is-covering");
         play("whoosh");
       }
-      // Never leave a visitor stuck behind the sheet.
+      // A slow load keeps the sheet up with a loading line; a stalled one becomes a full page load.
       const started = coverAt.current;
+      const href = url.href;
       setTimeout(() => {
-        if (coverAt.current === started && el.classList.contains("is-covering")) {
-          el.classList.remove("is-covering");
-          coverAt.current = 0;
-        }
-      }, 8000);
+        if (coverAt.current === started) el.classList.add("is-waiting");
+      }, SLOW_MS);
+      setTimeout(() => {
+        if (coverAt.current === started && location.href !== href) location.assign(href);
+      }, HARD_MS);
     };
     // Warm the next page as soon as a pointer heads for a link.
     const onIntent = (e: Event) => {
@@ -108,8 +114,12 @@ export function Transitions() {
       if (url.origin === location.origin && url.pathname !== location.pathname && !url.pathname.startsWith("/api/")) router.prefetch(url.pathname);
     };
     // Once the page is idle, fetch the main pages ahead of time, so the first click is instant.
-    const idle = (window.requestIdleCallback ?? ((f: () => void) => setTimeout(f, 1500))) as (f: () => void) => number;
-    idle(() => ["/", ...nav.map((n) => n.href)].forEach((h) => h !== location.pathname && router.prefetch(h)));
+    // Production only: in development every prefetch compiles a route, and eight at once starve
+    // the one the visitor actually clicked.
+    if (process.env.NODE_ENV === "production") {
+      const idle = (window.requestIdleCallback ?? ((f: () => void) => setTimeout(f, 1500))) as (f: () => void) => number;
+      idle(() => ["/", ...nav.map((n) => n.href)].forEach((h) => h !== location.pathname && router.prefetch(h)));
+    }
     // Capture phase: runs before Next's <Link> handler, which then sees defaultPrevented and stands down.
     window.addEventListener("click", onClick, true);
     document.addEventListener("pointerover", onIntent, { passive: true });
@@ -120,35 +130,6 @@ export function Transitions() {
       document.removeEventListener("touchstart", onIntent);
     };
   }, [router]);
-
-  // The ambient bed: browsers only allow audio after a gesture, so it starts on the first one
-  // (if sound is on) and brightens a little while the page scrolls.
-  useEffect(() => {
-    const start = () => {
-      if (soundOn()) ambient(true);
-    };
-    let last = scrollY;
-    let energy = 0;
-    let raf = 0;
-    const tick = () => {
-      energy = Math.max(Math.abs(scrollY - last) / 40, energy * 0.92);
-      last = scrollY;
-      ambientEnergy(energy);
-      raf = energy > 0.01 ? requestAnimationFrame(tick) : 0;
-    };
-    const onScroll = () => {
-      if (!raf && soundOn()) raf = requestAnimationFrame(tick);
-    };
-    addEventListener("pointerdown", start, { once: true });
-    addEventListener("keydown", start, { once: true });
-    addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      removeEventListener("pointerdown", start);
-      removeEventListener("keydown", start);
-      removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(raf);
-    };
-  }, []);
 
   // Pointer light + tilt on cards and buttons; ink drop on press.
   useEffect(() => {
@@ -164,7 +145,6 @@ export function Transitions() {
         lit = null;
       }
       if (!el || !fine) return;
-      if (el !== lit) play("hover");
       const r = el.getBoundingClientRect();
       const x = e.clientX - r.left;
       const y = e.clientY - r.top;

@@ -1316,9 +1316,6 @@ html.reduced .intro__words .intro__line {
   :root:not([data-mode="dark"])[data-film="full"] .act--night .act__copy {
     background: color-mix(in oklab, #1a1614 80%, transparent);
   }
-  html[data-film="full"] .act--modules .act__copy {
-    background: color-mix(in oklab, #5a1620 78%, transparent);
-  }
   html[data-film="full"] .act--center .act__copy {
     min-height: 0;
   }

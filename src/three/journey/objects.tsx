@@ -10,7 +10,7 @@ import { modules } from "@/content/site";
 import { colors } from "@/content/generated/tokens";
 import { useTheme, useView } from "@/lib/prefs";
 import { play } from "@/lib/sound";
-import { cardTexture, cipherTexture, monogramGeometry, screenTexture, screenUrl, type CardColors } from "./assets";
+import { cardTexture, monogramGeometry, screenTexture, screenUrl, type CardColors } from "./assets";
 import { band, ease, live, lpOf } from "./live";
 
 const TAU = Math.PI * 2;
@@ -33,11 +33,12 @@ function useCardColors(): CardColors {
 /**
  * The display, drawn as one surface under the front glass: the black bezel, the punch-hole
  * camera, the screen with rounded corners, and reflections of the room that slide across the
- * glass as the phone turns. Screens change with one of three transitions, each the way a phone
- * really moves between screens:
- *   0  ink bleed  the same screen restyled (Cards to Editorial): ink spreads through it
- *   1  push       a new screen slides in over the old one, which falls back and dims
- *   2  open       a ghost finger taps; the new screen opens out of that point in a lens ripple
+ * glass as the phone turns. Screens change the way a phone really moves between them, each with
+ * depth (the screen underneath falls back, dims and goes soft):
+ *   0  ink bleed         the same screen restyled (Cards to Editorial): ink spreads through it
+ *   1  push              the new screen slides in as a card over the old one, casting a shadow
+ *   2  container         a ghost finger taps the tab bar; the tab grows into the new screen
+ *   3  zoom-through      a new chapter: the old screen swells and fades as the new one settles in
  * Textures are sRGB, so the output is converted back with colorspace_fragment.
  */
 const SCREEN_VERT = /* glsl */ `
@@ -78,12 +79,25 @@ float noise(vec2 p) {
 float fbm(vec2 p) { float v = 0.0, a = 0.5; for (int i = 0; i < 5; i++) { v += a * noise(p); p *= 2.03; a *= 0.5; } return v; }
 float sdRound(vec2 p, vec2 b, float r) { vec2 q = abs(p) - b + r; return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r; }
 float easeIO(float t) { return t < 0.5 ? 4.0 * t * t * t : 1.0 - pow(-2.0 * t + 2.0, 3.0) / 2.0; }
-vec3 texA(vec2 uv) { return uHasA > 0.5 ? texture2D(uA, uv).rgb : uBase; }
-vec3 texB(vec2 uv) { return texture2D(uB, uv).rgb; }
+// Material's emphasised deceleration: quick to leave, long to settle.
+float easeOut(float t) { return 1.0 - pow(1.0 - t, 4.0); }
+// The bias softens a screen through its mipmaps: a cheap, clean depth-of-field.
+vec3 texA(vec2 uv, float blur) { return uHasA > 0.5 ? texture2D(uA, uv, blur).rgb : uBase; }
+vec3 texB(vec2 uv, float blur) { return texture2D(uB, uv, blur).rgb; }
+vec3 texA(vec2 uv) { return texA(uv, 0.0); }
+vec3 texB(vec2 uv) { return texB(uv, 0.0); }
+// A screen scaled about a point; outside it, the dark of the panel.
+vec3 scaledA(vec2 uv, vec2 o, float k, float blur, float dim) {
+  vec2 q = o + (uv - o) / k;
+  float inside = step(0.0, q.x) * step(q.x, 1.0) * step(0.0, q.y) * step(q.y, 1.0);
+  return mix(uBase * 0.15, texA(clamp(q, 0.0, 1.0), blur) * dim, inside);
+}
 
 vec3 content(vec2 suv, vec2 sp, vec2 sh) {
   if (uMix <= 0.0) return texA(suv);
-  float e = easeIO(clamp(uMix, 0.0, 1.0));
+  float t = clamp(uMix, 0.0, 1.0);
+  float e = easeIO(t);
+  float d = easeOut(t);
   vec3 c;
   if (uMode < 0.5) {
     // Ink bleed, rising from the bottom along a noise field, with a tide line of accent ink.
@@ -93,38 +107,46 @@ vec3 content(vec2 suv, vec2 sp, vec2 sh) {
     c = mix(texA(suv), texB(suv), k);
     c = mix(c, uInk, edge * 0.9);
   } else if (uMode < 1.5) {
-    // Push: the new screen slides in; the old one drifts a third as far and dims beneath it.
-    float x = suv.x - (1.0 - e) * uDir;
-    vec2 oldUv = vec2(suv.x + e * 0.3 * uDir, suv.y);
-    vec3 under = texA(clamp(oldUv, 0.0, 1.0)) * (1.0 - e * 0.45);
-    if (x >= 0.0 && x <= 1.0) {
-      c = texB(vec2(x, suv.y));
-    } else {
-      // A soft shadow cast on the old screen by the new one's leading edge.
-      float lead = uDir > 0.0 ? -x : x - 1.0;
-      c = under * (1.0 - 0.4 * exp(-max(lead, 0.0) * 24.0));
-    }
-  } else {
-    // Open: from the tapped point a circle widens; its rim bends the image like a lens.
+    // Push: the new screen is a card sliding in; the old one recedes (scale, dim, soften) beneath it.
+    float x0 = (1.0 - d) * uDir;
+    vec2 local = vec2(suv.x - x0, suv.y);
+    vec3 under = scaledA(suv - vec2(d * 0.12 * uDir, 0.0), vec2(0.5), 1.0 - d * 0.08, d * 2.5, 1.0 - d * 0.5);
+    // The card's rounded leading corners and a soft shadow ahead of it.
+    vec2 cp = (local - 0.5) * sh * 2.0;
+    float card = sdRound(cp, sh, 0.06 * (1.0 - d));
+    float inCard = smoothstep(0.004, -0.004, card);
+    float shadow = exp(-max(card, 0.0) * 18.0) * 0.45 * (1.0 - d * 0.6);
+    c = mix(under * (1.0 - shadow), texB(clamp(local, 0.0, 1.0)), inCard);
+  } else if (uMode < 2.5) {
+    // Container transform: from the tapped tab, a rounded rectangle grows into the whole screen,
+    // carrying the new screen scaled inside it; the old screen dims and softens behind.
     vec2 tp = (uTap - 0.5) * sh * 2.0;
-    vec2 d = sp - tp;
-    float r = e * length(sh) * 2.3;
-    float dist = length(d);
-    float rim = smoothstep(0.14, 0.0, abs(dist - r));
-    vec2 n = dist > 0.0 ? d / dist : vec2(0.0);
-    vec2 bend = n * rim * 0.035 * (1.0 - e);
-    float inside = smoothstep(r + 0.01, r - 0.01, dist);
-    vec2 oldUv = mix(suv, uTap, e * 0.08);
-    vec3 newC = texB(clamp(uTap + (suv - uTap) * mix(0.82, 1.0, e) + bend, 0.0, 1.0));
-    c = mix(texA(oldUv) * (1.0 - e * 0.3), newC, inside);
-    c += uInk * rim * 0.35 * (1.0 - e);
+    vec2 centre = mix(tp, vec2(0.0), d);
+    vec2 half_ = mix(vec2(0.07, 0.045), sh, d);
+    float rad = mix(0.045, 0.0, d);
+    float box = sdRound(sp - centre, half_, rad);
+    float inside = smoothstep(0.004, -0.004, box);
+    vec2 inner = (sp - centre) / half_ * 0.5 + 0.5;
+    vec3 newC = texB(clamp(inner, 0.0, 1.0), (1.0 - d) * 3.0);
+    // The new screen fades up inside the growing box, so it starts as the tab's own colour.
+    newC = mix(uBase, newC, smoothstep(0.15, 0.6, t));
+    vec3 old = scaledA(suv, uTap, 1.0 + d * 0.06, d * 3.0, 1.0 - d * 0.55);
+    float glow = exp(-max(box, 0.0) * 30.0) * 0.25 * (1.0 - d);
+    c = mix(old * (1.0 - glow), newC, inside);
+  } else {
+    // Zoom-through: the old screen swells and fades out of focus; the new one settles from smaller.
+    vec3 old = scaledA(suv, vec2(0.5), 1.0 + e * 0.12, e * 4.0, 1.0);
+    vec2 q = 0.5 + (suv - 0.5) / mix(0.9, 1.0, d);
+    float inside = step(0.0, q.x) * step(q.x, 1.0) * step(0.0, q.y) * step(q.y, 1.0);
+    vec3 newC = mix(uBase * 0.15, texB(clamp(q, 0.0, 1.0), (1.0 - d) * 3.0), inside);
+    c = mix(old, newC, smoothstep(0.2, 0.75, t));
   }
-  // The ghost finger: a soft press and a ring, early in a tapped change.
-  if (uMode > 0.5) {
+  // The ghost finger: a soft press and a widening ring at the tap, early in a tapped change.
+  if (uMode > 1.5 && uMode < 2.5) {
     vec2 tp = (uTap - 0.5) * sh * 2.0;
     float td = length(sp - tp);
-    float press = smoothstep(0.35, 0.0, uMix) * smoothstep(0.075, 0.0, td) * 0.35;
-    float ring = smoothstep(0.012, 0.0, abs(td - uMix * 0.5)) * smoothstep(0.45, 0.05, uMix) * 0.6;
+    float press = smoothstep(0.3, 0.0, uMix) * smoothstep(0.07, 0.0, td) * 0.3;
+    float ring = smoothstep(0.01, 0.0, abs(td - uMix * 0.4)) * smoothstep(0.35, 0.05, uMix) * 0.5;
     c = mix(c, vec3(1.0), press + ring * 0.5);
   }
   return c;
@@ -303,10 +325,11 @@ export function Phone() {
       const newAct = live.act !== st.lastAct;
       let mode = 0;
       if (name !== st.lastName && st.url) {
-        mode = newAct || idx % 3 === 2 ? 2 : 1;
-        const dir = newAct || idx >= st.lastIndex ? 1 : -1;
+        // A new chapter zooms through; inside one, alternate pushes and taps on the tab bar.
+        mode = newAct ? 3 : idx % 2 === 0 ? 2 : 1;
+        const dir = idx >= st.lastIndex ? 1 : -1;
         u.uDir!.value = dir;
-        const tap: [number, number] = newAct ? [0.5, 0.5] : tapFor(idx);
+        const tap = tapFor(idx);
         (u.uTap!.value as THREE.Vector2).set(tap[0], tap[1]);
         st.kick = 1;
         st.kickDir = dir;
@@ -324,7 +347,7 @@ export function Phone() {
       });
     }
     if (st.mix > 0) {
-      st.mix = Math.min(1, st.mix + dt * (u.uMode!.value === 0 ? 1.4 : 1.25));
+      st.mix = Math.min(1, st.mix + dt * (u.uMode!.value === 0 ? 1.4 : u.uMode!.value === 3 ? 1.1 : 1.5));
       u.uMix!.value = st.mix;
       if (st.mix >= 1) {
         u.uA!.value = u.uB!.value;
@@ -906,64 +929,6 @@ export function Motes() {
       <sphereGeometry args={[1, 16, 12]} />
       <meshStandardMaterial color={c.blush} roughness={0.35} metalness={0.1} />
     </instancedMesh>
-  );
-}
-
-/* ================================================================ vault */
-
-const EDGES: [number, number, number, "x" | "y" | "z"][] = [
-  [0, 1, 1, "x"], [0, -1, 1, "x"], [0, 1, -1, "x"], [0, -1, -1, "x"],
-  [1, 0, 1, "y"], [-1, 0, 1, "y"], [1, 0, -1, "y"], [-1, 0, -1, "y"],
-  [1, 1, 0, "z"], [-1, 1, 0, "z"], [1, -1, 0, "z"], [-1, -1, 0, "z"],
-];
-
-/** A glass vault whose edges fly in and close around the phone; a wax band locks it. */
-export function Vault() {
-  const { dark, c } = usePalette();
-  const g = useRef<THREE.Group>(null);
-  const edges = useRef<(THREE.Mesh | null)[]>([]);
-  const glass = useRef<THREE.MeshPhysicalMaterial>(null);
-  const lock = useRef<THREE.Mesh>(null);
-  const tex = useMemo(() => cipherTexture(c.blush), [c]);
-  const size: [number, number, number] = [1.0, 1.6, 0.6];
-  useFrame((s) => {
-    const el = g.current;
-    if (!el) return;
-    const k = ease(live.fx.vault);
-    el.visible = k > 0.01;
-    const p = lpOf("privacy");
-    const close = band(p, 0.0, 0.45);
-    el.position.copy(live.phoneWorld);
-    el.rotation.set(0.1 + journey.pointer.y * 0.06, s.clock.elapsedTime * 0.12 + live.phone.r[1] * 0.2, 0);
-    el.scale.setScalar(live.phoneScale);
-    edges.current.forEach((m, i) => {
-      if (!m) return;
-      const [x, y, z] = EDGES[i]!;
-      const fly = (1 - close) * 3;
-      m.position.set(x * size[0] * (1 + fly * 0.5), y * size[1] * (1 + fly * 0.3), z * size[2] * (1 + fly));
-      m.scale.setScalar(k);
-    });
-    if (glass.current) glass.current.opacity = 0.16 * close * k;
-    if (glass.current?.map) glass.current.map.offset.y = -s.clock.elapsedTime * 0.03;
-    if (lock.current) lock.current.scale.setScalar(Math.max(0.0001, band(p, 0.5, 0.65) * k));
-  });
-  return (
-    <group ref={g} visible={false}>
-      {EDGES.map(([, , , axis], i) => (
-        <mesh key={i} ref={(m) => void (edges.current[i] = m)}>
-          <boxGeometry args={axis === "x" ? [size[0] * 2, 0.025, 0.025] : axis === "y" ? [0.025, size[1] * 2, 0.025] : [0.025, 0.025, size[2] * 2]} />
-          <meshStandardMaterial color={c.bronze} metalness={0.85} roughness={0.25} />
-        </mesh>
-      ))}
-      <mesh>
-        <boxGeometry args={[size[0] * 2, size[1] * 2, size[2] * 2]} />
-        <meshPhysicalMaterial ref={glass} map={tex} transparent opacity={0} roughness={0.1} clearcoat={1} depthWrite={false} side={THREE.DoubleSide} color={dark ? c.canvas : c["surface-lowest"]} />
-      </mesh>
-      <mesh ref={lock} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[1.22, 0.06, 16, 96]} />
-        <meshPhysicalMaterial color={c.oxblood} roughness={0.35} clearcoat={0.6} />
-      </mesh>
-    </group>
   );
 }
 

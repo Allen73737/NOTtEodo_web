@@ -35,7 +35,15 @@ export const journey = {
   /** Extra phone spin from dragging (radians), and whether a drag is under way. */
   spin: 0,
   dragging: false,
+  /**
+   * Portrait screens only: how far (px) the act copy has risen into the stage window. The 3D stage
+   * moves up by exactly this much, so the copy pushes the phone off the top instead of covering it.
+   */
+  push: 0,
 };
+
+/** Bottom of the portrait stage window, as a share of the viewport height (keep in step with film.css). */
+export const STAGE_BOTTOM = 0.62;
 
 const Journey = dynamic(() => import("@/three/journey/Journey"), { ssr: false });
 
@@ -84,6 +92,8 @@ export function FilmProvider({ children }: { children: ReactNode }) {
     const chapters = [...document.querySelectorAll<HTMLElement>("[data-chapter]")];
     const acts = [...document.querySelectorAll<HTMLElement>("[data-act]")];
     journey.acts = acts.map((a) => a.dataset.act!);
+    // The tour keeps its phone above its captions by layout, so it never pushes.
+    const copies = [...document.querySelectorAll<HTMLElement>("[data-act]:not([data-act='tour']) .act__copy")];
     let raf = 0;
     let last = scrollY;
     const loop = () => {
@@ -115,6 +125,15 @@ export function FilmProvider({ children }: { children: ReactNode }) {
         if (r.top <= 0 && (r.bottom > 0 || i === acts.length - 1)) t = i + Math.max(0, Math.min(1, -r.top / r.height));
       }
       journey.t = t;
+      // Portrait: the highest copy panel still on screen pushes the stage up once it reaches the window's bottom.
+      let push = 0;
+      if (innerWidth < vh) {
+        for (const el of copies) {
+          const r = el.getBoundingClientRect();
+          if (r.bottom > 0 && r.top < vh) push = Math.max(push, vh * STAGE_BOTTOM - r.top);
+        }
+      }
+      journey.push = Math.max(0, push);
       // The stage fades out as the last act leaves, so it never sits over the footer.
       const end = acts[acts.length - 1]?.getBoundingClientRect();
       if (end) document.documentElement.style.setProperty("--journey-out", Math.max(0, Math.min(1, (vh * 0.6 - end.bottom) / (vh * 0.45))).toFixed(3));
