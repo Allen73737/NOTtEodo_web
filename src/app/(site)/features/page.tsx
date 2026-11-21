@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CipherCard, PosterFan, StepsCard } from "@/components/site/HeadVisuals";
 import { PageHeader } from "@/components/site/PageHeader";
 import { modules } from "@/content/site";
 import { posterFor } from "@/content/posters";
@@ -26,6 +27,8 @@ export default function FeaturesPage() {
         title="One app, every part of life."
         italic={["every"]}
         lede="Each part is complete on its own and better together. Every line here is something the app does today."
+        aside={<PosterFan slugs={["notes", "expenses", "focus-dial"]} />}
+        word="Features"
       />
       {SETS.map((set) => (
         <section key={set.id} className="wrap section" style={{ paddingTop: 0 }} aria-labelledby={`set-${set.id}`}>

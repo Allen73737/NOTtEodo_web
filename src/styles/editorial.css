@@ -1,0 +1,579 @@
+/*
+ * The site-wide editorial system. Every inner page shares one grid: a left rail (labels, the
+ * ribbon N, contents) and a reading column that starts at the same line on every page, so
+ * headers, prose and legal text all hang from one edge instead of floating in the centre.
+ * Media (cards, posters, the simulator) runs the full width of .wrap.
+ */
+:root {
+  --rail: clamp(0px, 15vw, 260px);
+  --rail-gap: clamp(24px, 3vw, 48px);
+}
+@media (max-width: 860px) {
+  :root {
+    --rail: 0px;
+  }
+}
+
+/* ---------- Page header ---------- */
+.page-head {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--rail) minmax(0, 1fr);
+  align-items: end;
+  gap: 0;
+  min-height: min(86svh, 860px);
+  padding-top: calc(var(--nav-h) + clamp(56px, 9vw, 120px));
+  padding-bottom: clamp(48px, 7vw, 104px);
+  overflow-x: clip;
+  isolation: isolate;
+}
+.page-head--aside {
+  grid-template-columns: var(--rail) minmax(0, 1.15fr) minmax(0, 0.85fr);
+  column-gap: clamp(24px, 4vw, 64px);
+}
+.page-head__rail {
+  align-self: start;
+  display: grid;
+  gap: 14px;
+  justify-items: start;
+  padding-top: 12px;
+}
+.page-head__mono {
+  color: var(--c-text);
+  opacity: 0.9;
+  animation: head-spin 1.2s var(--e-silk) both;
+}
+@keyframes head-spin {
+  from {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.6);
+  }
+}
+.page-head__eyebrow {
+  margin: 0;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  letter-spacing: 0.24em;
+}
+.page-head__main {
+  display: grid;
+  gap: clamp(22px, 3vw, 36px);
+  transform: translate3d(0, calc(var(--hp, 0) * -60px), 0);
+  opacity: calc(1 - var(--hp, 0) * 0.9);
+}
+.page-head__title {
+  max-width: 13ch;
+  margin: 0;
+  font-size: calc(clamp(2.8rem, 7vw, 7.6rem) * var(--ed, 1));
+}
+.page-head__foot {
+  display: grid;
+  gap: 18px;
+  max-width: 62ch;
+}
+.page-head__rule {
+  display: block;
+  height: 1px;
+  width: 100%;
+  max-width: 420px;
+  background: var(--c-text);
+  transform-origin: left;
+  animation: head-rule 1.2s var(--e-silk) 0.5s both;
+}
+@keyframes head-rule {
+  from {
+    transform: scaleX(0);
+  }
+}
+.page-head__lede {
+  margin: 0;
+  animation: head-rise 1s var(--e-silk) 0.6s both;
+}
+.page-head__foot > :not(.page-head__rule, .page-head__lede) {
+  animation: head-rise 1s var(--e-silk) 0.75s both;
+}
+@keyframes head-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+    filter: blur(6px);
+  }
+}
+.page-head__aside {
+  align-self: center;
+  justify-self: center;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  transform: translate3d(0, calc(var(--hp, 0) * 80px), 0) rotate(calc(var(--hp, 0) * -3deg));
+  animation: head-aside 1.4s var(--e-silk) 0.3s both;
+}
+.page-head__aside .phone {
+  max-width: min(300px, 70vw);
+}
+@keyframes head-aside {
+  from {
+    opacity: 0;
+    transform: translateY(80px) rotate(4deg) scale(0.94);
+  }
+}
+.page-head__word {
+  position: absolute;
+  z-index: -1;
+  right: -4vw;
+  bottom: -0.12em;
+  margin: 0;
+  white-space: nowrap;
+  font: italic 400 clamp(6rem, 22vw, 22rem) / 0.85 var(--font-display);
+  letter-spacing: -0.045em;
+  color: transparent;
+  -webkit-text-stroke: 1.2px color-mix(in oklab, var(--c-text) 14%, transparent);
+  transform: translate3d(calc(var(--hp, 0) * -18vw), 0, 0);
+  pointer-events: none;
+  animation: head-word 1.8s var(--e-silk) both;
+}
+@keyframes head-word {
+  from {
+    opacity: 0;
+    translate: 12vw 0;
+  }
+}
+@media (max-width: 860px) {
+  .page-head,
+  .page-head--aside {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+    row-gap: 22px;
+  }
+  .page-head__eyebrow {
+    writing-mode: horizontal-tb;
+    transform: none;
+  }
+  .page-head__rail {
+    display: flex;
+    align-items: center;
+    padding-top: 0;
+  }
+  .page-head__aside {
+    justify-self: start;
+  }
+}
+
+/* ---------- Reading column ---------- */
+.prose-wrap {
+  max-width: var(--maxw);
+  padding-left: calc(var(--gutter) + var(--rail));
+  padding-right: var(--gutter);
+}
+.prose-wrap > * {
+  max-width: 76ch;
+}
+.prose-wrap > .card,
+.prose-wrap > .grid-auto {
+  max-width: 980px;
+}
+
+/* Legal and long reading pages: contents stick in the rail; text hangs from the reading line. */
+.legal__head.prose-wrap {
+  padding-top: calc(var(--nav-h) + clamp(48px, 8vw, 110px));
+}
+.legal__head .t-h1 {
+  font-size: calc(clamp(2.6rem, 6vw, 6rem) * var(--ed, 1));
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  max-width: 14ch;
+}
+@media (min-width: 861px) {
+  .legal .legal__body.prose-wrap {
+    padding-left: var(--gutter);
+    display: grid;
+    grid-template-columns: calc(var(--rail) - var(--rail-gap)) minmax(0, 76ch);
+    column-gap: var(--rail-gap);
+    align-items: start;
+  }
+  .legal .legal__body > * {
+    grid-column: 2;
+    max-width: none;
+  }
+  .legal .legal__body > .legal__toc {
+    grid-column: 1;
+    grid-row: 1 / span 80;
+    position: sticky;
+    top: calc(var(--nav-h) + 28px);
+    max-height: calc(100svh - var(--nav-h) - 56px);
+    overflow: auto;
+    font-size: 0.86rem;
+  }
+  .legal .legal__toc ol {
+    columns: 1;
+    padding-left: 0;
+    list-style: none;
+    counter-reset: toc;
+    border-left: 1px solid var(--c-divider);
+  }
+  .legal .legal__toc li {
+    counter-increment: toc;
+    padding: 5px 0 5px 14px;
+  }
+  .legal .legal__toc a {
+    text-decoration: none;
+    display: inline-block;
+    transition:
+      color var(--d-quick),
+      transform var(--d-standard) var(--e-silk);
+  }
+  .legal .legal__toc a::before {
+    content: counter(toc, decimal-leading-zero) "  ";
+    font: 500 0.72rem/1 var(--font-mono);
+    color: var(--c-text-soft);
+  }
+  .legal .legal__toc a:hover {
+    color: var(--c-accent);
+    transform: translateX(4px);
+  }
+}
+
+/* ---------- Micro-interactions ---------- */
+
+/* Cards: a soft light follows the pointer and the card leans toward it. */
+.card {
+  transition:
+    transform 600ms var(--e-silk),
+    box-shadow var(--d-standard) var(--e-silk),
+    border-color var(--d-standard);
+}
+.card.is-lit {
+  background-image: radial-gradient(520px circle at var(--sx, 50%) var(--sy, 50%), color-mix(in oklab, var(--c-text) 5%, transparent), transparent 60%);
+  border-color: color-mix(in oklab, var(--c-text) 22%, transparent);
+  box-shadow: var(--shadow-card);
+  transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-3px);
+}
+:root[data-mode="dark"] .card.is-lit {
+  background-image: radial-gradient(480px circle at var(--sx, 50%) var(--sy, 50%), color-mix(in oklab, var(--c-blush) 9%, transparent), transparent 62%);
+}
+
+/* Buttons and chips: a light under the pointer, a lift, and an ink drop where pressed. */
+.btn,
+.chip {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    transform 260ms var(--e-ease-out-back),
+    background-color var(--d-quick),
+    color var(--d-quick),
+    border-color var(--d-quick),
+    box-shadow var(--d-standard);
+}
+.btn.is-lit {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px -18px color-mix(in oklab, var(--c-accent) 70%, transparent);
+}
+.btn.is-lit::before,
+.chip.is-lit::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(120px circle at var(--sx, 50%) var(--sy, 50%), color-mix(in oklab, var(--c-surface-lowest) 26%, transparent), transparent 70%);
+  pointer-events: none;
+}
+.btn:active,
+.chip:active {
+  transform: scale(0.965);
+  transition-duration: 90ms;
+}
+.ink-drop {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.35;
+  pointer-events: none;
+  animation: ink-drop 650ms var(--e-silk) forwards;
+}
+@keyframes ink-drop {
+  to {
+    transform: scale(28);
+    opacity: 0;
+  }
+}
+
+/* Links in running text: a hairline that inks in from the left on hover. */
+main p a:not(.btn, .chip),
+main li a:not(.btn, .chip),
+main td a:not(.btn, .chip) {
+  text-decoration: none;
+  background: linear-gradient(var(--c-hairline), var(--c-hairline)) 0 100% / 100% 1px no-repeat,
+    linear-gradient(var(--c-accent), var(--c-accent)) 0 100% / 0 1.5px no-repeat;
+  padding-bottom: 1px;
+  transition:
+    background-size 420ms var(--e-silk),
+    color var(--d-quick);
+}
+main p a:not(.btn, .chip):hover,
+main li a:not(.btn, .chip):hover,
+main td a:not(.btn, .chip):hover {
+  color: var(--c-accent);
+  background-size:
+    100% 1px,
+    100% 1.5px;
+}
+
+/* Inputs: the underline inks across on focus. */
+.input {
+  transition:
+    border-color var(--d-quick),
+    box-shadow 320ms var(--e-silk);
+}
+.input:focus {
+  box-shadow: 0 2px 0 0 var(--c-accent);
+}
+
+/* Section headings on inner pages hang a short rule from the reading line. */
+main .section > h2,
+main .wrap > h2.t-h2,
+main .wrap > h2.t-h1 {
+  position: relative;
+}
+
+/* ---------- Scroll reveal (inner pages; set up by Transitions only below the fold) ---------- */
+html.js:not(.reduced) [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 48px, 0);
+  filter: blur(6px);
+  transition:
+    opacity 900ms var(--e-silk),
+    transform 1100ms var(--e-silk),
+    filter 900ms var(--e-silk);
+}
+html.js:not(.reduced) [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+/* Grids reveal their items one after another. */
+html.js:not(.reduced) [data-reveal].is-in > * {
+  animation: stagger-in 800ms var(--e-silk) both;
+}
+html.js:not(.reduced) [data-reveal].is-in > :nth-child(2) { animation-delay: 60ms; }
+html.js:not(.reduced) [data-reveal].is-in > :nth-child(3) { animation-delay: 120ms; }
+html.js:not(.reduced) [data-reveal].is-in > :nth-child(4) { animation-delay: 180ms; }
+html.js:not(.reduced) [data-reveal].is-in > :nth-child(5) { animation-delay: 240ms; }
+html.js:not(.reduced) [data-reveal].is-in > :nth-child(6) { animation-delay: 300ms; }
+html.js:not(.reduced) [data-reveal].is-in > :nth-child(n + 7) { animation-delay: 360ms; }
+@keyframes stagger-in {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+}
+
+/* ---------- Page transition curtain ---------- */
+.curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 260;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  visibility: hidden;
+}
+.curtain.is-covering,
+.curtain.is-lifting {
+  visibility: visible;
+}
+.curtain.is-covering {
+  pointer-events: auto;
+}
+.curtain__sheet {
+  position: absolute;
+  inset: 0;
+  background: var(--c-ink-container);
+  clip-path: inset(100% 0 0 0 round 40% 40% 0 0);
+}
+.curtain.is-covering .curtain__sheet {
+  animation: curtain-up 560ms var(--e-ease-in-out-cubic) forwards;
+}
+.curtain.is-lifting .curtain__sheet {
+  animation: curtain-off 820ms var(--e-ease-in-out-cubic) forwards;
+}
+@keyframes curtain-up {
+  from {
+    clip-path: inset(100% 0 0 0 round 40% 40% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0 round 0);
+  }
+}
+@keyframes curtain-off {
+  from {
+    clip-path: inset(0 0 0 0 round 0);
+  }
+  to {
+    clip-path: inset(0 0 100% 0 round 0 0 40% 40%);
+  }
+}
+.curtain__mark {
+  position: relative;
+  width: min(18vmin, 140px);
+  height: auto;
+  color: var(--c-inverse-text);
+  overflow: visible;
+}
+.curtain__mark path {
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 4;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.curtain.is-covering .curtain__mark path {
+  animation:
+    logo-pen 900ms var(--e-ease-in-out-cubic) 120ms forwards,
+    logo-flood 400ms var(--e-silk) 700ms forwards;
+}
+.curtain.is-lifting .curtain__mark {
+  animation: curtain-mark-off 500ms var(--e-exit) forwards;
+}
+.curtain.is-lifting .curtain__mark path {
+  fill: currentColor;
+  stroke-dashoffset: 0;
+}
+@keyframes curtain-mark-off {
+  to {
+    opacity: 0;
+    transform: translateY(-40px) scale(0.9);
+  }
+}
+/* The new page's opening rises in behind the lifting sheet. */
+html.page-enter .page-head__main,
+html.page-enter .legal__head {
+  animation: page-in 1s var(--e-silk) 0.25s both;
+}
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(60px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .curtain {
+    display: none;
+  }
+}
+html.reduced .curtain {
+  display: none;
+}
+html.reduced .card.is-lit {
+  transform: none;
+}
+
+/* ---------- Header visuals ---------- */
+.poster-fan {
+  position: relative;
+  width: min(440px, 80vw);
+  aspect-ratio: 4 / 5;
+}
+.poster-fan img {
+  position: absolute;
+  inset: 8% 18%;
+  width: 64%;
+  height: auto;
+  border-radius: 18px;
+  box-shadow: 0 40px 80px -40px color-mix(in oklab, var(--c-noir) 60%, transparent);
+  transform: translateX(calc(var(--i) * 26%)) rotate(calc(var(--i) * 9deg)) translateY(calc(var(--i) * var(--i) * 6%));
+  transition: transform 900ms var(--e-silk);
+}
+.poster-fan img:nth-child(2) {
+  z-index: 1;
+}
+.page-head:hover .poster-fan img {
+  transform: translateX(calc(var(--i) * 40%)) rotate(calc(var(--i) * 14deg)) translateY(calc(var(--i) * var(--i) * 4% - 2%));
+}
+
+.cipher {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  padding: clamp(22px, 3vw, 34px);
+  font: 500 clamp(0.72rem, 1vw, 0.9rem) / 1.35 var(--font-mono);
+  letter-spacing: 0.12em;
+  color: var(--c-text-soft);
+  background: var(--c-sheet);
+  overflow: hidden;
+}
+.cipher span {
+  animation: cipher 3.2s steps(8) infinite;
+  animation-delay: calc(var(--i) * -0.37s);
+}
+@keyframes cipher {
+  50% {
+    opacity: 0.35;
+  }
+}
+.cipher__seal {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: var(--c-oxblood);
+  color: var(--c-on-accent);
+  animation: none !important;
+  letter-spacing: 0.14em;
+}
+
+.steps {
+  width: min(420px, 100%);
+}
+.steps ol {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+}
+.steps li {
+  display: flex;
+  gap: 16px;
+  align-items: baseline;
+  padding: 14px 0;
+  border-top: 1px solid var(--c-divider);
+  font: 400 clamp(1.05rem, 1.5vw, 1.3rem) / 1.3 var(--font-display);
+  animation: head-rise 900ms var(--e-silk) both;
+  animation-delay: calc(0.5s + var(--i) * 90ms);
+}
+.steps li .t-num {
+  font: 500 0.8rem/1 var(--font-mono);
+  color: var(--c-accent);
+}
+
+.download-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  counter-reset: s;
+}
+.download-steps li {
+  display: flex;
+  gap: 18px;
+  align-items: baseline;
+  padding: 22px 0;
+  border-top: 1px solid var(--c-divider);
+  font: 400 clamp(1.4rem, 2.6vw, 2.2rem) / 1.1 var(--font-display);
+  transition:
+    padding var(--d-standard) var(--e-silk),
+    color var(--d-quick);
+}
+.download-steps li:hover {
+  padding-left: 12px;
+  color: var(--c-accent);
+}
+.download-steps .t-num {
+  font: 500 0.85rem/1 var(--font-mono);
+  color: var(--c-text-soft);
+}

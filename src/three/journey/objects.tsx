@@ -166,8 +166,11 @@ export function Phone() {
   });
 
   const body = dark ? c["ink-container"] : c.ink;
+  const rim = dark ? c["text-muted"] : c.bronze;
   const mono = useMemo(() => monogramGeometry(0.05), []);
   return (
+    <>
+    <Shadow />
     <group ref={g} visible={false}>
       <RoundedBox args={[1.2, 2.52, 0.11]} radius={0.15} smoothness={6}>
         <meshPhysicalMaterial color={body} metalness={0.6} roughness={0.3} clearcoat={1} clearcoatRoughness={0.18} />
@@ -184,10 +187,39 @@ export function Phone() {
         <planeGeometry args={[1.12, 2.44]} />
         <meshPhysicalMaterial transparent opacity={0.07} roughness={0.04} clearcoat={1} color={colors.light.surface} />
       </mesh>
+      {/* the polished rim, a hair wider than the body */}
+      <RoundedBox args={[1.214, 2.534, 0.086]} radius={0.152} smoothness={6}>
+        <meshPhysicalMaterial color={rim} metalness={1} roughness={0.18} clearcoat={1} clearcoatRoughness={0.1} />
+      </RoundedBox>
       {/* the ribbon N on the back, in the body's opposite ink */}
-      <group position={[0, 0.25, -0.058]} rotation={[0, Math.PI, 0]} scale={[0.5, -0.5, 0.5]}>
+      <group position={[0, -0.05, -0.058]} rotation={[0, Math.PI, 0]} scale={[0.46, -0.46, 0.46]}>
         <mesh geometry={mono}>
           <meshStandardMaterial color={dark ? c.text : c.canvas} metalness={0.4} roughness={0.35} />
+        </mesh>
+      </group>
+      {/* camera island: two lenses and a flash, seen when the phone turns */}
+      <group position={[0.3, 0.86, -0.062]} rotation={[0, Math.PI, 0]}>
+        <RoundedBox args={[0.46, 0.46, 0.03]} radius={0.1} smoothness={4} position={[0, 0, 0.01]}>
+          <meshPhysicalMaterial color={body} metalness={0.5} roughness={0.22} clearcoat={1} />
+        </RoundedBox>
+        {[
+          [-0.1, 0.1],
+          [0.1, -0.1],
+        ].map(([x, y], i) => (
+          <group key={i} position={[x!, y!, 0.03]}>
+            <mesh rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.078, 0.078, 0.03, 40]} />
+              <meshStandardMaterial color={rim} metalness={1} roughness={0.15} />
+            </mesh>
+            <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0.012]}>
+              <cylinderGeometry args={[0.058, 0.058, 0.012, 40]} />
+              <meshPhysicalMaterial color={colors.dark.canvas} metalness={0.2} roughness={0.05} clearcoat={1} />
+            </mesh>
+          </group>
+        ))}
+        <mesh position={[0.1, 0.1, 0.03]}>
+          <circleGeometry args={[0.025, 24]} />
+          <meshBasicMaterial color={colors.light.linen} />
         </mesh>
       </group>
       {/* side keys */}
@@ -200,6 +232,39 @@ export function Phone() {
         <meshStandardMaterial color={body} metalness={0.7} roughness={0.3} />
       </mesh>
     </group>
+    </>
+  );
+}
+
+/** A soft contact shadow that follows the phone across the stage, fading as it lifts or leaves. */
+function Shadow() {
+  const ref = useRef<THREE.Mesh>(null);
+  const tex = useMemo(() => {
+    const cv = document.createElement("canvas");
+    cv.width = cv.height = 128;
+    const ctx = cv.getContext("2d")!;
+    const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+    g.addColorStop(0, "rgba(0,0,0,0.55)");
+    g.addColorStop(0.55, "rgba(0,0,0,0.18)");
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 128, 128);
+    return new THREE.CanvasTexture(cv);
+  }, []);
+  useFrame(() => {
+    const m = ref.current;
+    if (!m) return;
+    const vis = ease(live.phone.v);
+    m.visible = vis > 0.05 && !live.portrait;
+    m.position.set(live.phoneWorld.x, live.phoneWorld.y - 1.45 * live.phoneScale, live.phoneWorld.z - 0.2);
+    m.scale.set(1.5 * live.phoneScale, 0.45 * live.phoneScale, 1);
+    (m.material as THREE.MeshBasicMaterial).opacity = 0.5 * vis;
+  });
+  return (
+    <mesh ref={ref} rotation={[-Math.PI / 2.4, 0, 0]} visible={false}>
+      <planeGeometry args={[1, 1]} />
+      <meshBasicMaterial map={tex} transparent depthWrite={false} opacity={0.5} />
+    </mesh>
   );
 }
 

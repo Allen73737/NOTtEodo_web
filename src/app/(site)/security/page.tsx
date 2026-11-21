@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Table } from "@/components/legal/LegalPage";
+import { CipherCard, PosterFan, StepsCard } from "@/components/site/HeadVisuals";
 import { PageHeader } from "@/components/site/PageHeader";
 import { IDENTITY } from "@/content/identity";
 import { GITHUB_URL } from "@/content/site";
@@ -20,6 +21,8 @@ export default function SecurityPage() {
         title="Locked on your phone. Locked in the cloud."
         italic={["Locked"]}
         lede="The plain-English version first, then the technical details for those who want them."
+        aside={<CipherCard />}
+        word="Locked"
       />
       <section className="prose-wrap legal__body">
         <div className="legal__section">

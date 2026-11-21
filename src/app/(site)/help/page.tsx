@@ -22,6 +22,7 @@ export default async function HelpPage() {
         title="Everything, explained plainly."
         italic={["plainly."]}
         lede="The same guide Nodo reads inside the app, so the answers here and in the app always agree."
+        word="Help"
       />
       <section className="prose-wrap" style={{ paddingBottom: 40 }}>
         <HelpSearch extra={insights.map((i) => ({ question: i.question, answer: i.answer }))} />

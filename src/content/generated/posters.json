@@ -12,7 +12,7 @@
       "height": 1350,
       "src": "/posters/covers/cover-notes-notes-light.webp",
       "module": "notes",
-      "hash": "916021f38f233e06"
+      "hash": "30167235aa7593bc"
     },
     {
       "id": "cover-notes-notes-dark",
@@ -24,7 +24,7 @@
       "height": 1350,
       "src": "/posters/covers/cover-notes-notes-dark.webp",
       "module": "notes",
-      "hash": "8e132695c535ab7f"
+      "hash": "51510b34cf693a43"
     },
     {
       "id": "cover-tasks-tasks-light",
@@ -36,7 +36,7 @@
       "height": 1350,
       "src": "/posters/covers/cover-tasks-tasks-light.webp",
       "module": "tasks",
-      "hash": "c43bf3bb8bba0314"
+      "hash": "2ad0089141d51fe7"
     },
     {
       "id": "cover-tasks-tasks-dark",
@@ -48,7 +48,7 @@
       "height": 1350,
       "src": "/posters/covers/cover-tasks-tasks-dark.webp",
       "module": "tasks",
-      "hash": "c6019cb0fdd0e1e3"
+      "hash": "4af40b6ef53d4ef2"
     },
     {
       "id": "cover-planner-planner-light",
@@ -60,7 +60,7 @@
       "height": 1350,
       "src": "/posters/covers/cover-planner-planner-light.webp",
       "module": "planner",
-      "hash": "58b8ce5eeacbcd04"
+      "hash": "878dc1ed6b21c6be"
     },
     {
       "id": "cover-planner-planner-dark",
@@ -72,7 +72,7 @@
       "height": 1350,
       "src": "/posters/covers/cover-planner-planner-dark.webp",
       "module": "planner",
-      "hash": "aeabcb1b741c0931"
+      "hash": "ff90565e7315d501"
     },
     {
       "id": "cover-habits-habits-light",
@@ -84,7 +84,7 @@
       "height": 1350,
       "src": "/posters/covers/cover-habits-habits-light.webp",
       "module": "habits",
-      "hash": "4c16f97248166039"
+      "hash": "b44e6a1d7b61406d"
     },
     {
       "id": "cover-habits-habits-dark",
@@ -96,7 +96,7 @@
       "height": 1350,
       "src": "/posters/covers/cover-habits-habits-dark.webp",
       "module": "habits",
-      "hash": "608465f91a401567"
+      "hash": "8627f743bafb9f7c"
     },
     {
       "id": "cover-expenses-money-light",
@@ -108,7 +108,7 @@
       "height": 1350,
       "src": "/posters/covers/cover-expenses-money-light.webp",
       "module": "expenses",
-      "hash": "110590b19ace96f8"
+      "hash": "1c0f0323e483a430"
     },
     {
       "id": "cover-expenses-money-dark",
@@ -120,7 +120,7 @@
       "height": 1350,
       "src": "/posters/covers/cover-expenses-money-dark.webp",
       "module": "expenses",
-      "hash": "3b9ad3fd404ecd62"
+      "hash": "ebf211ebc2fb16f5"
     },
     {
       "id": "cover-focus-dial-focus-light",
@@ -132,7 +132,7 @@
       "height": 1350,
       "src": "/posters/covers/cover-focus-dial-focus-light.webp",
       "module": "focus-dial",
-      "hash": "95cadc5ba5ea0f68"
+      "hash": "e969f721a3c41d01"
     },
     {
       "id": "cover-focus-dial-focus-dark",
@@ -144,7 +144,7 @@
       "height": 1350,
       "src": "/posters/covers/cover-focus-dial-focus-dark.webp",
       "module": "focus-dial",
-      "hash": "cd1fc05ecf8e308c"
+      "hash": "15ff42b905d49d19"
     },
     {
       "id": "cover-expenses-ledger-light",
@@ -156,7 +156,7 @@
       "height": 1350,
       "src": "/posters/covers/cover-expenses-ledger-light.webp",
       "module": "expenses",
-      "hash": "89a48f838030912f"
+      "hash": "b41f4d30a45ccd6f"
     },
     {
       "id": "cover-expenses-ledger-dark",
@@ -168,7 +168,7 @@
       "height": 1350,
       "src": "/posters/covers/cover-expenses-ledger-dark.webp",
       "module": "expenses",
-      "hash": "48bb0743e53652d7"
+      "hash": "0a3261c22dd94b03"
     },
     {
       "id": "type-capture-light",
@@ -179,7 +179,7 @@
       "width": 1080,
       "height": 1350,
       "src": "/posters/typographic/type-capture-light.webp",
-      "hash": "5f5fd17bc24c5561"
+      "hash": "95650d77a2759656"
     },
     {
       "id": "type-capture-dark",
@@ -190,7 +190,7 @@
       "width": 1080,
       "height": 1350,
       "src": "/posters/typographic/type-capture-dark.webp",
-      "hash": "db8a21e381529e07"
+      "hash": "c392fe6df143be18"
     },
     {
       "id": "type-curate-light",
@@ -201,7 +201,7 @@
       "width": 1080,
       "height": 1350,
       "src": "/posters/typographic/type-curate-light.webp",
-      "hash": "bd58813ee75eb627"
+      "hash": "ce1900639e9ba504"
     },
     {
       "id": "type-curate-dark",
@@ -212,7 +212,7 @@
       "width": 1080,
       "height": 1350,
       "src": "/posters/typographic/type-curate-dark.webp",
-      "hash": "71e5f84d373a1106"
+      "hash": "c39a940ed865a0c2"
     },
     {
       "id": "type-plan-light",
@@ -223,7 +223,7 @@
       "width": 1080,
       "height": 1350,
       "src": "/posters/typographic/type-plan-light.webp",
-      "hash": "34ce0fd7df1b3f6f"
+      "hash": "ee910e7c5ce7c753"
     },
     {
       "id": "type-plan-dark",
@@ -234,7 +234,7 @@
       "width": 1080,
       "height": 1350,
       "src": "/posters/typographic/type-plan-dark.webp",
-      "hash": "1485ef33e27e68c2"
+      "hash": "7971d9b10d2aa278"
     },
     {
       "id": "type-live-light",
@@ -245,7 +245,7 @@
       "width": 1080,
       "height": 1350,
       "src": "/posters/typographic/type-live-light.webp",
-      "hash": "3452ccd066f9095a"
+      "hash": "69f7e1b5d73de785"
     },
     {
       "id": "type-live-dark",
@@ -256,7 +256,7 @@
       "width": 1080,
       "height": 1350,
       "src": "/posters/typographic/type-live-dark.webp",
-      "hash": "25a216f2d9ece194"
+      "hash": "e7c3c0a456e9440a"
     },
     {
       "id": "type-remember-light",
@@ -267,7 +267,7 @@
       "width": 1080,
       "height": 1350,
       "src": "/posters/typographic/type-remember-light.webp",
-      "hash": "f970a9734a3ac26c"
+      "hash": "cf79910babbcad44"
     },
     {
       "id": "type-remember-dark",
@@ -278,7 +278,7 @@
       "width": 1080,
       "height": 1350,
       "src": "/posters/typographic/type-remember-dark.webp",
-      "hash": "4185a0ac5f07a089"
+      "hash": "14ccf9cf06ebc71d"
     },
     {
       "id": "swiss-notes-light",
@@ -290,7 +290,7 @@
       "height": 1350,
       "src": "/posters/swiss/swiss-notes-light.webp",
       "module": "notes",
-      "hash": "c32542263bccd4df"
+      "hash": "7193a081fb6ae7f6"
     },
     {
       "id": "swiss-notes-dark",
@@ -302,7 +302,7 @@
       "height": 1350,
       "src": "/posters/swiss/swiss-notes-dark.webp",
       "module": "notes",
-      "hash": "f412c4cc5ce1d9e2"
+      "hash": "73c14e96151b70fd"
     },
     {
       "id": "swiss-tasks-light",
@@ -314,7 +314,7 @@
       "height": 1350,
       "src": "/posters/swiss/swiss-tasks-light.webp",
       "module": "tasks",
-      "hash": "a6288d1388cb5bb6"
+      "hash": "b9884fa835bc2be4"
     },
     {
       "id": "swiss-tasks-dark",
@@ -326,7 +326,7 @@
       "height": 1350,
       "src": "/posters/swiss/swiss-tasks-dark.webp",
       "module": "tasks",
-      "hash": "4171437fa18ed0e6"
+      "hash": "68054272c9a12e01"
     },
     {
       "id": "swiss-expenses-light",
@@ -338,7 +338,7 @@
       "height": 1350,
       "src": "/posters/swiss/swiss-expenses-light.webp",
       "module": "expenses",
-      "hash": "42f08f66bdb6a9e6"
+      "hash": "39473c613e61e481"
     },
     {
       "id": "swiss-expenses-dark",
@@ -350,7 +350,7 @@
       "height": 1350,
       "src": "/posters/swiss/swiss-expenses-dark.webp",
       "module": "expenses",
-      "hash": "d42c93d9938cbfed"
+      "hash": "7dbedc09be55c5d6"
     },
     {
       "id": "duotone-1-light",
@@ -361,7 +361,7 @@
       "width": 1080,
       "height": 1350,
       "src": "/posters/duotone/duotone-1-light.webp",
-      "hash": "cf952f1baa86035a"
+      "hash": "f475707add128baf"
     },
     {
       "id": "duotone-1-dark",
@@ -372,7 +372,7 @@
       "width": 1080,
       "height": 1350,
       "src": "/posters/duotone/duotone-1-dark.webp",
-      "hash": "5c3fd9d8e8043065"
+      "hash": "304482b1e8f154b2"
     },
     {
       "id": "duotone-2-light",
@@ -383,7 +383,7 @@
       "width": 1080,
       "height": 1350,
       "src": "/posters/duotone/duotone-2-light.webp",
-      "hash": "d223b3d864a905ab"
+      "hash": "f51860999294c535"
     },
     {
       "id": "duotone-2-dark",
@@ -394,7 +394,7 @@
       "width": 1080,
       "height": 1350,
       "src": "/posters/duotone/duotone-2-dark.webp",
-      "hash": "f77c270d07142f72"
+      "hash": "43f6c9c541fc7bb2"
     },
     {
       "id": "diptych-theme-1",
@@ -405,7 +405,7 @@
       "width": 1600,
       "height": 900,
       "src": "/posters/diptych-themes/diptych-theme-1.webp",
-      "hash": "d8b0169049fd34d4"
+      "hash": "ae75c474f1248a9c"
     },
     {
       "id": "diptych-theme-2",
@@ -416,7 +416,7 @@
       "width": 1600,
       "height": 900,
       "src": "/posters/diptych-themes/diptych-theme-2.webp",
-      "hash": "de19405ddb189506"
+      "hash": "dcdd7586531f212d"
     },
     {
       "id": "diptych-theme-3",
@@ -427,7 +427,7 @@
       "width": 1600,
       "height": 900,
       "src": "/posters/diptych-themes/diptych-theme-3.webp",
-      "hash": "8be7af731dd25a64"
+      "hash": "b31e529af3f952c9"
     },
     {
       "id": "diptych-views-expenses-light",
@@ -439,7 +439,7 @@
       "height": 900,
       "src": "/posters/diptych-views/diptych-views-expenses-light.webp",
       "module": "expenses",
-      "hash": "9615ab8ac1a8ccf3"
+      "hash": "57821401e08a78c7"
     },
     {
       "id": "diptych-views-expenses-dark",
@@ -451,7 +451,7 @@
       "height": 900,
       "src": "/posters/diptych-views/diptych-views-expenses-dark.webp",
       "module": "expenses",
-      "hash": "235b69306a25d1b4"
+      "hash": "e89202d6058da9f3"
     },
     {
       "id": "guilloche-light",
@@ -462,7 +462,7 @@
       "width": 1080,
       "height": 1350,
       "src": "/posters/data-art/guilloche-light.webp",
-      "hash": "91425dcbe535f2cf"
+      "hash": "b534a7fcdb49c9dc"
     },
     {
       "id": "guilloche-dark",
@@ -473,7 +473,7 @@
       "width": 1080,
       "height": 1350,
       "src": "/posters/data-art/guilloche-dark.webp",
-      "hash": "d96caf277b905e35"
+      "hash": "7bf66c709303824b"
     },
     {
       "id": "collage-light",
@@ -484,7 +484,7 @@
       "width": 1080,
       "height": 1350,
       "src": "/posters/collage/collage-light.webp",
-      "hash": "b94c939df5f22a0c"
+      "hash": "53fdd7220fa421bc"
     },
     {
       "id": "collage-dark",
@@ -495,7 +495,7 @@
       "width": 1080,
       "height": 1350,
       "src": "/posters/collage/collage-dark.webp",
-      "hash": "25c49059077f9d13"
+      "hash": "ea74558a55a32b6a"
     },
     {
       "id": "play-screenshot-01-expenses-light",
@@ -507,7 +507,7 @@
       "height": 1920,
       "src": "/posters/play/play-screenshot-01-expenses-light.webp",
       "png": "/posters/play/play-screenshot-01-expenses-light.png",
-      "hash": "9e520903aad89adf"
+      "hash": "ec52535c7fecee84"
     },
     {
       "id": "play-screenshot-02-tasks-light",
@@ -519,7 +519,7 @@
       "height": 1920,
       "src": "/posters/play/play-screenshot-02-tasks-light.webp",
       "png": "/posters/play/play-screenshot-02-tasks-light.png",
-      "hash": "7651a92d98ddfcf8"
+      "hash": "9d0a41c55d90864a"
     },
     {
       "id": "play-screenshot-03-notes-light",
@@ -531,7 +531,7 @@
       "height": 1920,
       "src": "/posters/play/play-screenshot-03-notes-light.webp",
       "png": "/posters/play/play-screenshot-03-notes-light.png",
-      "hash": "eb249e604c0b4318"
+      "hash": "98040125792c6574"
     },
     {
       "id": "play-screenshot-04-planner-light",
@@ -543,7 +543,7 @@
       "height": 1920,
       "src": "/posters/play/play-screenshot-04-planner-light.webp",
       "png": "/posters/play/play-screenshot-04-planner-light.png",
-      "hash": "b0345c0eacedcb21"
+      "hash": "71e6429d3b3d65b4"
     },
     {
       "id": "play-screenshot-05-focus-light",
@@ -555,7 +555,7 @@
       "height": 1920,
       "src": "/posters/play/play-screenshot-05-focus-light.webp",
       "png": "/posters/play/play-screenshot-05-focus-light.png",
-      "hash": "e0f980a399f0279b"
+      "hash": "c72d13f0d9be33c3"
     },
     {
       "id": "play-screenshot-06-habits-light",
@@ -567,7 +567,7 @@
       "height": 1920,
       "src": "/posters/play/play-screenshot-06-habits-light.webp",
       "png": "/posters/play/play-screenshot-06-habits-light.png",
-      "hash": "3be966d3e549dcfc"
+      "hash": "12622a2c08eb9258"
     },
     {
       "id": "play-screenshot-07-dark-dark",
@@ -579,7 +579,7 @@
       "height": 1920,
       "src": "/posters/play/play-screenshot-07-dark-dark.webp",
       "png": "/posters/play/play-screenshot-07-dark-dark.png",
-      "hash": "dc1602367583b6fd"
+      "hash": "a27536f5fbd13512"
     },
     {
       "id": "play-screenshot-08-editorial-dark",
@@ -591,7 +591,7 @@
       "height": 1920,
       "src": "/posters/play/play-screenshot-08-editorial-dark.webp",
       "png": "/posters/play/play-screenshot-08-editorial-dark.png",
-      "hash": "01daea4ea320ca91"
+      "hash": "4e87271b3778c815"
     },
     {
       "id": "feature-graphic-light",
@@ -603,7 +603,7 @@
       "height": 500,
       "src": "/posters/play/feature-graphic-light.webp",
       "png": "/posters/play/feature-graphic-light.png",
-      "hash": "eced392215763b83"
+      "hash": "95706f5016845b99"
     },
     {
       "id": "feature-graphic-dark",
@@ -615,7 +615,7 @@
       "height": 500,
       "src": "/posters/play/feature-graphic-dark.webp",
       "png": "/posters/play/feature-graphic-dark.png",
-      "hash": "cab8f530c08abf9a"
+      "hash": "39cd19d4937ee160"
     },
     {
       "id": "og-default-light",
@@ -627,7 +627,7 @@
       "height": 630,
       "src": "/posters/og/og-default-light.webp",
       "png": "/posters/og/og-default-light.png",
-      "hash": "4963d8393235fbcb"
+      "hash": "469762d044c0c6d9"
     },
     {
       "id": "og-default-dark",
@@ -639,7 +639,7 @@
       "height": 630,
       "src": "/posters/og/og-default-dark.webp",
       "png": "/posters/og/og-default-dark.png",
-      "hash": "c52c3b8f107e0ca3"
+      "hash": "a5ec98fa2619dde2"
     },
     {
       "id": "og-features-light",
@@ -651,7 +651,7 @@
       "height": 630,
       "src": "/posters/og/og-features-light.webp",
       "png": "/posters/og/og-features-light.png",
-      "hash": "c51bb3441d5c1dd1"
+      "hash": "31f963dbb30d94c6"
     },
     {
       "id": "og-features-dark",
@@ -663,7 +663,7 @@
       "height": 630,
       "src": "/posters/og/og-features-dark.webp",
       "png": "/posters/og/og-features-dark.png",
-      "hash": "0b14f698147d1288"
+      "hash": "a9db3547c1e05dae"
     },
     {
       "id": "og-download-light",
@@ -675,7 +675,7 @@
       "height": 630,
       "src": "/posters/og/og-download-light.webp",
       "png": "/posters/og/og-download-light.png",
-      "hash": "a03e21aa8b613713"
+      "hash": "7e2fb158ca55da6b"
     },
     {
       "id": "og-download-dark",
@@ -687,7 +687,7 @@
       "height": 630,
       "src": "/posters/og/og-download-dark.webp",
       "png": "/posters/og/og-download-dark.png",
-      "hash": "8769f75d6cf61ee9"
+      "hash": "80c1e1b9b3333919"
     },
     {
       "id": "og-privacy-light",
@@ -699,7 +699,7 @@
       "height": 630,
       "src": "/posters/og/og-privacy-light.webp",
       "png": "/posters/og/og-privacy-light.png",
-      "hash": "473a1a6003a075b1"
+      "hash": "345d9790b2186f31"
     },
     {
       "id": "og-privacy-dark",
@@ -711,7 +711,7 @@
       "height": 630,
       "src": "/posters/og/og-privacy-dark.webp",
       "png": "/posters/og/og-privacy-dark.png",
-      "hash": "c4b1788fb158950f"
+      "hash": "90adff81c6d758f6"
     },
     {
       "id": "og-nodo-light",
@@ -723,7 +723,7 @@
       "height": 630,
       "src": "/posters/og/og-nodo-light.webp",
       "png": "/posters/og/og-nodo-light.png",
-      "hash": "d0962d055d8cf659"
+      "hash": "a0ac801c202e07ae"
     },
     {
       "id": "og-nodo-dark",
@@ -735,7 +735,7 @@
       "height": 630,
       "src": "/posters/og/og-nodo-dark.webp",
       "png": "/posters/og/og-nodo-dark.png",
-      "hash": "805333433e45a882"
+      "hash": "1db2a08d995ba112"
     },
     {
       "id": "og-try-light",
@@ -747,7 +747,7 @@
       "height": 630,
       "src": "/posters/og/og-try-light.webp",
       "png": "/posters/og/og-try-light.png",
-      "hash": "e457d7ab786d2f4d"
+      "hash": "dd85f77d5766502e"
     },
     {
       "id": "og-try-dark",
@@ -759,7 +759,7 @@
       "height": 630,
       "src": "/posters/og/og-try-dark.webp",
       "png": "/posters/og/og-try-dark.png",
-      "hash": "92a66a488897a1e5"
+      "hash": "2a93e05ebd14d697"
     },
     {
       "id": "og-help-light",
@@ -771,7 +771,7 @@
       "height": 630,
       "src": "/posters/og/og-help-light.webp",
       "png": "/posters/og/og-help-light.png",
-      "hash": "5f912e83e79ceec5"
+      "hash": "e95be04713be3d17"
     },
     {
       "id": "og-help-dark",
@@ -783,7 +783,7 @@
       "height": 630,
       "src": "/posters/og/og-help-dark.webp",
       "png": "/posters/og/og-help-dark.png",
-      "hash": "55e9bc7b0d899c1b"
+      "hash": "c617fa15f8083045"
     },
     {
       "id": "story-money-light",
@@ -795,7 +795,7 @@
       "height": 1920,
       "src": "/posters/social/story-money-light.webp",
       "module": "expenses",
-      "hash": "4998550b7fceb124"
+      "hash": "e4d8b1607ddb92b2"
     },
     {
       "id": "story-money-dark",
@@ -807,7 +807,7 @@
       "height": 1920,
       "src": "/posters/social/story-money-dark.webp",
       "module": "expenses",
-      "hash": "c7e4c72630c1c556"
+      "hash": "b2eadaa4568229d3"
     }
   ]
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Screenshot } from "@/components/shots/Screenshot";
 import { PageHeader } from "@/components/site/PageHeader";
 import { InkStrike, Reveal } from "@/motion/primitives";
 
@@ -19,6 +20,8 @@ export default function WhyPage() {
         title="One app instead of six."
         italic={["one"]}
         lede="Most of us keep our days in half a dozen apps that don't know about each other. NOTtEodo keeps them in one place, so a capture can become a task, a task can sit on your planner, and Nodo can see the whole day."
+        aside={<Screenshot screen="home" />}
+        word="One"
       />
       <section className="wrap split section" style={{ paddingTop: 0 }}>
         <ul className="six">

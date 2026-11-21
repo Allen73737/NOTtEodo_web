@@ -23,10 +23,10 @@ export default async function NodoPage() {
         title="A companion that forgets on request."
         italic={["forgets"]}
         lede="Nodo knows your tasks, notes, habits, budget and schedule, can add tasks, notes and expenses for you, and remembers what you tell it. You decide how much of that happens in the cloud."
+        aside={<Screenshot screen="nodo" priority />}
       />
-      <section className="wrap split" style={{ paddingBottom: 60 }}>
+      <section className="prose-wrap" style={{ paddingBottom: 60 }}>
         <AskNodo />
-        <Screenshot screen="nodo" />
       </section>
       <section className="prose-wrap legal__body">
         <div className="legal__section">

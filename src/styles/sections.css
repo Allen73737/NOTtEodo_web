@@ -52,19 +52,7 @@
   z-index: 1;
 }
 
-/* ---------- Page header ---------- */
-.page-head {
-  padding-top: calc(var(--nav-h) + clamp(72px, 12vw, 160px));
-  padding-bottom: clamp(40px, 7vw, 96px);
-  display: grid;
-  gap: 22px;
-}
-.page-head__title {
-  max-width: 14ch;
-}
-.page-head__lede {
-  max-width: 60ch;
-}
+/* Page header: see editorial.css */
 .grid-auto {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));

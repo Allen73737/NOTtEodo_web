@@ -1750,3 +1750,34 @@ html.reduced .deal li {
 .why .t-eyebrow {
   margin: 0 0 6px;
 }
+
+/* Pinned scenes must fit the screen they're pinned to: type and spacing also scale with height,
+   so short laptop screens never push copy under the nav or off the bottom. */
+@media (min-width: 861px) {
+  .act__copy {
+    gap: min(clamp(14px, 1.8vw, 24px), 2.2vh);
+    max-height: calc(100svh - var(--nav-h) - 52px);
+  }
+  .act__title {
+    font-size: min(calc(clamp(2.4rem, 4.6vw, 4.8rem) * var(--ed, 1)), 8.2vh);
+  }
+  .act .t-lede {
+    font-size: min(1.2rem, 2.3vh);
+  }
+  .act .capture__tile {
+    min-height: min(84px, 9vh);
+  }
+  .act .memories__item:nth-child(n + 5) {
+    display: none;
+  }
+  .act .ask__log {
+    max-height: 18vh;
+    overflow: auto;
+  }
+  .act .streak {
+    max-width: 40vh;
+  }
+  .act--hero .hero__title {
+    font-size: min(calc(clamp(3.2rem, 8.4vw, 9.6rem) * var(--ed, 1)), 15vh);
+  }
+}

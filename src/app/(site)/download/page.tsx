@@ -37,6 +37,8 @@ export default async function DownloadPage({ searchParams }: { searchParams: Pro
             ? "Google Play is the recommended way to install NOTtEodo: it keeps the app updated for you. The APK is here for phones without Play."
             : "NOTtEodo is coming to Google Play. Until then, install the signed APK below and verify it in a minute."
         }
+        aside={<Screenshot screen="home" priority />}
+        word="Android"
       />
       {sp.subscribed === "1" && <Notice>You&rsquo;re confirmed. We&rsquo;ll write once, when it&rsquo;s time.</Notice>}
       {sp.unsubscribed === "1" && <Notice>You&rsquo;re unsubscribed. We won&rsquo;t email you again.</Notice>}
@@ -69,7 +71,12 @@ export default async function DownloadPage({ searchParams }: { searchParams: Pro
           </div>
         </div>
         <div className="download-visual">
-          <Screenshot screen="home" priority />
+          <ol className="download-steps">
+            <li><span className="t-num">01</span> Download the APK</li>
+            <li><span className="t-num">02</span> Check its SHA-256</li>
+            <li><span className="t-num">03</span> Allow this one install</li>
+            <li><span className="t-num">04</span> Open NOTtEodo</li>
+          </ol>
         </div>
       </section>
 
