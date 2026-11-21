@@ -133,7 +133,7 @@ importers:
         specifier: 8.5.33
         version: 8.5.33
       potrace:
-        specifier: ^2.1.8
+        specifier: 2.1.8
         version: 2.1.8
       prettier:
         specifier: 3.10.1
