@@ -1,8 +1,9 @@
 import { AdminHead, Panel } from "@/components/admin/parts";
 import { requireAdmin } from "@/lib/admin";
-import { DEFAULT_CONFIG } from "@/lib/platform";
+import { DEFAULT_CONFIG, type IdentityConfig } from "@/lib/platform";
 import { ConfigEditor } from "./ConfigEditor";
 import { QuickSwitches } from "./QuickSwitches";
+import { StoreAndPlaceholdersForm } from "./StoreAndPlaceholdersForm";
 
 export const metadata = { title: "Platform Config" };
 
@@ -18,6 +19,7 @@ const HELP: Record<string, string> = {
   hero: "Homepage eyebrow and headline.",
   ai: "Kill switch for cloud Nodo.",
   posters: "Poster id per website section, e.g. { \"features\": \"cover-notes-notes-light\" }.",
+  identity: "Legal disclosures, grievance officer, contact emails and developer entity.",
 };
 
 export default async function ConfigPage() {
@@ -25,22 +27,61 @@ export default async function ConfigPage() {
   const { data } = await sb.from("platform_config").select("key,value,updated_at").order("key");
   const stored = Object.fromEntries((data ?? []).map((r) => [r.key, r.value]));
   const keys = [...new Set([...Object.keys(HELP), ...Object.keys(stored)])];
+
+  const currentUrls = (stored.urls as Record<string, string>) ?? DEFAULT_CONFIG.urls;
+  const currentIdentity = (stored.identity as IdentityConfig) ?? DEFAULT_CONFIG.identity;
+
   return (
     <>
       <AdminHead
         cap="Platform config"
-        title="Platform Config"
-        lede="One table read by the website and the app. Every change is validated, shown as a diff, audited and pushed live over Realtime."
+        title="Platform & Store Config"
+        lede="Configure your Google Play Store listing, APK distribution, legal placeholders and system switches. Every change is audited and synced live across the website and app."
       />
-      <QuickSwitches playLive={Boolean(stored.play_live ?? false)} maintenance={(stored.maintenance as { on: boolean; message: string }) ?? DEFAULT_CONFIG.maintenance} />
-      <div className="metrics">
-        {keys.map((k) => (
-          <Panel key={k} cap={k}>
-            <p className="t-label" style={{ margin: 0 }}>{HELP[k] ?? ""}</p>
-            <ConfigEditor k={k} initial={stored[k] ?? (DEFAULT_CONFIG as unknown as Record<string, unknown>)[k] ?? {}} />
-          </Panel>
-        ))}
-      </div>
+
+      <QuickSwitches
+        playLive={Boolean(stored.play_live ?? false)}
+        maintenance={(stored.maintenance as { on: boolean; message: string }) ?? DEFAULT_CONFIG.maintenance}
+      />
+
+      {/* Visual, User-Friendly Store & Identity Editor */}
+      <StoreAndPlaceholdersForm
+        initial={{
+          playStoreUrl: currentUrls.play ?? DEFAULT_CONFIG.urls.play,
+          playLive: Boolean(stored.play_live ?? false),
+          minSupportedVersionCode: Number(stored.min_supported_version_code ?? DEFAULT_CONFIG.min_supported_version_code),
+          latestVersionCode: Number(stored.latest_version_code ?? DEFAULT_CONFIG.latest_version_code),
+          developer: currentIdentity.developer ?? DEFAULT_CONFIG.identity.developer,
+          supportEmail: currentIdentity.supportEmail ?? DEFAULT_CONFIG.identity.supportEmail,
+          privacyEmail: currentIdentity.privacyEmail ?? DEFAULT_CONFIG.identity.privacyEmail,
+          grievanceOfficer: currentIdentity.grievanceOfficer ?? DEFAULT_CONFIG.identity.grievanceOfficer,
+          grievanceEmail: currentIdentity.grievanceEmail ?? DEFAULT_CONFIG.identity.grievanceEmail,
+          address: currentIdentity.address ?? DEFAULT_CONFIG.identity.address,
+          country: currentIdentity.country ?? DEFAULT_CONFIG.identity.country,
+          domain: currentIdentity.domain ?? DEFAULT_CONFIG.identity.domain,
+          securityContact: currentIdentity.securityContact ?? DEFAULT_CONFIG.identity.securityContact,
+        }}
+      />
+
+      {/* Developer Raw JSON Inspection Mode */}
+      <details className="card pad stack" style={{ marginTop: 24, gap: 16 }}>
+        <summary className="mono-cap" style={{ cursor: "pointer", color: "var(--c-text-muted)" }}>
+          Advanced: Raw JSON Keys & Overrides ({keys.length} keys)
+        </summary>
+        <p className="muted" style={{ margin: 0, fontSize: "0.85rem" }}>
+          Direct database view for low-level configuration overrides.
+        </p>
+        <div className="metrics" style={{ marginTop: 8 }}>
+          {keys.map((k) => (
+            <Panel key={k} cap={k}>
+              <p className="t-label" style={{ margin: 0 }}>
+                {HELP[k] ?? ""}
+              </p>
+              <ConfigEditor k={k} initial={stored[k] ?? (DEFAULT_CONFIG as unknown as Record<string, unknown>)[k] ?? {}} />
+            </Panel>
+          ))}
+        </div>
+      </details>
     </>
   );
 }

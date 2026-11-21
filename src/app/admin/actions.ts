@@ -43,7 +43,69 @@ const configSchemas: Record<string, z.ZodType> = {
   hero: z.object({ eyebrow: z.string().max(60), headline: z.string().min(2).max(80), sub: z.string().max(200) }),
   ai: z.object({ cloud_enabled: z.boolean(), note: z.string().max(300) }),
   posters: z.record(z.string(), z.string()),
+  identity: z.object({
+    developer: z.string().min(1).max(100),
+    supportEmail: z.string().email(),
+    privacyEmail: z.string().email(),
+    grievanceOfficer: z.string().min(1).max(100),
+    grievanceEmail: z.string().email(),
+    address: z.string().min(1).max(250),
+    country: z.string().min(1).max(100),
+    domain: z.string().min(1).max(100),
+    securityContact: z.string().email(),
+  }),
 };
+
+export async function saveStoreAndPlaceholders(data: {
+  playStoreUrl: string;
+  playLive: boolean;
+  minSupportedVersionCode: number;
+  developer: string;
+  supportEmail: string;
+  privacyEmail: string;
+  grievanceOfficer: string;
+  grievanceEmail: string;
+  address: string;
+  country: string;
+  domain: string;
+  securityContact: string;
+}): Promise<Result> {
+  return run(async () => {
+    const { sb } = await requireAdmin();
+
+    const { data: curUrls } = await sb.from("platform_config").select("value").eq("key", "urls").maybeSingle();
+    const urls = { ...((curUrls?.value as Record<string, string>) ?? {}) };
+    if (data.playStoreUrl) urls.play = data.playStoreUrl;
+    if (data.domain) {
+      urls.website = data.domain.startsWith("http") ? data.domain : `https://${data.domain}`;
+    }
+    if (data.supportEmail) urls.support = `mailto:${data.supportEmail}`;
+
+    await sb.from("platform_config").upsert({ key: "urls", value: urls });
+    await sb.from("platform_config").upsert({ key: "play_live", value: data.playLive });
+    await sb.from("platform_config").upsert({ key: "min_supported_version_code", value: data.minSupportedVersionCode });
+
+    const identity = {
+      developer: data.developer,
+      supportEmail: data.supportEmail,
+      privacyEmail: data.privacyEmail,
+      grievanceOfficer: data.grievanceOfficer,
+      grievanceEmail: data.grievanceEmail,
+      address: data.address,
+      country: data.country,
+      domain: data.domain,
+      securityContact: data.securityContact,
+    };
+    await sb.from("platform_config").upsert({ key: "identity", value: identity });
+
+    revalidateTag(TAGS.config, "max");
+    revalidatePath("/admin/config");
+    revalidatePath("/download");
+    revalidatePath("/privacy");
+    revalidatePath("/terms");
+    return { ok: true, message: "Store links, app version & legal placeholders updated successfully!" };
+  });
+}
 
 export async function saveConfig(key: string, json: string): Promise<Result> {
   return run(async () => {

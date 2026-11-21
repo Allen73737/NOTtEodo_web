@@ -10,6 +10,18 @@ import { supabasePublic } from "@/lib/supabase/server";
  * default when Supabase is not configured or unreachable, so the site never breaks.
  * Cached per tag; admin writes call revalidateTag() so changes appear immediately.
  */
+export type IdentityConfig = {
+  developer: string;
+  supportEmail: string;
+  privacyEmail: string;
+  grievanceOfficer: string;
+  grievanceEmail: string;
+  address: string;
+  country: string;
+  domain: string;
+  securityContact: string;
+};
+
 export type PlatformConfig = {
   play_live: boolean;
   /** True once the app asks before cloud Nodo (APP_HANDOFF D6). Changes privacy wording. */
@@ -22,6 +34,7 @@ export type PlatformConfig = {
   urls: Record<"privacy" | "terms" | "delete_account" | "support" | "help" | "play" | "website" | "status", string>;
   flags: { release_emails: boolean; testimonials: boolean; roadmap: boolean };
   hero: { eyebrow: string; headline: string; sub: string };
+  identity: IdentityConfig;
 };
 
 const site = env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
@@ -45,6 +58,17 @@ export const DEFAULT_CONFIG: PlatformConfig = {
   },
   flags: { release_emails: true, testimonials: false, roadmap: false },
   hero: { eyebrow: "Notes. Tasks. Life.", headline: "Curate your everyday.", sub: "" },
+  identity: {
+    developer: "Allen Francis",
+    supportEmail: "allenfrancis2005@gmail.com",
+    privacyEmail: "allenfrancis2005@gmail.com",
+    grievanceOfficer: "Allen Francis",
+    grievanceEmail: "allenfrancis2005@gmail.com",
+    address: "Kerala, India",
+    country: "India",
+    domain: "notteodo.com",
+    securityContact: "allenfrancis2005@gmail.com",
+  },
 };
 
 export const TAGS = {
@@ -84,6 +108,11 @@ export const getConfig = unstable_cache(
   ["platform-config"],
   { tags: [TAGS.config], revalidate: 300 },
 );
+
+export async function getIdentity(): Promise<IdentityConfig> {
+  const cfg = await getConfig();
+  return cfg.identity ?? DEFAULT_CONFIG.identity;
+}
 
 export const getReleases = unstable_cache(
   async (): Promise<Release[]> =>

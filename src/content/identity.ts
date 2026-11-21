@@ -1,15 +1,16 @@
 /**
- * Who runs NOTtEodo. Placeholders in [BRACKETS] must be filled before launch
- * (listed in the final report and in docs/RUNBOOKS.md → "Before launch").
+ * Who runs NOTtEodo.
+ * Dynamic values are stored in and edited from the Supabase `platform_config` table (under key "identity").
+ * The values below serve as initial fallbacks.
  */
 export const IDENTITY = {
-  developer: "[DEVELOPER NAME]",
-  supportEmail: "[SUPPORT EMAIL]",
-  privacyEmail: "[SUPPORT EMAIL]",
-  grievanceOfficer: "[GRIEVANCE OFFICER NAME]",
-  grievanceEmail: "[GRIEVANCE OFFICER EMAIL]",
-  address: "[POSTAL ADDRESS], India",
+  developer: "Allen Francis",
+  supportEmail: "allenfrancis2005@gmail.com",
+  privacyEmail: "allenfrancis2005@gmail.com",
+  grievanceOfficer: "Allen Francis",
+  grievanceEmail: "allenfrancis2005@gmail.com",
+  address: "Kerala, India",
   country: "India",
-  domain: "[DOMAIN]",
-  securityContact: "[SUPPORT EMAIL]",
+  domain: "notteodo.com",
+  securityContact: "allenfrancis2005@gmail.com",
 } as const;
