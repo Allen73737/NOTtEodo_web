@@ -15,19 +15,16 @@
 .kinetic__w {
   display: inline-block;
   transform-origin: 50% 100%;
-  transform: translateY(0.55em) rotateX(-75deg);
+  transform: translateY(0.6em) rotateX(-70deg);
   opacity: 0;
-  filter: blur(10px);
   transition:
-    transform var(--d-kinetic) var(--e-silk),
-    opacity calc(var(--d-kinetic) * 0.7) var(--e-silk),
-    filter var(--d-kinetic) var(--e-silk);
-  transition-delay: calc(var(--i) * 90ms);
+    transform 900ms var(--e-silk),
+    opacity 600ms var(--e-silk);
+  transition-delay: calc(var(--i) * 55ms);
 }
 .kinetic.is-in .kinetic__w {
   transform: none;
   opacity: 1;
-  filter: none;
 }
 .kinetic__w.it {
   font-style: italic;

@@ -2,7 +2,7 @@
 
 import { Moon, Sun, Volume2, VolumeX } from "lucide-react";
 import { useStoredFlag, useTheme, useView } from "@/lib/prefs";
-import { haptic, play } from "@/lib/sound";
+import { haptic, play, setSound as applySound } from "@/lib/sound";
 import { switchView, toggleTheme } from "@/motion/theme-wash";
 
 export function ThemeToggle({ className = "" }: { className?: string }) {
@@ -57,10 +57,16 @@ export function SoundToggle({ className = "" }: { className?: string }) {
       aria-pressed={on}
       onClick={() => {
         setSound(on ? null : "on");
-        if (!on) play("tick", true);
+        applySound(!on);
+        if (!on) play("bloom", true);
       }}
     >
       {on ? <Volume2 size={18} strokeWidth={1.6} /> : <VolumeX size={18} strokeWidth={1.6} />}
+      <span className={`sound-bars${on ? " is-on" : ""}`} aria-hidden="true">
+        <i />
+        <i />
+        <i />
+      </span>
     </button>
   );
 }

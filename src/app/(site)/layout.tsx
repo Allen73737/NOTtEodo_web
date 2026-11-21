@@ -10,6 +10,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   const [config, announcements] = await Promise.all([getConfig(), getAnnouncements()]);
   return (
     <>
+      <div className="atmos" aria-hidden="true" />
       <a href="#main" className="skip-link">
         Skip to content
       </a>

@@ -625,3 +625,28 @@ html.reduced .aura,
 html.reduced .cursor {
   display: none;
 }
+
+/* The speaker shows three small bars that dance while sound is on. */
+.icon-btn .sound-bars {
+  display: none;
+}
+.icon-btn .sound-bars.is-on {
+  position: absolute;
+  right: 6px;
+  bottom: 7px;
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 1.5px;
+  height: 7px;
+}
+.sound-bars i {
+  width: 1.5px;
+  height: 100%;
+  background: var(--c-accent);
+  border-radius: 1px;
+  transform-origin: bottom;
+  animation: wave 0.9s ease-in-out infinite;
+}
+.sound-bars i:nth-child(2) { animation-delay: -0.3s; }
+.sound-bars i:nth-child(3) { animation-delay: -0.6s; }
+.icon-btn { position: relative; }

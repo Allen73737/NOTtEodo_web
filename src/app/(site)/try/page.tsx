@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { CipherCard, PosterFan, StepsCard } from "@/components/site/HeadVisuals";
+import { StepsCard } from "@/components/site/HeadVisuals";
 import { PageHeader } from "@/components/site/PageHeader";
 import { ContinueOnPhone, Simulator } from "@/simulator/Simulator";
 
@@ -22,8 +22,15 @@ export default function TryPage() {
         aside={<StepsCard title="Five things to try" steps={["Type a line into Capture", "Tap a task to strike it", "Turn the Focus Dial", "Press and hold the seal", "Flip Aa and the theme"]} />}
         word="Touch"
       />
-      <section className="wrap" style={{ paddingBottom: 96, display: "grid", gap: 28 }}>
-        <Simulator />
+      <section className="stage-band" aria-label="The simulator">
+        <div className="wrap stage-band__inner">
+          <p className="stage-band__label t-label">
+            <span className="stage-band__dot" aria-hidden="true" /> Live · running in this tab
+          </p>
+          <Simulator />
+        </div>
+      </section>
+      <section className="wrap" style={{ paddingBlock: "48px 96px" }}>
         <ContinueOnPhone />
       </section>
     </>

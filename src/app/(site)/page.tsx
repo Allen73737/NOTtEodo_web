@@ -227,7 +227,10 @@ export default async function Home() {
             </ol>
             <div className="tour__ticks" aria-hidden="true">
               {TOUR.map(([name], i) => (
-                <span key={name} style={{ ["--i" as string]: i }} />
+                <span key={name} style={{ ["--i" as string]: i }}>
+                  <b className="t-num">{String(i + 1).padStart(2, "0")}</b>
+                  <em>{name}</em>
+                </span>
               ))}
             </div>
             <div className="tour__lite">
@@ -299,7 +302,7 @@ export default async function Home() {
         </p>
       </Act>
 
-      <Act id="finale" n="XII" word="TOMORROW" title="Your life, curated." italic={["curated."]} className="act--finale" len={2} visual={<Screenshot screen="home" />}>
+      <Act id="finale" n="XII" word="TOMORROW" title="Your life, curated." italic={["curated."]} className="act--finale" len={2.8} visual={<Screenshot screen="home" />}>
         <p className="t-h3">
           Get <Wordmark /> for Android.
         </p>

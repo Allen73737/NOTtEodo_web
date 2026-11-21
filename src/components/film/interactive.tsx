@@ -59,6 +59,12 @@ export function ChapterRail({ chapters }: { chapters: { id: string; label: strin
     });
     return () => io.disconnect();
   }, [chapters]);
+  // A small bell as the day moves on to the next act (only with sound on).
+  const prev = useRef(-1);
+  useEffect(() => {
+    if (prev.current !== -1 && active !== prev.current) play("chapter", { index: active });
+    prev.current = active;
+  }, [active]);
   return (
     <>
       <nav className="rail no-print" aria-label="Chapters">

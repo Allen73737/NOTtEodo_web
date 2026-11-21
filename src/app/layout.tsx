@@ -13,6 +13,7 @@ import "@/styles/film.css";
 import "@/styles/simulator.css";
 import "@/styles/pages.css";
 import "@/styles/editorial.css";
+import "@/styles/folio.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

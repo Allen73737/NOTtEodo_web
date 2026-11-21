@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { LOGO_MONOGRAM, LOGO_WORDMARK } from "@/components/brand/logo-paths";
+import { play, setSound, soundOn } from "@/lib/sound";
 import { toggleTheme } from "@/motion/theme-wash";
 
 const WORDS = ["Notes.", "Tasks.", "Plans.", "Habits.", "Money.", "Wardrobe.", "Travel.", "Journal.", "Life."];
@@ -26,19 +27,21 @@ export function Intro() {
   const hole = useRef<SVGGElement>(null);
   const [pct, setPct] = useState(0);
   const [gone, setGone] = useState(false);
+  /** Loaded: offer to enter with sound or quietly (enters quietly by itself after a few seconds). */
+  const [gate, setGate] = useState(false);
 
   useEffect(() => {
     const html = document.documentElement;
     const el = root.current;
     // Plays on every page load; moving around the site and coming back home doesn't replay it.
     if (!el || played) return setGone(true);
-    played = true;
     html.classList.add("intro-on");
     const reduced = html.classList.contains("reduced");
     // Timed from navigation start, so it lines up with the CSS that has been playing since first paint.
     const t0 = 0;
     let leaving = false;
     let raf = 0;
+    let gateTimer: ReturnType<typeof setTimeout> | undefined;
 
     const ready = () => {
       const fonts = document.fonts?.status === "loaded" ? 1 : 0;
@@ -50,6 +53,7 @@ export function Intro() {
     };
 
     const finish = () => {
+      played = true;
       html.classList.remove("intro-on");
       setGone(true);
     };
@@ -58,6 +62,8 @@ export function Intro() {
       if (leaving) return;
       leaving = true;
       setPct(100);
+      setGate(false);
+      play("whoosh");
       if (instant || reduced || !logo.current || !hole.current) {
         el.classList.add("is-fading");
         setTimeout(finish, reduced ? 450 : 260);
@@ -90,8 +96,13 @@ export function Intro() {
       const time = Math.min(1, elapsed / MIN_MS);
       const real = ready();
       setPct(Math.round(Math.min(time, real * 0.98 + 0.02) * 100));
-      if ((elapsed >= MIN_MS && real >= 1) || elapsed >= MAX_MS || (reduced && elapsed > 700)) leave();
-      else raf = requestAnimationFrame(tick);
+      if ((elapsed >= MIN_MS && real >= 1) || elapsed >= MAX_MS || (reduced && elapsed > 700)) {
+        setPct(100);
+        // Sound already chosen on an earlier visit, or reduced motion: straight in.
+        if (soundOn() || reduced) return leave();
+        setGate(true);
+        gateTimer = setTimeout(() => leave(), 5200);
+      } else raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
 
@@ -109,6 +120,7 @@ export function Intro() {
     (el as HTMLDivElement & { skip?: () => void }).skip = () => leave(true);
     return () => {
       cancelAnimationFrame(raf);
+      clearTimeout(gateTimer);
       removeEventListener("keydown", onKey);
       removeEventListener("pointermove", onMove);
       html.classList.remove("intro-on");
@@ -170,6 +182,33 @@ export function Intro() {
       <p className="intro__count t-num" aria-hidden="true" data-css={pct === 0 ? "" : undefined}>
         {pct > 0 ? String(pct).padStart(3, "0") : null}
       </p>
+      {gate && (
+        <div className="intro__gate" role="group" aria-label="Enter the site">
+          <button
+            type="button"
+            className="intro__enter"
+            autoFocus
+            onClick={() => {
+              setSound(true);
+              play("bloom", true);
+              (root.current as (HTMLDivElement & { skip?: () => void }) | null)?.skip?.();
+            }}
+          >
+            <span className="intro__wave" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+            </span>
+            Enter with sound
+          </button>
+          <button type="button" className="intro__quiet t-label" onClick={() => (root.current as (HTMLDivElement & { skip?: () => void }) | null)?.skip?.()}>
+            Enter quietly
+          </button>
+          <span className="intro__auto" aria-hidden="true" />
+        </div>
+      )}
       <p className="intro__meta t-label" aria-hidden="true">
         Notes · Tasks · Life · for Android
       </p>

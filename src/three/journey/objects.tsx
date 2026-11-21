@@ -9,6 +9,7 @@ import { journey, scrollState } from "@/components/film/FilmProvider";
 import { modules } from "@/content/site";
 import { colors } from "@/content/generated/tokens";
 import { useTheme, useView } from "@/lib/prefs";
+import { play } from "@/lib/sound";
 import { cardTexture, cipherTexture, monogramGeometry, screenTexture, screenUrl, type CardColors } from "./assets";
 import { band, ease, live, lpOf } from "./live";
 
@@ -30,21 +31,44 @@ function useCardColors(): CardColors {
 /* ================================================================ phone */
 
 /**
- * The screen: two screenshots and an ink bleed between them. The new screen spreads through the
- * old one along a noise field, with a tide line in the accent ink at the edge, and a glint crosses
- * the glass each time. Textures are sRGB, so the output is converted back with colorspace_fragment.
+ * The display, drawn as one surface under the front glass: the black bezel, the punch-hole
+ * camera, the screen with rounded corners, and reflections of the room that slide across the
+ * glass as the phone turns. Screens change with one of three transitions, each the way a phone
+ * really moves between screens:
+ *   0  ink bleed  the same screen restyled (Cards to Editorial): ink spreads through it
+ *   1  push       a new screen slides in over the old one, which falls back and dims
+ *   2  open       a ghost finger taps; the new screen opens out of that point in a lens ripple
+ * Textures are sRGB, so the output is converted back with colorspace_fragment.
  */
 const SCREEN_VERT = /* glsl */ `
 varying vec2 vUv;
-void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
+varying vec3 vN;
+varying vec3 vV;
+void main() {
+  vUv = uv;
+  vec4 wp = modelMatrix * vec4(position, 1.0);
+  vN = normalize(mat3(modelMatrix) * normal);
+  vV = normalize(cameraPosition - wp.xyz);
+  gl_Position = projectionMatrix * viewMatrix * wp;
+}`;
 const SCREEN_FRAG = /* glsl */ `
 uniform sampler2D uA;
 uniform sampler2D uB;
 uniform float uHasA;
 uniform float uMix;
+uniform float uMode;
+uniform float uDir;
+uniform vec2 uTap;
+uniform vec2 uSize;
+uniform float uBezel;
+uniform float uRadius;
 uniform vec3 uBase;
 uniform vec3 uInk;
+uniform vec3 uEnv;
+uniform float uGlare;
 varying vec2 vUv;
+varying vec3 vN;
+varying vec3 vV;
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float noise(vec2 p) {
   vec2 i = floor(p), f = fract(p);
@@ -52,30 +76,155 @@ float noise(vec2 p) {
   return mix(mix(hash(i), hash(i + vec2(1, 0)), u.x), mix(hash(i + vec2(0, 1)), hash(i + vec2(1, 1)), u.x), u.y);
 }
 float fbm(vec2 p) { float v = 0.0, a = 0.5; for (int i = 0; i < 5; i++) { v += a * noise(p); p *= 2.03; a *= 0.5; } return v; }
+float sdRound(vec2 p, vec2 b, float r) { vec2 q = abs(p) - b + r; return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r; }
+float easeIO(float t) { return t < 0.5 ? 4.0 * t * t * t : 1.0 - pow(-2.0 * t + 2.0, 3.0) / 2.0; }
+vec3 texA(vec2 uv) { return uHasA > 0.5 ? texture2D(uA, uv).rgb : uBase; }
+vec3 texB(vec2 uv) { return texture2D(uB, uv).rgb; }
+
+vec3 content(vec2 suv, vec2 sp, vec2 sh) {
+  if (uMix <= 0.0) return texA(suv);
+  float e = easeIO(clamp(uMix, 0.0, 1.0));
+  vec3 c;
+  if (uMode < 0.5) {
+    // Ink bleed, rising from the bottom along a noise field, with a tide line of accent ink.
+    float field = fbm(suv * vec2(3.0, 6.5)) * 0.55 + (1.0 - suv.y) * 0.45;
+    float k = smoothstep(field - 0.035, field + 0.035, uMix * 1.35 - 0.2);
+    float edge = smoothstep(0.0, 0.5, k) * smoothstep(1.0, 0.5, k);
+    c = mix(texA(suv), texB(suv), k);
+    c = mix(c, uInk, edge * 0.9);
+  } else if (uMode < 1.5) {
+    // Push: the new screen slides in; the old one drifts a third as far and dims beneath it.
+    float x = suv.x - (1.0 - e) * uDir;
+    vec2 oldUv = vec2(suv.x + e * 0.3 * uDir, suv.y);
+    vec3 under = texA(clamp(oldUv, 0.0, 1.0)) * (1.0 - e * 0.45);
+    if (x >= 0.0 && x <= 1.0) {
+      c = texB(vec2(x, suv.y));
+    } else {
+      // A soft shadow cast on the old screen by the new one's leading edge.
+      float lead = uDir > 0.0 ? -x : x - 1.0;
+      c = under * (1.0 - 0.4 * exp(-max(lead, 0.0) * 24.0));
+    }
+  } else {
+    // Open: from the tapped point a circle widens; its rim bends the image like a lens.
+    vec2 tp = (uTap - 0.5) * sh * 2.0;
+    vec2 d = sp - tp;
+    float r = e * length(sh) * 2.3;
+    float dist = length(d);
+    float rim = smoothstep(0.14, 0.0, abs(dist - r));
+    vec2 n = dist > 0.0 ? d / dist : vec2(0.0);
+    vec2 bend = n * rim * 0.035 * (1.0 - e);
+    float inside = smoothstep(r + 0.01, r - 0.01, dist);
+    vec2 oldUv = mix(suv, uTap, e * 0.08);
+    vec3 newC = texB(clamp(uTap + (suv - uTap) * mix(0.82, 1.0, e) + bend, 0.0, 1.0));
+    c = mix(texA(oldUv) * (1.0 - e * 0.3), newC, inside);
+    c += uInk * rim * 0.35 * (1.0 - e);
+  }
+  // The ghost finger: a soft press and a ring, early in a tapped change.
+  if (uMode > 0.5) {
+    vec2 tp = (uTap - 0.5) * sh * 2.0;
+    float td = length(sp - tp);
+    float press = smoothstep(0.35, 0.0, uMix) * smoothstep(0.075, 0.0, td) * 0.35;
+    float ring = smoothstep(0.012, 0.0, abs(td - uMix * 0.5)) * smoothstep(0.45, 0.05, uMix) * 0.6;
+    c = mix(c, vec3(1.0), press + ring * 0.5);
+  }
+  return c;
+}
+
 void main() {
-  vec4 a = uHasA > 0.5 ? texture2D(uA, vUv) : vec4(uBase, 1.0);
-  vec4 b = uMix > 0.0 ? texture2D(uB, vUv) : a;
-  // The ink rises from the bottom, feathered by noise.
-  float field = fbm(vUv * vec2(3.0, 6.5)) * 0.55 + (1.0 - vUv.y) * 0.45;
-  float front = uMix * 1.35 - 0.2;
-  float k = smoothstep(field - 0.035, field + 0.035, front);
-  float edge = smoothstep(0.0, 0.5, k) * smoothstep(1.0, 0.5, k);
-  vec4 c = mix(a, b, k);
-  c.rgb = mix(c.rgb, uInk, edge * 0.9);
-  // A glint sweeping across the glass during the change.
-  float g = smoothstep(0.08, 0.0, abs((vUv.x + vUv.y * 0.6) - (uMix * 2.2 - 0.3)));
-  c.rgb += g * 0.18 * step(0.001, uMix) * step(uMix, 0.999);
-  gl_FragColor = vec4(c.rgb, 1.0);
+  vec2 hs = uSize * 0.5;
+  vec2 p = (vUv - 0.5) * uSize;
+  vec2 sh = hs - uBezel;
+  float aa = fwidth(p.x) * 1.2;
+  float dScreen = sdRound(p, sh, uRadius);
+  float inScreen = smoothstep(aa, -aa, dScreen);
+  vec2 suv = (p + sh) / (2.0 * sh);
+  // The bezel: deep black glass with a faint inner edge.
+  vec3 bezel = vec3(0.012, 0.011, 0.011) + smoothstep(0.012, 0.0, abs(dScreen - 0.004)) * 0.025;
+  vec3 scr = content(suv, p, sh);
+  // A real panel falls off a little at its very edges.
+  scr *= 1.0 - 0.06 * smoothstep(-0.05, 0.0, dScreen);
+  vec3 col = mix(bezel, scr, inScreen);
+  // The punch-hole camera, with a pin of light in its lens.
+  vec2 cam = p - vec2(0.0, sh.y - 0.055);
+  float hole = smoothstep(0.024 + aa, 0.024 - aa, length(cam));
+  col = mix(col, vec3(0.0), hole);
+  col += hole * smoothstep(0.008, 0.0, length(cam - vec2(-0.006, 0.006))) * 0.35;
+  // Reflections: the room slides across the glass as the phone turns; a fresnel sheen at grazing angles.
+  vec3 nn = normalize(vN);
+  vec3 r = reflect(-vV, nn);
+  float s = r.x * 0.8 + r.y * 0.55;
+  float band = smoothstep(0.22, 0.0, abs(s - 0.32)) * 0.8 + smoothstep(0.5, 0.0, abs(s + 0.55)) * 0.25;
+  float fres = pow(1.0 - max(dot(nn, vV), 0.0), 3.0);
+  col += uEnv * (band * uGlare + fres * 0.5);
+  gl_FragColor = vec4(col, 1.0);
   #include <colorspace_fragment>
 }`;
 
-/** The phone that carries the story: real screenshots on its screen, the ribbon N on its back. */
+/** Phone proportions (a 71 x 148 x 8 mm phone at 1.2 units wide). */
+const PW = 1.2;
+const PH = 2.5;
+const PD = 0.1;
+const PR = 0.17;
+const BEZEL = 0.032;
+
+function roundedShape(w: number, h: number, r: number) {
+  const s = new THREE.Shape();
+  const x = -w / 2;
+  const y = -h / 2;
+  s.moveTo(x + r, y);
+  s.lineTo(x + w - r, y);
+  s.quadraticCurveTo(x + w, y, x + w, y + r);
+  s.lineTo(x + w, y + h - r);
+  s.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  s.lineTo(x + r, y + h);
+  s.quadraticCurveTo(x, y + h, x, y + h - r);
+  s.lineTo(x, y + r);
+  s.quadraticCurveTo(x, y, x + r, y);
+  return s;
+}
+
+/** A flat rounded panel with UVs running 0..1 across its bounds. */
+function panelGeometry(w: number, h: number, r: number) {
+  const g = new THREE.ShapeGeometry(roundedShape(w, h, r), 32);
+  const pos = g.attributes.position!;
+  const uv = g.attributes.uv!;
+  for (let i = 0; i < pos.count; i++) uv.setXY(i, pos.getX(i) / w + 0.5, pos.getY(i) / h + 0.5);
+  uv.needsUpdate = true;
+  return g;
+}
+
+function bandGeometry() {
+  const bevel = 0.014;
+  const g = new THREE.ExtrudeGeometry(roundedShape(PW - bevel * 2, PH - bevel * 2, PR - bevel), {
+    depth: PD - bevel * 2,
+    bevelEnabled: true,
+    bevelThickness: bevel,
+    bevelSize: bevel,
+    bevelSegments: 5,
+    curveSegments: 32,
+  });
+  g.translate(0, 0, -(PD - bevel * 2) / 2);
+  g.computeVertexNormals();
+  return g;
+}
+
+/** Where a ghost finger taps for a screen: along the bottom tab bar, a different spot each time. */
+function tapFor(i: number): [number, number] {
+  const slots = [0.12, 0.31, 0.5, 0.69, 0.88];
+  return [slots[i % slots.length]!, 0.055];
+}
+
+/** The phone that carries the story: real screenshots under the glass, the ribbon N on its back. */
 export function Phone() {
   const { dark, c } = usePalette();
   const view = useView();
   const theme = dark ? "dark" : "light";
   const g = useRef<THREE.Group>(null);
-  const state = useRef({ url: "", pending: "", mix: 0, wobble: 0, kick: 0, lastIndex: -1 });
+  const state = useRef({ url: "", pending: "", mix: 0, wobble: 0, kick: 0, kickDir: 1, lastIndex: -1, lastName: "", lastAct: "" });
+  const geo = useMemo(
+    () => ({ band: bandGeometry(), front: panelGeometry(PW - 0.018, PH - 0.018, PR - 0.009), back: panelGeometry(PW - 0.018, PH - 0.018, PR - 0.009) }),
+    [],
+  );
   const screen = useMemo(
     () =>
       new THREE.ShaderMaterial({
@@ -86,17 +235,28 @@ export function Phone() {
           uB: { value: null },
           uHasA: { value: 0 },
           uMix: { value: 0 },
+          uMode: { value: 0 },
+          uDir: { value: 1 },
+          uTap: { value: new THREE.Vector2(0.5, 0.5) },
+          uSize: { value: new THREE.Vector2(PW - 0.018, PH - 0.018) },
+          uBezel: { value: BEZEL },
+          uRadius: { value: PR - BEZEL - 0.004 },
           uBase: { value: new THREE.Color() },
           uInk: { value: new THREE.Color() },
+          uEnv: { value: new THREE.Color() },
+          uGlare: { value: 0.12 },
         },
         toneMapped: false,
       }),
     [],
   );
   useEffect(() => {
-    (screen.uniforms.uBase!.value as THREE.Color).set(c.canvas).convertSRGBToLinear();
-    (screen.uniforms.uInk!.value as THREE.Color).set(c.accent).convertSRGBToLinear();
-  }, [screen, c]);
+    const u = screen.uniforms;
+    (u.uBase!.value as THREE.Color).set(c.canvas).convertSRGBToLinear();
+    (u.uInk!.value as THREE.Color).set(c.accent).convertSRGBToLinear();
+    (u.uEnv!.value as THREE.Color).set(dark ? c.blush : colors.light.linen).convertSRGBToLinear();
+    u.uGlare!.value = dark ? 0.1 : 0.16;
+  }, [screen, c, dark]);
   useEffect(() => () => screen.dispose(), [screen]);
 
   // Warm the cache with every screen the story shows, in the current theme, in both views.
@@ -115,26 +275,21 @@ export function Phone() {
     el.position.copy(live.phoneWorld);
     el.position.y += Math.sin(s.clock.elapsedTime * 0.9) * 0.035 * vis;
     st.wobble = THREE.MathUtils.damp(st.wobble, THREE.MathUtils.clamp(scrollState.velocity * 0.004, -0.25, 0.25), 6, dt);
-    // Each screen change gives the phone a small turn, like a page being shown.
-    if (live.screenIndex !== st.lastIndex) {
-      if (st.lastIndex !== -1) st.kick = 1;
-      st.lastIndex = live.screenIndex;
-    }
     st.kick = THREE.MathUtils.damp(st.kick, 0, 3, dt);
-    const kick = Math.sin(st.kick * Math.PI) * 0.22;
+    const kick = Math.sin(st.kick * Math.PI) * 0.16;
     el.rotation.set(
       ph.r[0] + journey.pointer.y * 0.08 + st.wobble * 0.6,
-      ph.r[1] + journey.pointer.x * 0.16 + journey.spin + kick,
+      ph.r[1] + journey.pointer.x * 0.16 + journey.spin + kick * st.kickDir,
       ph.r[2] - st.wobble * 0.3,
     );
-    el.scale.setScalar(live.phoneScale * (0.15 + 0.85 * vis) * (1 + kick * 0.12));
+    el.scale.setScalar(live.phoneScale * (0.15 + 0.85 * vis) * (1 + kick * 0.08));
 
-    // Screen: ink-bleed to the act's screenshot once it has loaded.
+    // Screen: move to the act's screenshot once it has loaded, with the transition that fits.
     const [name, forced] = live.screen.split("@") as [string, string | undefined];
     const want = screenUrl(name, forced ?? view, theme);
     const u = screen.uniforms;
     if (want && want !== st.url && want !== st.pending) {
-      // A newer screen arrived mid-bleed: settle on whichever image shows more.
+      // A newer screen arrived mid-change: settle on whichever image shows more.
       if (st.pending && st.mix > 0) {
         if (st.mix > 0.5) {
           u.uA!.value = u.uB!.value;
@@ -144,15 +299,32 @@ export function Phone() {
         st.mix = 0;
         u.uMix!.value = 0;
       }
+      const idx = live.screenIndex;
+      const newAct = live.act !== st.lastAct;
+      let mode = 0;
+      if (name !== st.lastName && st.url) {
+        mode = newAct || idx % 3 === 2 ? 2 : 1;
+        const dir = newAct || idx >= st.lastIndex ? 1 : -1;
+        u.uDir!.value = dir;
+        const tap: [number, number] = newAct ? [0.5, 0.5] : tapFor(idx);
+        (u.uTap!.value as THREE.Vector2).set(tap[0], tap[1]);
+        st.kick = 1;
+        st.kickDir = dir;
+      }
+      u.uMode!.value = mode;
+      st.lastIndex = idx;
+      st.lastName = name;
+      st.lastAct = live.act;
       st.pending = want;
       screenTexture(want, (tex) => {
         if (st.pending !== want) return;
         u.uB!.value = tex;
         st.mix = 0.0001;
+        if (st.url) play("screen", { index: idx });
       });
     }
     if (st.mix > 0) {
-      st.mix = Math.min(1, st.mix + dt * 1.6);
+      st.mix = Math.min(1, st.mix + dt * (u.uMode!.value === 0 ? 1.4 : 1.25));
       u.uMix!.value = st.mix;
       if (st.mix >= 1) {
         u.uA!.value = u.uB!.value;
@@ -167,71 +339,61 @@ export function Phone() {
 
   const body = dark ? c["ink-container"] : c.ink;
   const rim = dark ? c["text-muted"] : c.bronze;
-  const mono = useMemo(() => monogramGeometry(0.05), []);
+  const mono = useMemo(() => monogramGeometry(0.03), []);
+  const back = -PD / 2 - 0.0012;
   return (
     <>
-    <Shadow />
-    <group ref={g} visible={false}>
-      <RoundedBox args={[1.2, 2.52, 0.11]} radius={0.15} smoothness={6}>
-        <meshPhysicalMaterial color={body} metalness={0.6} roughness={0.3} clearcoat={1} clearcoatRoughness={0.18} />
-      </RoundedBox>
-      <mesh position={[0, 0, 0.0565]}>
-        <planeGeometry args={[1.1, 2.42]} />
-        <meshBasicMaterial color={colors.dark.canvas} />
-      </mesh>
-      <mesh position={[0, 0, 0.058]} material={screen}>
-        <planeGeometry args={[1.08, 2.4]} />
-      </mesh>
-      {/* glass */}
-      <mesh position={[0, 0, 0.0595]}>
-        <planeGeometry args={[1.12, 2.44]} />
-        <meshPhysicalMaterial transparent opacity={0.07} roughness={0.04} clearcoat={1} color={colors.light.surface} />
-      </mesh>
-      {/* the polished rim, a hair wider than the body */}
-      <RoundedBox args={[1.214, 2.534, 0.086]} radius={0.152} smoothness={6}>
-        <meshPhysicalMaterial color={rim} metalness={1} roughness={0.18} clearcoat={1} clearcoatRoughness={0.1} />
-      </RoundedBox>
-      {/* the ribbon N on the back, in the body's opposite ink */}
-      <group position={[0, -0.05, -0.058]} rotation={[0, Math.PI, 0]} scale={[0.46, -0.46, 0.46]}>
-        <mesh geometry={mono}>
-          <meshStandardMaterial color={dark ? c.text : c.canvas} metalness={0.4} roughness={0.35} />
+      <Shadow />
+      <group ref={g} visible={false}>
+        {/* the metal band, bevelled where it meets the glass */}
+        <mesh geometry={geo.band}>
+          <meshPhysicalMaterial color={rim} metalness={1} roughness={0.26} clearcoat={0.6} clearcoatRoughness={0.2} envMapIntensity={1.3} />
         </mesh>
-      </group>
-      {/* camera island: two lenses and a flash, seen when the phone turns */}
-      <group position={[0.3, 0.86, -0.062]} rotation={[0, Math.PI, 0]}>
-        <RoundedBox args={[0.46, 0.46, 0.03]} radius={0.1} smoothness={4} position={[0, 0, 0.01]}>
-          <meshPhysicalMaterial color={body} metalness={0.5} roughness={0.22} clearcoat={1} />
+        {/* front glass with the display beneath it */}
+        <mesh geometry={geo.front} position={[0, 0, PD / 2 + 0.0012]} material={screen} />
+        {/* frosted glass back in the body's ink */}
+        <mesh geometry={geo.back} position={[0, 0, back]} rotation={[0, Math.PI, 0]}>
+          <meshPhysicalMaterial color={body} metalness={0.2} roughness={0.42} clearcoat={1} clearcoatRoughness={0.35} envMapIntensity={1.1} />
+        </mesh>
+        {/* the ribbon N, polished, on the frosted back */}
+        <group position={[0, -0.12, back - 0.012]} rotation={[0, Math.PI, 0]} scale={[0.4, -0.4, 0.4]}>
+          <mesh geometry={mono}>
+            <meshPhysicalMaterial color={dark ? c.text : colors.light.linen} metalness={0.9} roughness={0.18} clearcoat={1} />
+          </mesh>
+        </group>
+        {/* camera island: two lenses and a flash */}
+        <group position={[0.3, 0.85, back]} rotation={[0, Math.PI, 0]}>
+          <RoundedBox args={[0.44, 0.44, 0.03]} radius={0.1} smoothness={4} position={[0, 0, 0.012]}>
+            <meshPhysicalMaterial color={body} metalness={0.4} roughness={0.15} clearcoat={1} />
+          </RoundedBox>
+          {[
+            [-0.095, 0.095],
+            [0.095, -0.095],
+          ].map(([x, y], i) => (
+            <group key={i} position={[x!, y!, 0.03]}>
+              <mesh rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.078, 0.078, 0.03, 48]} />
+                <meshStandardMaterial color={rim} metalness={1} roughness={0.15} />
+              </mesh>
+              <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0.012]}>
+                <cylinderGeometry args={[0.06, 0.06, 0.012, 48]} />
+                <meshPhysicalMaterial color={colors.dark.canvas} metalness={0.1} roughness={0.02} clearcoat={1} />
+              </mesh>
+            </group>
+          ))}
+          <mesh position={[0.095, 0.095, 0.03]}>
+            <circleGeometry args={[0.024, 24]} />
+            <meshBasicMaterial color={colors.light.linen} />
+          </mesh>
+        </group>
+        {/* side keys */}
+        <RoundedBox args={[0.016, 0.3, 0.036]} radius={0.007} smoothness={3} position={[PW / 2 + 0.004, 0.5, 0]}>
+          <meshStandardMaterial color={rim} metalness={1} roughness={0.3} />
         </RoundedBox>
-        {[
-          [-0.1, 0.1],
-          [0.1, -0.1],
-        ].map(([x, y], i) => (
-          <group key={i} position={[x!, y!, 0.03]}>
-            <mesh rotation={[Math.PI / 2, 0, 0]}>
-              <cylinderGeometry args={[0.078, 0.078, 0.03, 40]} />
-              <meshStandardMaterial color={rim} metalness={1} roughness={0.15} />
-            </mesh>
-            <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0.012]}>
-              <cylinderGeometry args={[0.058, 0.058, 0.012, 40]} />
-              <meshPhysicalMaterial color={colors.dark.canvas} metalness={0.2} roughness={0.05} clearcoat={1} />
-            </mesh>
-          </group>
-        ))}
-        <mesh position={[0.1, 0.1, 0.03]}>
-          <circleGeometry args={[0.025, 24]} />
-          <meshBasicMaterial color={colors.light.linen} />
-        </mesh>
+        <RoundedBox args={[0.016, 0.16, 0.036]} radius={0.007} smoothness={3} position={[PW / 2 + 0.004, 0.08, 0]}>
+          <meshStandardMaterial color={rim} metalness={1} roughness={0.3} />
+        </RoundedBox>
       </group>
-      {/* side keys */}
-      <mesh position={[0.605, 0.55, 0]}>
-        <boxGeometry args={[0.02, 0.28, 0.05]} />
-        <meshStandardMaterial color={body} metalness={0.7} roughness={0.3} />
-      </mesh>
-      <mesh position={[0.605, 0.15, 0]}>
-        <boxGeometry args={[0.02, 0.16, 0.05]} />
-        <meshStandardMaterial color={body} metalness={0.7} roughness={0.3} />
-      </mesh>
-    </group>
     </>
   );
 }

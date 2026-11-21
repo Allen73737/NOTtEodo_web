@@ -41,7 +41,7 @@ export function Nav() {
         <div className="nav__tools">
           <button
             type="button"
-            className="icon-btn"
+            className="icon-btn hide-sm"
             aria-label="Search the site (Ctrl+K)"
             onClick={() => window.dispatchEvent(new Event("nt:palette"))}
           >
@@ -49,7 +49,7 @@ export function Nav() {
           </button>
           <ViewToggle />
           <ThemeToggle />
-          <SoundToggle className="hide-sm" />
+          <SoundToggle />
           <Dialog.Root open={open} onOpenChange={setOpen}>
             <Dialog.Trigger asChild>
               <button type="button" className="icon-btn nav__menu" aria-label="Open menu">

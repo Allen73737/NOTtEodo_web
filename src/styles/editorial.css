@@ -5,7 +5,7 @@
  * Media (cards, posters, the simulator) runs the full width of .wrap.
  */
 :root {
-  --rail: clamp(0px, 15vw, 260px);
+  --rail: clamp(0px, 7vw, 108px);
   --rail-gap: clamp(24px, 3vw, 48px);
 }
 @media (max-width: 860px) {
@@ -392,17 +392,29 @@ html.js:not(.reduced) [data-reveal].is-in > :nth-child(n + 7) { animation-delay:
   position: absolute;
   inset: 0;
   background: var(--c-ink-container);
-  clip-path: inset(100% 0 0 0 round 40% 40% 0 0);
+  clip-path: inset(100% 0 0 0 round 50% 50% 0 0);
+  will-change: clip-path;
 }
-.curtain.is-covering .curtain__sheet {
-  animation: curtain-up 560ms var(--e-ease-in-out-cubic) forwards;
+.curtain__sheet--wine {
+  background: var(--c-oxblood);
 }
-.curtain.is-lifting .curtain__sheet {
-  animation: curtain-off 820ms var(--e-ease-in-out-cubic) forwards;
+.curtain.is-covering .curtain__sheet--wine {
+  animation: curtain-up 360ms cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+.curtain.is-covering .curtain__sheet:not(.curtain__sheet--wine) {
+  animation: curtain-up 360ms cubic-bezier(0.7, 0, 0.3, 1) 60ms forwards;
+}
+.curtain.is-lifting .curtain__sheet:not(.curtain__sheet--wine) {
+  clip-path: inset(0 0 0 0 round 0);
+  animation: curtain-off 560ms cubic-bezier(0.7, 0, 0.2, 1) forwards;
+}
+.curtain.is-lifting .curtain__sheet--wine {
+  clip-path: inset(0 0 0 0 round 0);
+  animation: curtain-off 560ms cubic-bezier(0.7, 0, 0.2, 1) 80ms forwards;
 }
 @keyframes curtain-up {
   from {
-    clip-path: inset(100% 0 0 0 round 40% 40% 0 0);
+    clip-path: inset(100% 0 0 0 round 50% 50% 0 0);
   }
   to {
     clip-path: inset(0 0 0 0 round 0);
@@ -413,50 +425,77 @@ html.js:not(.reduced) [data-reveal].is-in > :nth-child(n + 7) { animation-delay:
     clip-path: inset(0 0 0 0 round 0);
   }
   to {
-    clip-path: inset(0 0 100% 0 round 0 0 40% 40%);
+    clip-path: inset(0 0 100% 0 round 0 0 50% 50%);
+  }
+}
+.curtain__body {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  color: var(--c-inverse-text);
+  opacity: 0;
+}
+:root[data-mode="dark"] .curtain__body {
+  color: var(--c-text);
+}
+.curtain.is-covering .curtain__body {
+  animation: curtain-body-in 380ms var(--e-silk) 140ms forwards;
+}
+.curtain.is-lifting .curtain__body {
+  opacity: 1;
+  animation: curtain-body-off 360ms var(--e-exit) forwards;
+}
+@keyframes curtain-body-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes curtain-body-off {
+  to {
+    opacity: 0;
+    transform: translateY(-60px);
   }
 }
 .curtain__mark {
-  position: relative;
-  width: min(18vmin, 140px);
+  width: min(12vmin, 84px);
   height: auto;
-  color: var(--c-inverse-text);
   overflow: visible;
 }
 .curtain__mark path {
   fill: transparent;
   stroke: currentColor;
-  stroke-width: 4;
+  stroke-width: 5;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
 }
 .curtain.is-covering .curtain__mark path {
   animation:
-    logo-pen 900ms var(--e-ease-in-out-cubic) 120ms forwards,
-    logo-flood 400ms var(--e-silk) 700ms forwards;
-}
-.curtain.is-lifting .curtain__mark {
-  animation: curtain-mark-off 500ms var(--e-exit) forwards;
+    logo-pen 700ms var(--e-ease-in-out-cubic) 120ms forwards,
+    logo-flood 300ms var(--e-silk) 600ms forwards;
 }
 .curtain.is-lifting .curtain__mark path {
   fill: currentColor;
   stroke-dashoffset: 0;
 }
-@keyframes curtain-mark-off {
-  to {
-    opacity: 0;
-    transform: translateY(-40px) scale(0.9);
-  }
+.curtain__label {
+  margin: 0;
+  font: italic 400 clamp(3rem, 11vw, 9rem) / 0.95 var(--font-display);
+  letter-spacing: -0.035em;
 }
 /* The new page's opening rises in behind the lifting sheet. */
-html.page-enter .page-head__main,
-html.page-enter .legal__head {
-  animation: page-in 1s var(--e-silk) 0.25s both;
+html.page-enter main {
+  animation: page-in 900ms var(--e-silk) both;
 }
 @keyframes page-in {
   from {
-    opacity: 0;
-    transform: translateY(60px);
+    opacity: 0.4;
+    transform: translateY(70px) scale(0.985);
   }
 }
 

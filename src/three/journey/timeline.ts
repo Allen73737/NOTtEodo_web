@@ -92,10 +92,11 @@ export const KEYS: Record<string, Key> = {
     to: { mono: away, phone: pose([-0.46, -0.05, -0.1], [0.06, 3 * TAU + 0.2, 0], 0.8), fx: { vault: 1 } },
     screens: ["home"],
   },
-  // Tomorrow: the phone faces you; the N returns to crown it.
+  // Tomorrow: the phone makes one slow full turn (its back, with the ribbon N, catches the light
+  // half-way) and comes to rest facing you, beside the download.
   finale: {
-    from: { mono: pose([0.16, 0.95, 0.4], [0, -0.6, 0], 0.2), phone: pose([0.48, -0.12, 0], [-0.02, 4 * TAU - 0.5, 0], 0.92), fx: {} },
-    to: { mono: pose([0.18, 1.0, 0.4], [0, 0.6, 0], 0.22), phone: pose([0.48, -0.1, 0.2], [-0.02, 4 * TAU - 0.15, 0], 0.96), fx: {} },
+    from: { mono: away, phone: pose([0.46, -0.06, 0], [0.02, 4 * TAU - 0.45, 0], 0.94), fx: {} },
+    to: { mono: away, phone: pose([0.42, -0.04, 0.35], [-0.02, 5 * TAU - 0.22, 0], 1.0), fx: {} },
     screens: ["home"],
   },
 };

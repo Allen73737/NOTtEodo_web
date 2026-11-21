@@ -1,0 +1,696 @@
+/*
+ * Folio: the colour and structure layer over the editorial system.
+ *   - an atmosphere of soft ink blooms behind every page, drifting with the scroll
+ *   - chapters: numbered, sticky heads on the left, content on the right (inner pages)
+ *   - bands: ink and wine sections that re-tint their own tokens, so any component inside
+ *     (cards, buttons, tables, inputs) turns light-on-dark without its own rules
+ *   - the bento grid for features, interludes, the simulator stage, the end band and an ink footer
+ * Palette only: ivory, ink, oxblood family, bronze, linen.
+ */
+
+/* ---------- Atmosphere ---------- */
+.atmos {
+  position: fixed;
+  inset: -12vmax;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(42vmax 34vmax at 84% 14%, color-mix(in oklab, var(--c-rosewood) 17%, transparent), transparent 70%),
+    radial-gradient(38vmax 30vmax at 10% 70%, color-mix(in oklab, var(--c-bronze) 15%, transparent), transparent 70%),
+    radial-gradient(34vmax 28vmax at 58% 104%, color-mix(in oklab, var(--c-oxblood) 11%, transparent), transparent 70%);
+}
+:root[data-mode="dark"] .atmos {
+  background:
+    radial-gradient(42vmax 34vmax at 84% 12%, color-mix(in oklab, var(--c-oxblood) 30%, transparent), transparent 70%),
+    radial-gradient(36vmax 30vmax at 6% 76%, color-mix(in oklab, var(--c-noir) 42%, transparent), transparent 70%),
+    radial-gradient(30vmax 26vmax at 60% 106%, color-mix(in oklab, var(--c-blush) 12%, transparent), transparent 70%);
+}
+@supports (animation-timeline: scroll()) {
+  html:not(.reduced) .atmos {
+    animation: atmos-drift linear both;
+    animation-timeline: scroll(root);
+  }
+}
+@keyframes atmos-drift {
+  to {
+    transform: translate3d(-4vmax, -10vmax, 0) rotate(10deg);
+  }
+}
+
+/* ---------- Colour in the type ---------- */
+.page-head__title .kinetic__w.it,
+.act__title .kinetic__w.it,
+.hero__title .kinetic__w.it,
+.chapter__title .it,
+.legal__head .t-h1 em {
+  color: var(--c-accent);
+}
+
+/* ---------- Bands: tokens re-tinted for light-on-dark ---------- */
+.chapter--ink,
+.chapter--wine,
+.interlude,
+.stage-band,
+.footer,
+.act--modules {
+  --c-text: #f6f3ed;
+  --c-text-muted: color-mix(in oklab, #F6F3ED 86%, transparent);
+  --c-text-soft: #A89C9C;
+  --c-hairline: color-mix(in oklab, #F6F3ED 16%, transparent);
+  --c-divider: color-mix(in oklab, #F6F3ED 12%, transparent);
+  --c-outline: color-mix(in oklab, #F6F3ED 30%, transparent);
+  --c-sheet: color-mix(in oklab, #F6F3ED 5%, transparent);
+  --c-surface: color-mix(in oklab, #F6F3ED 6%, transparent);
+  --c-surface-high: color-mix(in oklab, #F6F3ED 9%, transparent);
+  --c-surface-lowest: color-mix(in oklab, #F6F3ED 4%, transparent);
+  --c-field: color-mix(in oklab, #F6F3ED 7%, transparent);
+  --c-track: color-mix(in oklab, #F6F3ED 14%, transparent);
+  --c-ink: #f6f3ed;
+  --c-accent: #D0485A;
+  --c-accent-fill: #8e2433;
+  --c-on-accent: #f6f3ed;
+  --shadow-card: 0 30px 60px -40px rgb(0 0 0 / 0.6);
+  color: var(--c-text);
+}
+.chapter--wine,
+.interlude,
+.stage-band,
+.act--modules {
+  --c-accent: #e9e4d9;
+  --c-accent-fill: #1a1614;
+}
+.chapter--ink .card,
+.chapter--wine .card,
+.stage-band .card,
+.footer .card {
+  background: var(--c-sheet);
+}
+
+/* ---------- Chapters ---------- */
+.chapter {
+  position: relative;
+  padding-block: clamp(64px, 9vw, 140px);
+}
+.chapter + .chapter:not(.chapter--ink, .chapter--wine) .chapter__grid {
+  border-top: 1px solid var(--c-divider);
+  padding-top: clamp(48px, 6vw, 96px);
+}
+.chapter + .chapter:not(.chapter--ink, .chapter--wine) {
+  padding-top: 0;
+}
+.chapter--ink + .chapter,
+.chapter--wine + .chapter,
+.interlude + .chapter {
+  padding-top: clamp(64px, 9vw, 140px) !important;
+}
+.chapter--ink + .chapter .chapter__grid,
+.chapter--wine + .chapter .chapter__grid,
+.interlude + .chapter .chapter__grid {
+  border-top: 0 !important;
+  padding-top: 0 !important;
+}
+.chapter--ink {
+  background:
+    radial-gradient(60vw 40vw at 90% 0%, color-mix(in oklab, #8E2433 35%, transparent), transparent 70%),
+    #1a1614;
+}
+:root[data-mode="dark"] .chapter--ink {
+  background:
+    radial-gradient(60vw 40vw at 90% 0%, color-mix(in oklab, #8E2433 40%, transparent), transparent 70%),
+    #0f0d0d;
+}
+.chapter--wine {
+  background:
+    radial-gradient(50vw 40vw at 10% 100%, color-mix(in oklab, #5A1620 70%, transparent), transparent 70%),
+    var(--c-oxblood);
+}
+.chapter__grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.36fr) minmax(0, 1fr);
+  gap: clamp(28px, 5vw, 96px);
+  align-items: start;
+}
+.chapter__head {
+  position: sticky;
+  top: calc(var(--nav-h) + 40px);
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+.chapter__n {
+  margin: 0;
+  font: italic 400 clamp(3.8rem, 7.5vw, 7rem) / 0.82 var(--font-display);
+  letter-spacing: -0.05em;
+  color: var(--c-accent);
+}
+.chapter__label {
+  margin: 0;
+}
+.chapter__title {
+  margin: 0;
+  font: 400 calc(clamp(1.7rem, 2.8vw, 2.7rem) * var(--ed, 1)) / 1.04 var(--font-display);
+  letter-spacing: -0.022em;
+  max-width: 14ch;
+  text-wrap: balance;
+}
+.chapter__lede {
+  margin: 0;
+  color: var(--c-text-soft);
+  max-width: 34ch;
+}
+.chapter__body {
+  min-width: 0;
+  display: grid;
+  gap: 22px;
+  align-content: start;
+}
+.chapter__body > p,
+.chapter__body > ul:not(.voices),
+.chapter__body > ol {
+  max-width: 68ch;
+  margin: 0;
+}
+.chapter__body ul:not(.voices) li + li {
+  margin-top: 10px;
+}
+.chapter__body code {
+  overflow-wrap: anywhere;
+}
+/* The number draws its own hairline as the chapter arrives. */
+.chapter__n::after {
+  content: "";
+  display: block;
+  height: 1px;
+  width: 64px;
+  margin-top: 18px;
+  background: currentColor;
+  transform-origin: left;
+  transform: scaleX(0.2);
+  transition: transform 1.2s var(--e-silk);
+}
+.chapter:hover .chapter__n::after,
+.chapter:focus-within .chapter__n::after {
+  transform: scaleX(1);
+}
+@supports (animation-timeline: view()) {
+  html:not(.reduced) .chapter__n::after {
+    animation: rule-draw linear both;
+    animation-timeline: view();
+    animation-range: entry 10% cover 40%;
+  }
+}
+@keyframes rule-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@media (max-width: 860px) {
+  .chapter__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .chapter__head {
+    position: static;
+    grid-template-columns: auto 1fr;
+    align-items: end;
+    column-gap: 16px;
+  }
+  .chapter__n {
+    grid-row: span 2;
+    font-size: 3.6rem;
+  }
+  .chapter__n::after {
+    display: none;
+  }
+  .chapter__title,
+  .chapter__lede {
+    grid-column: 1 / -1;
+  }
+  .chapter__title {
+    font-size: 1.9rem;
+    max-width: 18ch;
+  }
+}
+
+/* ---------- Bento (features) ---------- */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(14px, 1.6vw, 22px);
+  grid-auto-flow: dense;
+}
+.feature-card {
+  display: flex;
+  flex-direction: column;
+  color: var(--c-text);
+}
+.feature-card__body {
+  display: grid;
+  gap: 10px;
+  padding: clamp(20px, 2.2vw, 30px);
+  align-content: start;
+}
+.feature-card__line {
+  margin: 0;
+  font: italic 400 clamp(1.35rem, 1.9vw, 1.75rem) / 1.12 var(--font-display);
+  letter-spacing: -0.01em;
+}
+.feature-card__go {
+  margin-top: 6px;
+  font: 600 0.78rem/1 var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-accent);
+  transform: translateX(-6px);
+  opacity: 0;
+  transition:
+    opacity var(--d-standard),
+    transform var(--d-standard) var(--e-silk);
+}
+.feature-card:hover .feature-card__go,
+.feature-card:focus-visible .feature-card__go {
+  opacity: 1;
+  transform: none;
+}
+.feature-card__poster {
+  transition: transform 900ms var(--e-silk);
+}
+.feature-card:hover .feature-card__poster {
+  transform: scale(1.035);
+}
+/* The first poster in each chapter leads: wide, poster beside its words. */
+.bento > .feature-card--poster:first-child {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  align-items: center;
+}
+.bento > .feature-card--poster:first-child .feature-card__poster {
+  border-bottom: 0;
+  border-right: 1px solid var(--c-hairline);
+  height: 100%;
+  object-fit: cover;
+}
+.bento > .feature-card--poster:first-child .feature-card__line {
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+}
+/* Cards without a poster take turns in wine and ink, so the grid has colour and rhythm. */
+.bento > .feature-card:not(.feature-card--poster):nth-child(3n + 1) {
+  background: var(--c-oxblood);
+  border-color: transparent;
+  --c-text: #f6f3ed;
+  --c-text-soft: color-mix(in oklab, #F6F3ED 82%, transparent);
+  --c-text-muted: color-mix(in oklab, #F6F3ED 82%, transparent);
+  --c-accent: #f6f3ed;
+}
+.bento > .feature-card:not(.feature-card--poster):nth-child(3n + 2) {
+  background: #1a1614;
+  border-color: transparent;
+  --c-text: #f6f3ed;
+  --c-text-soft: #A89C9C;
+  --c-text-muted: #A89C9C;
+  --c-accent: #D0485A;
+}
+:root[data-mode="dark"] .bento > .feature-card:not(.feature-card--poster):nth-child(3n + 2) {
+  background: var(--c-ink-container);
+}
+.bento .feature-card .muted {
+  color: var(--c-text-soft);
+}
+:root[data-view="editorial"] .bento > .feature-card--poster:first-child {
+  display: flex;
+}
+@media (max-width: 700px) {
+  .bento {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .bento > .feature-card--poster:first-child {
+    display: flex;
+  }
+  .bento > .feature-card--poster:first-child .feature-card__poster {
+    border-right: 0;
+    border-bottom: 1px solid var(--c-hairline);
+  }
+}
+
+/* ---------- Interlude ---------- */
+.interlude {
+  position: relative;
+  overflow: clip;
+  isolation: isolate;
+  padding-block: clamp(96px, 15vw, 220px);
+  background:
+    radial-gradient(70vw 50vw at 100% 0%, color-mix(in oklab, #D0485A 35%, transparent), transparent 70%),
+    radial-gradient(60vw 50vw at 0% 100%, color-mix(in oklab, #5A1620 80%, transparent), transparent 70%),
+    var(--c-oxblood);
+}
+.interlude__mark {
+  position: absolute;
+  z-index: -1;
+  right: -8vw;
+  top: 50%;
+  translate: 0 -50%;
+  color: color-mix(in oklab, #F6F3ED 7%, transparent);
+  animation: slow-spin 80s linear infinite;
+}
+@keyframes slow-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+.interlude__inner {
+  display: grid;
+  gap: 28px;
+}
+.interlude__line {
+  margin: 0;
+  max-width: 15ch;
+  font: 400 clamp(2.8rem, 8vw, 8rem) / 0.94 var(--font-display);
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+.interlude__line .it {
+  font-style: italic;
+}
+.interlude__sub {
+  margin: 0;
+  color: color-mix(in oklab, #F6F3ED 70%, transparent);
+}
+@supports (animation-timeline: view()) {
+  html:not(.reduced) .interlude__line {
+    animation: interlude-drift linear both;
+    animation-timeline: view();
+  }
+}
+@keyframes interlude-drift {
+  from {
+    transform: translateX(10vw);
+    opacity: 0.2;
+  }
+  35% {
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-8vw);
+  }
+}
+
+/* ---------- The simulator's stage ---------- */
+.stage-band {
+  position: relative;
+  padding-block: clamp(48px, 7vw, 110px);
+  background:
+    radial-gradient(60vw 40vw at 50% 0%, color-mix(in oklab, #D0485A 30%, transparent), transparent 70%),
+    linear-gradient(180deg, var(--c-oxblood), var(--c-noir));
+}
+.stage-band__inner {
+  display: grid;
+  gap: 20px;
+}
+.stage-band__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: color-mix(in oklab, #F6F3ED 80%, transparent);
+}
+.stage-band__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f6f3ed;
+  box-shadow: 0 0 0 0 color-mix(in oklab, #F6F3ED 60%, transparent);
+  animation: live-dot 1.8s ease-out infinite;
+}
+@keyframes live-dot {
+  70% {
+    box-shadow: 0 0 0 10px color-mix(in oklab, #F6F3ED 0%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, #F6F3ED 0%, transparent);
+  }
+}
+
+/* ---------- Nodo voices, install steps ---------- */
+.voices {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+.voices li {
+  display: grid;
+  gap: 8px;
+}
+.install-steps {
+  list-style: none;
+  counter-reset: st;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+}
+.install-steps li {
+  counter-increment: st;
+  position: relative;
+  padding: 22px 0 22px 82px;
+  border-top: 1px solid var(--c-divider);
+  font-size: 1.06rem;
+}
+.install-steps li::before {
+  position: absolute;
+  left: 0;
+  top: 20px;
+  content: counter(st, decimal-leading-zero);
+  font: italic 400 2rem/1 var(--font-display);
+  color: var(--c-accent);
+}
+
+/* ---------- End band + ink footer ---------- */
+.footer {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+  background: #1a1614;
+}
+:root[data-mode="dark"] .footer {
+  background: #0A0A0A;
+}
+.footer .qr {
+  background: #f6f3ed;
+  border-color: transparent;
+}
+.footer__brand {
+  color: var(--c-accent);
+}
+.endband {
+  position: relative;
+  overflow: clip;
+  isolation: isolate;
+  padding-block: clamp(90px, 13vw, 200px);
+  margin-bottom: 72px;
+  background:
+    radial-gradient(70vw 50vw at 85% 10%, color-mix(in oklab, #D0485A 45%, transparent), transparent 70%),
+    radial-gradient(60vw 50vw at 0% 100%, color-mix(in oklab, #5A1620 90%, transparent), transparent 70%),
+    var(--c-oxblood);
+}
+.endband__mark {
+  position: absolute;
+  z-index: -1;
+  right: -14vw;
+  bottom: -30%;
+  color: color-mix(in oklab, #F6F3ED 6%, transparent);
+  animation: slow-spin 120s linear infinite reverse;
+}
+.endband__inner {
+  display: grid;
+  gap: 26px;
+}
+.endband__kicker {
+  margin: 0;
+  color: color-mix(in oklab, #F6F3ED 75%, transparent);
+}
+.endband__line {
+  margin: 0;
+  font: 400 clamp(3.2rem, 11vw, 11rem) / 0.9 var(--font-display);
+  letter-spacing: -0.045em;
+}
+.endband__line .it {
+  font-style: italic;
+}
+.endband__cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px 28px;
+}
+.btn--light {
+  --btn-bg: #f6f3ed;
+  --btn-fg: #1a1614;
+  min-height: 56px;
+  padding-inline: 30px;
+  font-size: 1.02rem;
+}
+.endband__try {
+  color: #f6f3ed;
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in oklab, #F6F3ED 40%, transparent);
+  padding-bottom: 3px;
+  transition: border-color var(--d-quick);
+}
+.endband__try:hover {
+  border-color: #f6f3ed;
+}
+@supports (animation-timeline: view()) {
+  html:not(.reduced) .endband__line {
+    animation: endband-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 100%;
+  }
+}
+@keyframes endband-rise {
+  from {
+    transform: translateY(12vh) scale(0.94);
+    opacity: 0.15;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* ---------- Page header: a bloom of ink behind the aside ---------- */
+.page-head::before {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  right: -10vw;
+  top: 8%;
+  width: min(70vw, 900px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--c-rosewood) 26%, transparent), color-mix(in oklab, var(--c-oxblood) 8%, transparent) 60%, transparent);
+  animation: bloom-in 1.6s var(--e-silk) both;
+}
+:root[data-mode="dark"] .page-head::before {
+  background: radial-gradient(closest-side, color-mix(in oklab, #8E2433 45%, transparent), color-mix(in oklab, #5A1620 18%, transparent) 60%, transparent);
+}
+@keyframes bloom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+}
+.page-head__aside::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 78%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklab, var(--c-accent) 35%, transparent);
+  animation: slow-spin 40s linear infinite;
+  border-style: dashed;
+}
+.page-head__aside {
+  position: relative;
+}
+
+/* ---------- Homepage: the modules act is a wine room ---------- */
+.act--modules .act__back::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60vw 50vw at 50% 40%, color-mix(in oklab, #D0485A 35%, transparent), transparent 70%),
+    var(--c-oxblood);
+  clip-path: circle(calc(clamp(0, calc((var(--a, 5) + 1.05) * 1.25), 1.5) * 80vmax) at 50% 50%);
+}
+.act--modules .marquee {
+  color: var(--c-text);
+}
+
+/* The simulator keeps the app's own tokens inside the wine stage. */
+.stage-band .sim {
+  --c-text: #1d1c15;
+  --c-text-muted: #424849;
+  --c-text-soft: #6b605a;
+  --c-hairline: #e2d8cf;
+  --c-divider: #ede6df;
+  --c-outline: #727879;
+  --c-sheet: #ffffff;
+  --c-surface: #efe8e1;
+  --c-surface-high: #e8dfd6;
+  --c-surface-lowest: #ffffff;
+  --c-field: #f4efe9;
+  --c-track: #eadfd9;
+  --c-ink: #1a1614;
+  --c-accent: #7a1f2b;
+  --c-accent-fill: #7a1f2b;
+  --c-on-accent: #ffffff;
+  color: var(--c-text);
+  box-shadow: 0 60px 120px -50px rgb(0 0 0 / 0.7);
+}
+:root[data-mode="dark"] .stage-band .sim {
+  --c-text: #f6f3ed;
+  --c-text-muted: #a89c9c;
+  --c-text-soft: #a89c9c;
+  --c-hairline: #1e1e1e;
+  --c-divider: #221c1d;
+  --c-outline: #2e1a1d;
+  --c-sheet: #0f0d0d;
+  --c-surface: #000000;
+  --c-surface-high: #0a0a0a;
+  --c-surface-lowest: #000000;
+  --c-field: #161313;
+  --c-track: #2a1f21;
+  --c-ink: #f6f3ed;
+  --c-accent: #d0485a;
+  --c-accent-fill: #8e2433;
+  --c-on-accent: #f6f3ed;
+}
+.stage-band .sim-wrap > :not(.sim) {
+  color: color-mix(in oklab, #F6F3ED 75%, transparent);
+}
+
+/* ---------- Phones ---------- */
+.intro__enter,
+.pill__go {
+  white-space: nowrap;
+}
+@media (max-width: 860px) {
+  .tour__title {
+    font-size: 1.7rem;
+  }
+  .tour__caps {
+    margin-top: 10px;
+    height: 8.5rem;
+    overflow: clip;
+  }
+  .tour__capname {
+    font-size: 2rem;
+  }
+  .interlude__line {
+    font-size: clamp(2.4rem, 11vw, 3.4rem);
+  }
+  .endband__line {
+    font-size: clamp(3rem, 15vw, 4.4rem);
+  }
+  .page-head::before {
+    width: 120vw;
+    right: -50vw;
+    top: 0;
+  }
+  .page-head__aside::before {
+    display: none;
+  }
+  .stage-band .sim {
+    height: min(720px, 80svh);
+  }
+}

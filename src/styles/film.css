@@ -221,20 +221,36 @@ html[data-film="full"] .act__visual {
 }
 .tour__ticks {
   grid-column: 3;
-  grid-row: 2;
+  grid-row: 1 / span 2;
   justify-self: end;
   display: grid;
-  gap: 10px;
+  gap: 12px;
+  padding-right: 64px;
 }
 .tour__ticks span {
   --seg: calc(var(--lp, 0) * var(--n) * 0.92 + 0.25 - var(--i));
   --on: clamp(0, calc(1 - max(calc(var(--seg) - 0.5), calc(0.5 - var(--seg))) * 2.2), 1);
-  display: block;
-  height: 2px;
-  width: calc(16px + var(--on) * 40px);
-  margin-left: auto;
-  background: var(--c-text);
-  opacity: calc(0.25 + var(--on) * 0.75);
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 12px;
+  opacity: calc(0.32 + var(--on) * 0.68);
+  transform: translateX(calc(var(--on) * -14px));
+}
+.tour__ticks span::after {
+  content: "";
+  align-self: center;
+  height: 1px;
+  width: calc(10px + var(--on) * 36px);
+  background: var(--c-accent);
+}
+.tour__ticks b {
+  font: 500 0.66rem/1 var(--font-mono);
+  color: var(--c-text-soft);
+}
+.tour__ticks em {
+  font: italic 400 calc(1rem + var(--on) * 0.7rem) / 1 var(--font-display);
+  color: var(--c-text);
 }
 .tour__names {
   position: absolute;
@@ -513,17 +529,19 @@ html[data-film="full"] .hero__tap {
 }
 .rail {
   position: fixed;
-  left: 14px;
+  right: 14px;
   top: 50%;
   transform: translateY(-50%);
   z-index: 40;
   display: grid;
+  justify-items: end;
   gap: 2px;
 }
 .rail a {
   min-height: 24px;
   min-width: 24px;
   display: flex;
+  flex-direction: row-reverse;
   align-items: center;
   gap: 8px;
   text-decoration: none;
@@ -535,12 +553,12 @@ html[data-film="full"] .hero__tap {
     opacity var(--d-quick),
     color var(--d-quick);
 }
-.rail__num::before {
+.rail__num::after {
   content: "";
   display: inline-block;
   width: 10px;
   height: 1px;
-  margin-right: 8px;
+  margin-left: 8px;
   vertical-align: middle;
   background: currentColor;
   transition: width var(--d-standard) var(--e-silk);
@@ -550,7 +568,7 @@ html[data-film="full"] .hero__tap {
   font-weight: 700;
   font-size: 0.86rem;
 }
-.rail a[aria-current="true"] .rail__num::before {
+.rail a[aria-current="true"] .rail__num::after {
   width: 22px;
 }
 .rail__label {
@@ -558,7 +576,7 @@ html[data-film="full"] .hero__tap {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   opacity: 0;
-  transform: translateX(-6px);
+  transform: translateX(6px);
   transition:
     opacity var(--d-standard),
     transform var(--d-standard) var(--e-silk);
@@ -580,7 +598,7 @@ html[data-film="full"] .hero__tap {
 
 @media (min-width: 1101px) {
   [data-film] .wrap {
-    padding-left: max(var(--gutter), 96px);
+    padding-right: max(var(--gutter), 96px);
   }
 }
 
@@ -594,7 +612,7 @@ html[data-film="full"] .hero__tap {
   color: var(--c-text);
   overflow: hidden;
   /* If scripts never run, the title still steps aside. */
-  animation: intro-failsafe 0s 9s forwards;
+  animation: intro-failsafe 0s 14s forwards;
 }
 html.no-js .intro {
   display: none;
@@ -830,6 +848,104 @@ html.intro-on {
   color: var(--c-text);
   border-color: var(--c-text-soft);
 }
+/* Loaded: enter with sound or quietly. A hairline under the choice runs out, then it enters quietly. */
+.intro__gate {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(84px, 13vh, 140px);
+  translate: -50% 0;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  animation: gate-in 700ms var(--e-silk) both;
+}
+@keyframes gate-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+.intro__enter {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 56px;
+  padding: 0 28px 0 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--c-accent-fill);
+  color: var(--c-on-accent);
+  font: 500 1rem/1 var(--font-sans);
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 24px 50px -24px color-mix(in oklab, var(--c-oxblood) 80%, transparent);
+  transition:
+    transform 300ms var(--e-ease-out-back),
+    box-shadow 300ms;
+}
+.intro__enter:hover,
+.intro__enter:focus-visible {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 30px 60px -24px color-mix(in oklab, var(--c-oxblood) 90%, transparent);
+}
+.intro__wave {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 18px;
+}
+.intro__wave i {
+  width: 2px;
+  height: 100%;
+  border-radius: 2px;
+  background: currentColor;
+  animation: wave 1.1s ease-in-out infinite;
+}
+.intro__wave i:nth-child(2) { animation-delay: -0.2s; }
+.intro__wave i:nth-child(3) { animation-delay: -0.45s; }
+.intro__wave i:nth-child(4) { animation-delay: -0.7s; }
+.intro__wave i:nth-child(5) { animation-delay: -0.9s; }
+@keyframes wave {
+  0%,
+  100% {
+    transform: scaleY(0.25);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+.intro__quiet {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  background: none;
+  color: var(--c-text-soft);
+  cursor: pointer;
+}
+.intro__quiet:hover {
+  color: var(--c-text);
+}
+.intro__auto {
+  width: 120px;
+  height: 1px;
+  background: var(--c-text-soft);
+  transform-origin: left;
+  animation: gate-auto 5.2s linear forwards;
+}
+@keyframes gate-auto {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+.intro.is-leaving .intro__gate,
+.intro.is-fading .intro__gate {
+  opacity: 0;
+  transition: opacity 200ms;
+}
+
 /* Exit: everything but the veil steps back; the dive happens in the mask. */
 .intro.is-leaving .intro__stage,
 .intro.is-leaving .intro__count,
@@ -1197,8 +1313,11 @@ html.reduced .intro__words .intro__line {
     -webkit-backdrop-filter: blur(16px) saturate(1.1);
     border: 1px solid var(--c-hairline);
   }
-  html[data-film="full"] .act--night .act__copy {
-    background: color-mix(in oklab, var(--c-inverse-surface) 78%, transparent);
+  :root:not([data-mode="dark"])[data-film="full"] .act--night .act__copy {
+    background: color-mix(in oklab, #1a1614 80%, transparent);
+  }
+  html[data-film="full"] .act--modules .act__copy {
+    background: color-mix(in oklab, #5a1620 78%, transparent);
   }
   html[data-film="full"] .act--center .act__copy {
     min-height: 0;

@@ -17,6 +17,23 @@ export async function Footer() {
 
   return (
     <footer className="footer no-print">
+      <div className="endband">
+        <Monogram size="min(70vw, 760px)" className="endband__mark" />
+        <div className="wrap endband__inner">
+          <p className="t-label endband__kicker">Free · Android · no ads, no trackers</p>
+          <p className="endband__line">
+            Curate your <span className="it">everyday.</span>
+          </p>
+          <div className="endband__cta">
+            <Link href="/download" className="btn btn--light">
+              Get NOTtEodo
+            </Link>
+            <Link href="/try" className="endband__try">
+              Try it in your browser →
+            </Link>
+          </div>
+        </div>
+      </div>
       <div className="wrap">
         <div className="footer__top">
           <div className="footer__brand">
