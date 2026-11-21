@@ -62,8 +62,8 @@ test.describe("reduced motion path", () => {
   test("no pinning and content is visible", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator("html")).toHaveClass(/reduced/);
-    const pos = await page.locator(".chapter--tall .chapter__sticky").first().evaluate((el) => getComputedStyle(el).position);
-    expect(pos).toBe("static");
+    const pos = await page.locator(".act .act__pin").first().evaluate((el) => getComputedStyle(el).position);
+    expect(["relative", "static"]).toContain(pos);
     await expect(page.locator(".world")).toHaveCount(0);
   });
 });
@@ -72,7 +72,7 @@ test("lite path renders fallbacks instead of WebGL", async ({ page }) => {
   await page.goto("/?film=lite");
   await expect(page.locator("html")).toHaveAttribute("data-film", "lite");
   await expect(page.locator(".world")).toHaveCount(0);
-  await expect(page.locator(".stage__fallback").first()).toBeAttached();
+  await expect(page.locator(".act__visual").first()).toBeAttached();
 });
 
 test("the simulator is keyboard-operable", async ({ page }) => {
