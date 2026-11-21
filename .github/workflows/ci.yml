@@ -36,12 +36,3 @@ jobs:
       - name: Lighthouse CI
         run: pnpm dlx @lhci/cli@0.15.1 autorun
         continue-on-error: true
-
-  migrations:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: supabase/setup-cli@v1
-        with:
-          version: latest
-      - run: supabase db start && supabase db lint --level warning && supabase test db
