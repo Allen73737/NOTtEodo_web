@@ -35,7 +35,8 @@ function nameFor(pathname: string, text: string | null) {
  * clicks, new tabs, downloads, hash links and reduced motion are left alone.
  *
  * Micro-interactions, delegated from the document so every page gets them:
- *   - cards and buttons follow the pointer with a soft light (--sx/--sy) and cards tilt a little
+ *   - cards and buttons follow the pointer with a soft light (--sx/--sy), cards tilt a little and
+ *     buttons lean toward it; the closing wine band carries a light that follows the pointer
  *   - buttons leave an ink drop where they were pressed
  *   - sections below the fold rise in once as they enter the viewport
  */
@@ -135,13 +136,15 @@ export function Transitions() {
   useEffect(() => {
     const fine = matchMedia("(pointer: fine)").matches;
     let lit: HTMLElement | null = null;
-    const SEL = ".card, .btn, .chip, .why__card";
+    const SEL = ".card, .btn, .chip, .why__card, .endband";
     const onMove = (e: PointerEvent) => {
       const el = (e.target as Element | null)?.closest?.(SEL) as HTMLElement | null;
       if (lit && lit !== el) {
         lit.classList.remove("is-lit");
         lit.style.removeProperty("--rx");
         lit.style.removeProperty("--ry");
+        lit.style.removeProperty("--mx");
+        lit.style.removeProperty("--my");
         lit = null;
       }
       if (!el || !fine) return;
@@ -153,6 +156,11 @@ export function Transitions() {
       if (el.classList.contains("card") && !el.closest(".no-tilt") && r.width < 900) {
         el.style.setProperty("--rx", `${((y / r.height) * 2 - 1) * -3}deg`);
         el.style.setProperty("--ry", `${((x / r.width) * 2 - 1) * 4}deg`);
+      }
+      // Buttons lean a little toward the pointer (magnetic), then settle back when it leaves.
+      if (el.classList.contains("btn")) {
+        el.style.setProperty("--mx", `${((x / r.width) * 2 - 1) * 5}px`);
+        el.style.setProperty("--my", `${((y / r.height) * 2 - 1) * 4}px`);
       }
       el.classList.add("is-lit");
       lit = el;

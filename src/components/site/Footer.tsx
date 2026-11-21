@@ -93,6 +93,9 @@ export async function Footer() {
           </div>
         </div>
       </div>
+      <p className="footer__giant" aria-hidden="true">
+        NOTtEodo
+      </p>
     </footer>
   );
 }

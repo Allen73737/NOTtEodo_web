@@ -3,6 +3,7 @@ import { Ambient } from "@/components/site/Ambient";
 import { CommandPalette } from "@/components/site/CommandPalette";
 import { Footer } from "@/components/site/Footer";
 import { Nav } from "@/components/site/Nav";
+import { SmoothScroll } from "@/components/site/SmoothScroll";
 import { Transitions } from "@/components/site/Transitions";
 import { getAnnouncements, getConfig } from "@/lib/platform";
 
@@ -27,6 +28,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <Footer />
       <CommandPalette />
       <Transitions />
+      <SmoothScroll />
       <Ambient
         downloadHref={config.play_live ? config.urls.play : "/download"}
         label={config.play_live ? "Get it on Google Play" : "Get NOTtEodo"}

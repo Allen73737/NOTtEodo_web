@@ -434,7 +434,7 @@ function CaptureSheet({ onClose, onAdd }: { onClose: () => void; onAdd: (p: Pars
 
 export function ContinueOnPhone() {
   return (
-    <div className="row" style={{ justifyContent: "center" }}>
+    <div className="row">
       <Link className="btn" href="/open/capture">Continue on your phone</Link>
       <Link className="btn btn-ghost" href="/download">Get NOTtEodo</Link>
     </div>

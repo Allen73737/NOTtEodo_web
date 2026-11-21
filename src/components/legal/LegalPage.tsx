@@ -149,7 +149,9 @@ export function Table({ head, rows }: { head: string[]; rows: ReactNode[][] }) {
           {rows.map((r, i) => (
             <tr key={i}>
               {r.map((c, j) => (
-                <td key={j}>{c}</td>
+                <td key={j} data-label={head[j]}>
+                  {c}
+                </td>
               ))}
             </tr>
           ))}

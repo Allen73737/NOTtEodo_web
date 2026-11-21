@@ -153,25 +153,6 @@ export function FilmProvider({ children }: { children: ReactNode }) {
     };
   }, [mode]);
 
-  // Lenis smooth scroll, on both the 3D and the lite path (never for reduced motion).
-  useEffect(() => {
-    if (mode === "reduced") return;
-    let lenis: { raf: (t: number) => void; destroy: () => void } | null = null;
-    let raf = 0;
-    void import("lenis").then(({ default: Lenis }) => {
-      lenis = new Lenis({ lerp: 0.085, smoothWheel: true, wheelMultiplier: 0.9 });
-      const loop = (t: number) => {
-        lenis?.raf(t);
-        raf = requestAnimationFrame(loop);
-      };
-      raf = requestAnimationFrame(loop);
-    });
-    return () => {
-      cancelAnimationFrame(raf);
-      lenis?.destroy();
-    };
-  }, [mode]);
-
   useEffect(() => {
     document.documentElement.dataset.film = mode;
     return () => {

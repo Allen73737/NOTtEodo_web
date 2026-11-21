@@ -683,3 +683,340 @@
     height: min(720px, 80svh);
   }
 }
+
+/* ---------- Spacing and fit fixes, every page ---------- */
+/* Legal pages: one top offset (the head's), the same as every other page opener. */
+.legal {
+  padding-top: 0;
+}
+/* Grid children may shrink, so wide tables scroll inside their box instead of widening the page. */
+.legal__body > *,
+.legal__body section,
+.chapter__body > * {
+  min-width: 0;
+}
+.legal__scroll {
+  max-width: 100%;
+}
+/* The closing band's line rises only a little, so it never passes under the buttons. */
+@keyframes endband-rise {
+  from {
+    transform: translateY(40px);
+    opacity: 0.2;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@media (max-width: 700px) {
+  /* Tables become stacked rows: each cell carries its column name. */
+  .legal__table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .legal__table,
+  .legal__table tbody,
+  .legal__table tr,
+  .legal__table td {
+    display: block;
+    width: 100%;
+  }
+  .legal__table tr {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--c-divider);
+  }
+  .legal__table td {
+    display: grid;
+    grid-template-columns: minmax(96px, 0.42fr) minmax(0, 1fr);
+    gap: 12px;
+    padding: 4px 0;
+    border: 0;
+  }
+  .legal__table td::before {
+    content: attr(data-label);
+    font: 600 0.68rem/1.5 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--c-text-soft);
+  }
+  .legal__table td:first-child {
+    font-weight: 600;
+  }
+  /* Two columns of footer links and of swatches, posters cropped to their top. */
+  .footer__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 18px;
+  }
+  .gallery {
+    columns: 2;
+    column-gap: 10px;
+  }
+  .gallery li {
+    margin-bottom: 10px;
+  }
+  .swatch {
+    min-width: 0;
+  }
+  .grid-auto:has(> .swatch) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+
+/* ---------- Motion layer ---------- */
+/* Buttons lean toward the pointer (set by Transitions); `translate` composes with their own transforms. */
+.btn {
+  translate: var(--mx, 0) var(--my, 0);
+  transition-property: transform, translate, background, color, box-shadow, border-color;
+}
+.btn:not(.is-lit) {
+  transition-duration: 260ms, 520ms, 200ms, 200ms, 200ms, 200ms;
+}
+
+/* Reading progress: an oxblood hairline across the top of the window. */
+@supports (animation-timeline: scroll()) {
+  html:not(.reduced) body::after {
+    content: "";
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 120;
+    height: 2px;
+    background: var(--c-accent);
+    transform-origin: left;
+    transform: scaleX(0);
+    pointer-events: none;
+    animation: read-progress linear both;
+    animation-timeline: scroll(root);
+  }
+  @keyframes read-progress {
+    to {
+      transform: scaleX(1);
+    }
+  }
+}
+
+@supports (animation-timeline: view()) {
+  /* Images open out of a rounded window as they arrive, settling from a slight zoom. */
+  html:not(.reduced) .chapter__body img,
+  html:not(.reduced) .feature-card__poster,
+  html:not(.reduced) .gallery__item img {
+    animation: img-open linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 30%;
+  }
+  /* Chapter numerals rise out of a mask. */
+  html:not(.reduced) .chapter__n {
+    animation: numeral-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 5% cover 25%;
+  }
+  /* The footer's giant wordmark rises as the page ends. */
+  html:not(.reduced) .footer__giant {
+    animation: giant-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 100%;
+  }
+}
+@keyframes img-open {
+  from {
+    clip-path: inset(10% 6% 10% 6% round 28px);
+    scale: 1.06;
+  }
+  to {
+    clip-path: inset(0 0 0 0 round 0);
+    scale: 1;
+  }
+}
+@keyframes numeral-rise {
+  from {
+    clip-path: inset(0 0 100% 0);
+    translate: 0 0.5em;
+  }
+  to {
+    clip-path: inset(0 0 -20% 0);
+    translate: 0 0;
+  }
+}
+@keyframes giant-rise {
+  from {
+    translate: 0 40%;
+    opacity: 0;
+  }
+  to {
+    translate: 0 0;
+    opacity: 1;
+  }
+}
+
+/* The footer ends on the name, full width, in a whisper of the page's ink. */
+.footer {
+  overflow: clip;
+}
+.footer__giant {
+  margin: 24px 0 0;
+  padding-inline: var(--gutter);
+  font: 400 clamp(4rem, 19.5vw, 22rem) / 0.78 var(--font-display);
+  letter-spacing: -0.055em;
+  white-space: nowrap;
+  text-align: center;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in oklab, #F6F3ED 22%, transparent);
+  user-select: none;
+  margin-bottom: -0.12em;
+}
+
+/* The closing band carries a soft light that follows the pointer. */
+.endband::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(520px circle at var(--sx, 50%) var(--sy, 50%), color-mix(in oklab, #F6F3ED 12%, transparent), transparent 62%);
+  opacity: 0;
+  transition: opacity 600ms var(--e-silk);
+}
+.endband.is-lit::after {
+  opacity: 1;
+}
+
+/* Features bento: posters (after the lead) are cropped to their masthead and phone top, so
+   cards sit at similar heights; text-only cards set their own name, large and outlined, into
+   the space at their foot, so a tall card reads as composed rather than empty. */
+.bento > .feature-card--poster:not(:first-child) .feature-card__poster {
+  aspect-ratio: 16 / 11;
+  height: auto;
+  object-fit: cover;
+  object-position: 50% 0;
+}
+@media (max-width: 700px) {
+  .bento > .feature-card--poster:first-child .feature-card__poster {
+    aspect-ratio: 16 / 11;
+    height: auto;
+    object-fit: cover;
+    object-position: 50% 0;
+  }
+}
+.bento > .feature-card[data-word] {
+  min-height: 260px;
+}
+.bento > .feature-card[data-word]::after {
+  content: attr(data-word);
+  position: absolute;
+  right: -0.06em;
+  bottom: -0.18em;
+  font: italic 400 clamp(4rem, 7vw, 7.5rem) / 1 var(--font-display);
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in oklab, var(--c-accent) 38%, transparent);
+  pointer-events: none;
+  transition: translate 900ms var(--e-silk), -webkit-text-stroke-color 600ms;
+}
+.bento > .feature-card[data-word]:hover::after {
+  translate: -12px -6px;
+  -webkit-text-stroke-color: var(--c-accent);
+}
+
+/* ---------- Generic sections read as chapters ----------
+   Pages built from plain sections (security, design, craft, press, help, why...) get the same
+   two-column rhythm as the chapter pages: a numbered heading that stays in view on the left,
+   the content on the right, a hairline between sections. Legal pages, with their own contents
+   rail, keep their reading layout. */
+main {
+  counter-reset: sec;
+}
+.section.wrap:has(> h2:first-child),
+.legal__body:not(:has(.legal__toc)) > .legal__section {
+  counter-increment: sec;
+}
+.section.wrap:has(> h2:first-child) > h2:first-child::before,
+.legal__body:not(:has(.legal__toc)) > .legal__section > h2:first-child::before {
+  content: counter(sec, decimal-leading-zero);
+  display: block;
+  margin-bottom: 14px;
+  font: italic 400 clamp(2.8rem, 5vw, 4.6rem) / 0.82 var(--font-display);
+  letter-spacing: -0.05em;
+  color: var(--c-accent);
+}
+@media (min-width: 1000px) {
+  .section.wrap:has(> h2:first-child),
+  .legal__body:not(:has(.legal__toc)) > .legal__section {
+    display: grid;
+    grid-template-columns: minmax(240px, 0.34fr) minmax(0, 1fr);
+    column-gap: clamp(32px, 5vw, 96px);
+    row-gap: 18px;
+    align-items: start;
+  }
+  .section.wrap:has(> h2:first-child) > *,
+  .legal__body:not(:has(.legal__toc)) > .legal__section > * {
+    grid-column: 2;
+    min-width: 0;
+    margin-top: 0;
+  }
+  .section.wrap:has(> h2:first-child) > h2:first-child,
+  .legal__body:not(:has(.legal__toc)) > .legal__section > h2:first-child {
+    grid-column: 1;
+    grid-row: 1 / span 40;
+    position: sticky;
+    top: calc(var(--nav-h) + 40px);
+    margin: 0;
+    max-width: 12ch;
+    text-wrap: balance;
+  }
+  .legal__body:not(:has(.legal__toc)) {
+    max-width: var(--maxw);
+    padding-left: var(--gutter);
+  }
+  .legal__body:not(:has(.legal__toc)) > .legal__section {
+    max-width: none;
+  }
+}
+.section.wrap:has(> h2:first-child) + .section.wrap:has(> h2:first-child),
+.legal__body:not(:has(.legal__toc)) > .legal__section + .legal__section {
+  border-top: 1px solid var(--c-divider);
+}
+.section.wrap:has(> h2:first-child) + .section.wrap:has(> h2:first-child) {
+  padding-top: clamp(56px, 7vw, 110px);
+}
+.legal__body:not(:has(.legal__toc)) > .legal__section + .legal__section {
+  padding-top: clamp(40px, 5vw, 72px);
+}
+
+/* Try: the simulator stage in two columns, the words on the left, the running app on the right. */
+.stage-band__copy {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+.stage-band__title {
+  margin: 0;
+  font: 400 clamp(2.2rem, 4.6vw, 4.4rem) / 0.98 var(--font-display);
+  letter-spacing: -0.035em;
+  max-width: 12ch;
+  text-wrap: balance;
+}
+.stage-band__title .it {
+  font-style: italic;
+  color: var(--c-accent);
+}
+.stage-band__lede {
+  margin: 0;
+  max-width: 38ch;
+  color: var(--c-text-muted);
+}
+@media (min-width: 1000px) {
+  .stage-band__inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    column-gap: clamp(40px, 6vw, 110px);
+    align-items: center;
+  }
+  .stage-band__copy {
+    position: sticky;
+    top: calc(var(--nav-h) + 40px);
+  }
+}

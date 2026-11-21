@@ -2,11 +2,11 @@
  * Dev helper: visits every page in the sitemap plus every internal link found on them, on desktop
  * and a phone, and reports anything wrong: non-200 responses, console errors, page errors, failed
  * requests, horizontal overflow, a missing <h1> and images that did not load.
- * Usage: tsx scripts/dev/crawl.ts <base-url>
+ * Usage: tsx scripts/dev/crawl.ts <base-url> [desktop|mobile|both]
  */
 import { chromium, devices } from "@playwright/test";
 
-const [base = "http://localhost:3100"] = process.argv.slice(2);
+const [base = "http://localhost:3100", only = "both"] = process.argv.slice(2);
 const browser = await chromium.launch();
 const sitemap = await (await fetch(`${base}/sitemap.xml`)).text();
 const urls = new Set([...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => new URL(m[1]!).pathname));
@@ -19,6 +19,7 @@ for (const [label, opts] of [
   ["desktop", { viewport: { width: 1366, height: 860 } }],
   ["mobile", devices["Pixel 7"]],
 ] as const) {
+  if (only !== "both" && only !== label) continue;
   const ctx = await browser.newContext({ ...opts, reducedMotion: "reduce" });
   const queue = [...urls];
   const visited = new Set<string>();

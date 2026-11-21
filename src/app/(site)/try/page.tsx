@@ -24,14 +24,18 @@ export default function TryPage() {
       />
       <section className="stage-band" aria-label="The simulator">
         <div className="wrap stage-band__inner">
-          <p className="stage-band__label t-label">
-            <span className="stage-band__dot" aria-hidden="true" /> Live · running in this tab
-          </p>
+          <div className="stage-band__copy">
+            <p className="stage-band__label t-label">
+              <span className="stage-band__dot" aria-hidden="true" /> Live · running in this tab
+            </p>
+            <h2 className="stage-band__title">
+              It&rsquo;s running. <span className="it">Go on, touch it.</span>
+            </h2>
+            <p className="stage-band__lede">A working sketch of the app: the same screens, colours and motion. Nothing you do here leaves this tab.</p>
+            <ContinueOnPhone />
+          </div>
           <Simulator />
         </div>
-      </section>
-      <section className="wrap" style={{ paddingBlock: "48px 96px" }}>
-        <ContinueOnPhone />
       </section>
     </>
   );

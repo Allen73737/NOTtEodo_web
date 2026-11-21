@@ -12,5 +12,5 @@ export default [
       "react-hooks/immutability": "warn",
     },
   },
-  { ignores: [".next/**", "node_modules/**", "public/**", "src/content/generated/**"] },
+  { ignores: [".next/**", ".next-prod/**", "node_modules/**", "public/**", "src/content/generated/**"] },
 ];

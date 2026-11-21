@@ -70,6 +70,7 @@ export default function FeaturesPage() {
                       href={`/features/${m.slug}`}
                       className={`card feature-card pressable${poster ? " feature-card--poster" : ""}`}
                       data-cursor="Open"
+                      data-word={poster ? undefined : m.name}
                     >
                       {poster && (
                         // eslint-disable-next-line @next/next/no-img-element

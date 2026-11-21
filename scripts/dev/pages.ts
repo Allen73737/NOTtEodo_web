@@ -25,7 +25,7 @@ for (const p of paths.length ? paths : ["/features", "/try", "/nodo", "/download
   await page.waitForTimeout(900);
   const name = p.replace(/\//g, "_") || "_home";
   await page.screenshot({ path: `${out}/${name}-top.png` });
-  await page.screenshot({ path: `${out}/${name}-full.png`, fullPage: true });
+  await page.screenshot({ path: `${out}/${name}-full.png`, fullPage: true, timeout: 120000 });
 }
 if (errors.length) console.log("ERRORS:\n" + [...new Set(errors)].slice(0, 10).join("\n"));
 await browser.close();

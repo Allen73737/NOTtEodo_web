@@ -94,15 +94,22 @@ function Cursor() {
   useEffect(() => {
     if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
     if (document.documentElement.classList.contains("reduced")) return;
-    document.documentElement.classList.add("has-cursor");
     let x = innerWidth / 2,
       y = innerHeight / 2,
       cx = x,
       cy = y,
       raf = 0;
+    let first = true;
     const move = (e: PointerEvent) => {
       x = e.clientX;
       y = e.clientY;
+      // Shown from the first move, starting where the pointer is (never parked mid-screen).
+      if (first) {
+        first = false;
+        cx = x;
+        cy = y;
+        document.documentElement.classList.add("has-cursor");
+      }
       const t = (e.target as HTMLElement | null)?.closest<HTMLElement>("[data-cursor]");
       setLabel(t?.dataset.cursor ?? "");
       const hot = (e.target as HTMLElement | null)?.closest("a,button,[role=button],input,textarea,select,summary");
