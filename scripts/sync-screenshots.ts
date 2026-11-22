@@ -76,7 +76,10 @@ async function main() {
         writeFileSync(marker, sha256);
       }
     }
-    if (!CHECK) writeFileSync(resolve(outDir, "raw", file), buf);
+    const rawTarget = resolve(outDir, "raw", file);
+    if (!CHECK && (!existsSync(rawTarget) || readFileSync(rawTarget).length !== buf.length)) {
+      writeFileSync(rawTarget, buf);
+    }
     entries.push(entry);
   }
 

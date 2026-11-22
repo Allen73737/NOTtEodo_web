@@ -6,6 +6,14 @@ const config: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   images: { formats: ["image/avif", "image/webp"] },
+  experimental: {
+    turbopackFileSystemCacheForDev: false,
+    staleTimes: {
+      dynamic: 30,
+      static: 180,
+    },
+    optimizePackageImports: ["@radix-ui/react-dialog", "@radix-ui/react-tabs", "motion", "gsap"],
+  },
   async headers() {
     return [
       { source: "/screenshots/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },

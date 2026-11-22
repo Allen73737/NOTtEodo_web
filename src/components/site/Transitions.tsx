@@ -12,7 +12,7 @@ const LIFT_MS = 640;
 /** A slow load: show the loading line on the sheet. */
 const SLOW_MS = 1200;
 /** A stalled client navigation: fall back to an ordinary page load, so a click always arrives. */
-const HARD_MS = 9000;
+const HARD_MS = process.env.NODE_ENV === "production" ? 9000 : 60000;
 
 /** The destination's name, shown large on the sheet while it loads. */
 function nameFor(pathname: string, text: string | null) {
@@ -107,8 +107,9 @@ export function Transitions() {
         if (coverAt.current === started && location.href !== href) location.assign(href);
       }, HARD_MS);
     };
-    // Warm the next page as soon as a pointer heads for a link.
+    // Warm the next page as soon as a pointer heads for a link (production only to prevent dev JIT compile storms).
     const onIntent = (e: Event) => {
+      if (process.env.NODE_ENV !== "production") return;
       const a = (e.target as Element | null)?.closest?.("a");
       if (!a || a.target === "_blank") return;
       const url = new URL(a.href, location.href);
