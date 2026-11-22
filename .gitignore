@@ -1,8 +1,14 @@
 node_modules/
 .next/
 .next-prod/
+frontend/.next/
+frontend/.next-prod/
 .env*
 !.env.example
+frontend/.env*
+!frontend/.env.example
+backend/.env*
+!backend/.env.example
 .vercel/
 coverage/
 playwright-report/
@@ -11,10 +17,13 @@ test-results/
 
 # sync markers
 public/screenshots/.*.sha
+frontend/public/screenshots/.*.sha
 /test-results
 /.lighthouseci
 next-env.d.ts
+frontend/next-env.d.ts
 *.tsbuildinfo
 poster-studio/.cache/
+frontend/poster-studio/.cache/
 /playwright-report
 /test-results

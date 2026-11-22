@@ -6,6 +6,7 @@ import { pgcrypto } from "@electric-sql/pglite/contrib/pgcrypto";
 import { uuid_ossp } from "@electric-sql/pglite/contrib/uuid_ossp";
 
 const ROOT = join(import.meta.dirname, "..", "..");
+const BACKEND_ROOT = join(ROOT, "..", "backend");
 
 /**
  * PGlite does not ship pgvector. The RAG embedding column and its index are irrelevant to the
@@ -26,16 +27,16 @@ function withoutPgvector(sql: string) {
  */
 export async function freshDb() {
   const db = await PGlite.create({ extensions: { citext, pgcrypto, uuid_ossp } });
-  await db.exec(readFileSync(join(ROOT, "supabase/tests/supabase-stub.sql"), "utf8"));
+  await db.exec(readFileSync(join(BACKEND_ROOT, "supabase/tests/supabase-stub.sql"), "utf8"));
   // Supabase installs extensions into the "extensions" schema and keeps it on the search path.
   await db.exec(`CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
                  CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA extensions;
                  CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA extensions;
                  SET search_path = public, extensions;`);
   for (const dir of ["supabase/tests/app-migrations", "supabase/migrations"]) {
-    for (const f of readdirSync(join(ROOT, dir)).filter((x) => x.endsWith(".sql")).sort()) {
+    for (const f of readdirSync(join(BACKEND_ROOT, dir)).filter((x) => x.endsWith(".sql")).sort()) {
       try {
-        await db.exec(withoutPgvector(readFileSync(join(ROOT, dir, f), "utf8")));
+        await db.exec(withoutPgvector(readFileSync(join(BACKEND_ROOT, dir, f), "utf8")));
       } catch (e) {
         throw new Error(`${dir}/${f}: ${(e as Error).message}`);
       }

@@ -4,6 +4,7 @@ import { dirname, resolve } from "node:path";
 /** Where the Flutter app lives. Sync scripts only ever read from it. */
 export const APP_DIR = resolve(process.env.NOTTEODO_APP_DIR ?? "C:/My_Project/Notteodo");
 export const ROOT = resolve(import.meta.dirname, "..", "..");
+export const BACKEND_DIR = resolve(ROOT, "..", "backend");
 export const CHECK = process.argv.includes("--check");
 
 export function appFile(rel: string): string | null {
@@ -18,7 +19,7 @@ export function appFile(rel: string): string | null {
 export function emit(rel: string, raw: string): boolean {
   // Line endings are normalised so Windows checkouts and CI compare equal.
   const content = raw.replaceAll("\r\n", "\n");
-  const target = resolve(ROOT, rel);
+  const target = rel.startsWith("supabase/") ? resolve(BACKEND_DIR, rel) : resolve(ROOT, rel);
   const current = existsSync(target) ? readFileSync(target, "utf8") : null;
   if (CHECK) {
     if (current !== content) {
