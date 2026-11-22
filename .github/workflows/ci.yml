@@ -13,6 +13,9 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: frontend
     env:
       NEXT_PUBLIC_SITE_URL: https://example.invalid
       # The app repo is not checked out in CI, so sync scripts keep the committed output and
@@ -26,6 +29,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+        working-directory: .
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test

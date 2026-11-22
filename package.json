@@ -9,11 +9,21 @@
   },
   "scripts": {
     "dev": "pnpm --filter notteodo-web dev",
+    "prebuild": "pnpm --filter notteodo-web prebuild",
     "build": "pnpm --filter notteodo-web build",
     "start": "pnpm --filter notteodo-web start",
     "typecheck": "pnpm --filter notteodo-web typecheck",
     "lint": "pnpm --filter notteodo-web lint",
+    "lint:colors": "pnpm --filter notteodo-web lint:colors",
     "test": "pnpm --filter notteodo-web test",
-    "sync:all": "pnpm --filter notteodo-web sync:all"
+    "test:e2e": "pnpm --filter notteodo-web test:e2e",
+    "sync:tokens": "pnpm --filter notteodo-web sync:tokens",
+    "sync:content": "pnpm --filter notteodo-web sync:content",
+    "sync:screenshots": "pnpm --filter notteodo-web sync:screenshots",
+    "sync:logo": "pnpm --filter notteodo-web sync:logo",
+    "sync:all": "pnpm --filter notteodo-web sync:all",
+    "check:drift": "pnpm --filter notteodo-web check:drift",
+    "posters": "pnpm --filter notteodo-web posters",
+    "check:server-only": "pnpm --filter notteodo-web check:server-only"
   }
 }
