@@ -50,7 +50,7 @@ export default async function HelpSection({ params }: { params: Promise<{ sectio
             <Link href={`/features/${feature.slug}`}>See {feature.name} on the features page</Link>
           </p>
         )}
-        <nav className="row" style={{ justifyContent: "space-between" }} aria-label="More help">
+        <nav className="row help-pager" aria-label="More help">
           {prev ? <Link href={`/help/${prev.id}`} data-nav="back">← {prev.title}</Link> : <span />}
           {next ? <Link href={`/help/${next.id}`} data-nav="forward">{next.title} →</Link> : <span />}
         </nav>

@@ -16,7 +16,7 @@ export default async function SupportPage() {
   const { user } = await getViewer();
   return (
     <>
-      <PageHeader
+      <PageHeader compact
         eyebrow="Support"
         title="Tell us anything."
         italic={["anything."]}
@@ -27,7 +27,7 @@ export default async function SupportPage() {
           </>
         }
       />
-      <section className="prose-wrap" style={{ maxWidth: 640, paddingBottom: 96 }}>
+      <section className="prose-wrap form-wrap form-wrap--wide">
         {user ? (
           <SupportForm />
         ) : (

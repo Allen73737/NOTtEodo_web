@@ -15,7 +15,7 @@ export default async function RoadmapPage() {
   return (
     <>
       <PageHeader eyebrow="Roadmap" title="What we're working on." italic={["working"]} lede="Plans change. “Exploring” means exactly that: we're thinking about it, with no promise." />
-      <section className="wrap grid-auto" style={{ paddingBottom: 96 }}>
+      <section className="wrap grid-auto page-body">
         {(["building", "planned", "exploring", "shipped"] as const).map((status) => (
           <div key={status} className="stack">
             <p className="t-eyebrow">{LABEL[status]}</p>

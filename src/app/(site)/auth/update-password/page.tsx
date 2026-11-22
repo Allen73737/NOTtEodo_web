@@ -10,8 +10,8 @@ export const dynamic = "force-dynamic";
 export default function Page() {
   return (
     <>
-      <PageHeader eyebrow="Account" title="Choose a new password." italic={["new"]} lede="At least 10 characters, checked against known breaches without sending it anywhere." />
-      <section className="prose-wrap" style={{ maxWidth: 520, paddingBottom: 96 }}>
+      <PageHeader compact eyebrow="Account" title="Choose a new password." italic={["new"]} lede="At least 10 characters, checked against known breaches without sending it anywhere." />
+      <section className="prose-wrap form-wrap">
         <div className="card pad">
           <Suspense>
             <UpdatePasswordForm />

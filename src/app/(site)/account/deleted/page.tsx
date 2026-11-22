@@ -9,13 +9,13 @@ export const dynamic = "force-dynamic";
 export default function DeletedPage() {
   return (
     <>
-      <PageHeader
+      <PageHeader compact
         eyebrow="Done"
         title="Your account is deleted."
         italic={["deleted."]}
         lede="Your account and everything stored with it in the cloud have been erased. Thank you for trying NOTtEodo."
       />
-      <section className="prose-wrap" style={{ paddingBottom: 96 }}>
+      <section className="prose-wrap form-wrap form-wrap--wide stack">
         <p>
           The app on your phone still has its own encrypted copy. To remove it too, open NOTtEodo and go to Settings → Backup &amp;
           export → Permanently Erase All Data, or uninstall the app.

@@ -10,8 +10,8 @@ export const dynamic = "force-dynamic";
 export default function Page() {
   return (
     <>
-      <PageHeader eyebrow="Account" title="Reset your password." italic={["password."]} lede="We will email you a link." />
-      <section className="prose-wrap" style={{ maxWidth: 520, paddingBottom: 96 }}>
+      <PageHeader compact eyebrow="Account" title="Reset your password." italic={["password."]} lede="We will email you a link." />
+      <section className="prose-wrap form-wrap">
         <div className="card pad">
           <Suspense>
             <ResetForm />

@@ -18,7 +18,7 @@ export default async function DeletePage() {
   const recent = user.last_sign_in_at ? Date.now() - Date.parse(user.last_sign_in_at) < RECENT_MS : false;
   return (
     <>
-      <PageHeader
+      <PageHeader compact
         eyebrow="Delete your account"
         title="This can't be undone."
         italic={["undone."]}

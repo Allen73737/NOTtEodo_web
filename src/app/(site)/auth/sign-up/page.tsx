@@ -10,8 +10,8 @@ export const dynamic = "force-dynamic";
 export default function Page() {
   return (
     <>
-      <PageHeader eyebrow="Account" title="Make an account." italic={["account."]} lede="Only needed for sync, cloud Nodo and the web account page. The app works fully without one." />
-      <section className="prose-wrap" style={{ maxWidth: 520, paddingBottom: 96 }}>
+      <PageHeader compact eyebrow="Account" title="Make an account." italic={["account."]} lede="Only needed for sync, cloud Nodo and the web account page. The app works fully without one." />
+      <section className="prose-wrap form-wrap">
         <div className="card pad">
           <Suspense>
             <SignUpForm />

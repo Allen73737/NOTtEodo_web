@@ -5,21 +5,40 @@
  */
 
 /* ---------- Page header ---------- */
+/* Every title starts the same distance under the nav, on every page, whatever its length.
+ * Headers with a phone or poster beside them are tall enough to hold it; the title still starts
+ * at the same line and the picture centres in the space beside it. */
+:root {
+  --head-top: calc(var(--nav-h) + clamp(48px, 7vw, 96px));
+}
 .page-head {
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  align-items: end;
+  align-items: start;
   gap: 0;
-  min-height: min(86svh, 860px);
-  padding-top: calc(var(--nav-h) + clamp(56px, 9vw, 120px));
-  padding-bottom: clamp(48px, 7vw, 104px);
+  padding-top: var(--head-top);
+  padding-bottom: clamp(44px, 6vw, 88px);
   overflow-x: clip;
   isolation: isolate;
+}
+/* Short pages still fill the screen, so the footer never rides up into the middle of it. */
+#main {
+  min-height: 100svh;
+}
+/* Less motion: the opener is simply there, no blur-in, drawn rule or sliding word. */
+html.reduced .page-head__mono,
+html.reduced .page-head__rule,
+html.reduced .page-head__lede,
+html.reduced .page-head__foot > *,
+html.reduced .page-head__aside,
+html.reduced .page-head__word {
+  animation: none;
 }
 .page-head--aside {
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
   column-gap: clamp(24px, 4vw, 64px);
+  min-height: min(78svh, 760px);
 }
 /* The eyebrow sits on one line above the title, led by the ribbon N. */
 .page-head__kicker {
@@ -156,7 +175,7 @@
  * in a column on the right with the section being read lit (TocSpy). Narrower, they sit in the
  * flow and a floating Contents pill opens them as a sheet. */
 .legal__head.prose-wrap {
-  padding-top: calc(var(--nav-h) + clamp(48px, 8vw, 110px));
+  padding-top: var(--head-top);
 }
 .legal__head .t-h1 {
   font-size: calc(clamp(2.6rem, 6vw, 6rem) * var(--ed, 1));
@@ -739,4 +758,44 @@ html.reduced .card.is-lit {
 .download-steps .t-num {
   font: 500 0.85rem/1 var(--font-mono);
   color: var(--c-text-soft);
+}
+
+/* ---------- One layout for every page ----------
+ * Everything hangs from the same left edge as the header (the .wrap gutter); nothing in the body
+ * centres itself under a left-aligned title. */
+
+/* Task pages (sign in, account, support): the same opener at task size, the form in view at once. */
+.page-head--compact {
+  min-height: 0;
+  padding-bottom: clamp(32px, 4vw, 56px);
+}
+.page-head--compact .page-head__title {
+  max-width: 18ch;
+  font-size: calc(clamp(2.4rem, 5vw, 4.8rem) * var(--ed, 1));
+}
+.page-head--compact .page-head__word {
+  font-size: clamp(5rem, 14vw, 13rem);
+}
+
+/* A form or short note under a header: a narrow column on the header's left edge, not centred. */
+.prose-wrap.form-wrap {
+  padding-bottom: clamp(64px, 8vw, 112px);
+}
+.prose-wrap.form-wrap > * {
+  max-width: 520px;
+}
+.prose-wrap.form-wrap--wide > * {
+  max-width: 640px;
+}
+.page-body {
+  padding-bottom: clamp(64px, 8vw, 112px);
+}
+.account-status .callout {
+  margin: 0 0 24px;
+}
+
+/* In cards and stacks, buttons keep their own width on the left edge instead of stretching into
+ * full-width bars with centred labels. Forms keep full-width submit buttons under full-width fields. */
+.stack:not(form) > .btn {
+  justify-self: start;
 }

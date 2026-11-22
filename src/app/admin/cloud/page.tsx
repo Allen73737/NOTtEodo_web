@@ -1,10 +1,17 @@
-import { AdminHead, Panel } from "@/components/admin/parts";
+import { AdminHead, Metric, Metrics, Panel } from "@/components/admin/parts";
 import { requireAdmin } from "@/lib/admin";
 import { env } from "@/lib/env";
 
 export const metadata = { title: "Cloud & Network" };
 
-const FUNCTIONS = ["ai-assist", "scoped-ai", "rag-embedder", "cloudinary-sign", "delete-account", "vault-gatekeeper"];
+const FUNCTIONS = [
+  "ai-assist",
+  "scoped-ai",
+  "rag-embedder",
+  "cloudinary-sign",
+  "delete-account",
+  "vault-gatekeeper",
+];
 
 async function ping(name: string) {
   const t = Date.now();
@@ -35,13 +42,16 @@ export default async function CloudPage() {
         title="Cloud & Network"
         lede="Each edge function answers a CORS preflight without credentials, which shows it is deployed and responding. Supabase's own status page covers the platform."
       />
-      <div className="metrics">
-        <Panel cap="Database" wide>
-          <p style={{ margin: 0 }}>
-            <span className="pill-state" data-on={!error}>{error ? "Down" : "Online"}</span> round trip {dbMs} ms
-          </p>
-        </Panel>
-        <Panel cap="Edge functions" wide>
+      <Metrics>
+        <Metric label="Database" value={error ? "Down" : "Online"} sub={`round trip ${dbMs} ms`} />
+        <Metric
+          label="Edge functions"
+          value={`${fns.filter((f) => f.ok).length}/${fns.length}`}
+          sub="answering"
+        />
+      </Metrics>
+      <Panel cap="Edge functions" note="CORS preflight, no credentials.">
+        <div className="tbl-wrap">
           <table className="tbl">
             <thead>
               <tr>
@@ -56,7 +66,9 @@ export default async function CloudPage() {
                 <tr key={f.name}>
                   <td className="t-num">{f.name}</td>
                   <td>
-                    <span className="pill-state" data-on={f.ok}>{f.ok ? "Online" : "Unreachable"}</span>
+                    <span className="pill-state" data-on={f.ok}>
+                      {f.ok ? "Online" : "Unreachable"}
+                    </span>
                   </td>
                   <td className="t-num">{f.status || "-"}</td>
                   <td className="t-num">{f.ms} ms</td>
@@ -64,11 +76,14 @@ export default async function CloudPage() {
               ))}
             </tbody>
           </table>
-          <p className="t-label" style={{ margin: 0 }}>
-            Platform status: <a href="https://status.supabase.com" rel="noopener">status.supabase.com</a>
-          </p>
-        </Panel>
-      </div>
+        </div>
+        <p className="t-label">
+          Platform status:{" "}
+          <a href="https://status.supabase.com" rel="noopener">
+            status.supabase.com
+          </a>
+        </p>
+      </Panel>
     </>
   );
 }

@@ -1,22 +1,28 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
-import { Menu, Search, X } from "lucide-react";
+import { LayoutDashboard, Menu, Search, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Monogram } from "@/components/brand/Monogram";
 import { Wordmark } from "@/components/brand/Wordmark";
-import { footerGroups, nav } from "@/content/site";
+import { footerGroups, modules, nav } from "@/content/site";
 import { SoundToggle, ThemeToggle, ViewToggle } from "./Toggles";
+import { useViewer } from "./useViewer";
 
-/** Floating glass nav that compresses after the first screen of scroll. */
+/**
+ * Floating glass nav that compresses after the first screen of scroll. Menu opens every page of the
+ * site: on phones as a sheet from the side, on wider screens the bar expands down into a full index.
+ * Signed-in admins get a way straight back to the admin portal.
+ */
 export function Nav() {
   const [compact, setCompact] = useState(false);
   const [tucked, setTucked] = useState(false);
   const [open, setOpen] = useState(false);
   const path = usePathname();
   const links = useRef<HTMLElement>(null);
+  const { admin } = useViewer();
 
   // Compact after the first screen; tucked away while reading down, back on any scroll up.
   useEffect(() => {
@@ -87,13 +93,24 @@ export function Nav() {
           >
             <Search size={18} strokeWidth={1.6} />
           </button>
-          <ViewToggle />
+          <span className="nav__opt">
+            <ViewToggle />
+          </span>
           <ThemeToggle />
-          <SoundToggle />
+          <span className="nav__opt">
+            <SoundToggle />
+          </span>
+          {admin && (
+            <Link href="/admin" className="nav__admin" aria-label="Admin portal">
+              <LayoutDashboard size={16} strokeWidth={1.7} aria-hidden />
+              <span>Admin</span>
+            </Link>
+          )}
           <Dialog.Root open={open} onOpenChange={setOpen}>
             <Dialog.Trigger asChild>
-              <button type="button" className="icon-btn nav__menu" aria-label="Open menu">
-                <Menu size={20} strokeWidth={1.6} />
+              <button type="button" className="nav__menu" aria-label="Open menu: every page">
+                <Menu size={20} strokeWidth={1.6} aria-hidden />
+                <span className="nav__menu-label">Menu</span>
               </button>
             </Dialog.Trigger>
             <Dialog.Portal>
@@ -122,21 +139,51 @@ export function Nav() {
                   Search features, help and guides
                 </button>
                 <nav aria-label="Menu" className="drawer__nav">
-                  {nav.map((n, i) => (
-                    <Link key={n.href} href={n.href} className="drawer__big" style={{ ["--i" as string]: i }}>
-                      {n.label}
+                  <div className="drawer__bigs">
+                    <Link href="/" className="drawer__big" style={{ ["--i" as string]: 0 }} aria-current={path === "/" ? "page" : undefined}>
+                      Home
                     </Link>
-                  ))}
-                  {footerGroups.map((g) => (
-                    <div key={g.title} className="drawer__group">
-                      <p className="t-label">{g.title}</p>
-                      {g.links.map((l) => (
-                        <Link key={l.href} href={l.href}>
-                          {l.label}
+                    {nav.map((n, i) => (
+                      <Link
+                        key={n.href}
+                        href={n.href}
+                        className="drawer__big"
+                        style={{ ["--i" as string]: i + 1 }}
+                        aria-current={path?.startsWith(n.href) ? "page" : undefined}
+                      >
+                        {n.label}
+                      </Link>
+                    ))}
+                  </div>
+                  {admin && (
+                    <Link href="/admin" className="drawer__admin">
+                      <LayoutDashboard size={18} strokeWidth={1.7} aria-hidden />
+                      <span>
+                        Admin portal
+                        <span className="t-label">You&rsquo;re signed in as an admin</span>
+                      </span>
+                    </Link>
+                  )}
+                  <div className="drawer__groups">
+                    <div className="drawer__group drawer__group--features">
+                      <p className="t-label">Features</p>
+                      {modules.map((m) => (
+                        <Link key={m.slug} href={`/features/${m.slug}`} aria-current={path === `/features/${m.slug}` ? "page" : undefined}>
+                          {m.name}
                         </Link>
                       ))}
                     </div>
-                  ))}
+                    {footerGroups.map((g) => (
+                      <div key={g.title} className="drawer__group">
+                        <p className="t-label">{g.title}</p>
+                        {g.links.filter((l) => l.href !== "/roadmap").map((l) => (
+                          <Link key={l.href} href={l.href} aria-current={path === l.href ? "page" : undefined}>
+                            {l.label}
+                          </Link>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
                 </nav>
                 <div className="drawer__tools">
                   <ViewToggle />

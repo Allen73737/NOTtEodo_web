@@ -49,7 +49,8 @@ export default function CookiesPage() {
                   ["nt-sim, nt-tour (session)", "The Try it simulator's state and which tour steps you've done, this visit"],
                   ["nt-helpful:… (session)", "That you already answered “Was this helpful?” on a page, this visit"],
                   ["nt-hidden-ann (session)", "Announcements you dismissed this visit"],
-                  ["nt-preloaded (session)", "That the opening animation already played this visit"],
+                  ["nt-intro (session)", "That the opening animation already played this visit, so it only plays again when you reload"],
+                  ["nt-viewer (session)", "Whether you are signed in as an admin, so the menu can show the way back to the admin portal"],
                 ]}
               />
               <p>These never leave your browser. Clear them any time from your browser&rsquo;s site settings.</p>

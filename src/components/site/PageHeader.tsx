@@ -6,6 +6,9 @@ import { HeadDrift } from "./HeadDrift";
  * Editorial page opener, the same on every page: the ribbon N and the eyebrow over a
  * Bodoni title with italic words, a lede under a drawn hairline, an optional aside (a phone,
  * a poster, a fact card) and a giant outlined word that drifts as you scroll.
+ *
+ * `compact` is the same opener at task size, for pages where the visitor came to do something
+ * (sign in, their account, support): the form is in view at once, not a screen further down.
  */
 export function PageHeader({
   eyebrow,
@@ -14,6 +17,7 @@ export function PageHeader({
   lede,
   aside,
   word,
+  compact = false,
   children,
 }: {
   eyebrow: string;
@@ -23,10 +27,11 @@ export function PageHeader({
   aside?: React.ReactNode;
   /** The drifting background word; defaults to the eyebrow. */
   word?: string;
+  compact?: boolean;
   children?: React.ReactNode;
 }) {
   return (
-    <header className={`page-head wrap${aside ? " page-head--aside" : ""}`} data-no-reveal>
+    <header className={`page-head wrap${aside ? " page-head--aside" : ""}${compact ? " page-head--compact" : ""}`} data-no-reveal>
       <HeadDrift />
       <p className="page-head__word" aria-hidden="true">
         {word ?? eyebrow}

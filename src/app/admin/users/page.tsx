@@ -1,4 +1,4 @@
-import { AdminHead, Empty, Panel } from "@/components/admin/parts";
+import { AdminHead, Empty, Panel, Panels } from "@/components/admin/parts";
 import { ActionButton } from "@/components/admin/ui";
 import { requireAdmin } from "@/lib/admin";
 import { formatDate } from "@/lib/format";
@@ -21,11 +21,11 @@ export default async function UsersPage() {
         title="Users & Sub-Admins"
         lede="Every admin has full rights. Invites are single-use codes stored only as a hash, and they expire. The last admin can't be removed."
       />
-      <div className="metrics">
-        <Panel cap="Sub-admin invitation links">
+      <Panels>
+        <Panel cap="Sub-admin invitation links" note="A single-use link that expires.">
           <InviteForm />
         </Panel>
-        <Panel cap="User directory & delegation" wide>
+        <Panel cap="User directory & delegation" note="Everyone with admin rights.">
           <div className="tbl-wrap">
             <table className="tbl">
               <thead>
@@ -37,7 +37,14 @@ export default async function UsersPage() {
                 </tr>
               </thead>
               <tbody>
-                {((admins ?? []) as { user_id: string; email: string; added_at: string; note: string | null }[]).map((a) => (
+                {(
+                  (admins ?? []) as {
+                    user_id: string;
+                    email: string;
+                    added_at: string;
+                    note: string | null;
+                  }[]
+                ).map((a) => (
                   <tr key={a.user_id}>
                     <td>
                       {a.email}
@@ -61,44 +68,54 @@ export default async function UsersPage() {
             </table>
           </div>
         </Panel>
-        <Panel cap="Invites" wide>
-          {invites?.length ? (
-            <div className="tbl-wrap">
-              <table className="tbl">
-                <thead>
-                  <tr>
-                    <th>Created</th>
-                    <th>Note</th>
-                    <th>State</th>
-                    <th />
-                  </tr>
-                </thead>
-                <tbody>
-                  {invites.map((i) => {
-                    const state = i.revoked_at ? "Revoked" : i.redeemed_at ? `Used ${formatDate(i.redeemed_at)}` : Date.parse(i.expires_at) < now ? "Expired" : `Open until ${formatDate(i.expires_at)}`;
-                    return (
-                      <tr key={i.id}>
-                        <td>{formatDate(i.created_at)}</td>
-                        <td>{i.note}</td>
-                        <td>{state}</td>
-                        <td>
-                          {state.startsWith("Open") && (
-                            <ActionButton className="btn btn-quiet" action={revokeInvite.bind(null, i.id)} success="Revoked.">
-                              Revoke
-                            </ActionButton>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <Empty>No invites yet.</Empty>
-          )}
-        </Panel>
-      </div>
+      </Panels>
+      <Panel cap="Invites">
+        {invites?.length ? (
+          <div className="tbl-wrap">
+            <table className="tbl">
+              <thead>
+                <tr>
+                  <th>Created</th>
+                  <th>Note</th>
+                  <th>State</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {invites.map((i) => {
+                  const state = i.revoked_at
+                    ? "Revoked"
+                    : i.redeemed_at
+                      ? `Used ${formatDate(i.redeemed_at)}`
+                      : Date.parse(i.expires_at) < now
+                        ? "Expired"
+                        : `Open until ${formatDate(i.expires_at)}`;
+                  return (
+                    <tr key={i.id}>
+                      <td>{formatDate(i.created_at)}</td>
+                      <td>{i.note}</td>
+                      <td>{state}</td>
+                      <td>
+                        {state.startsWith("Open") && (
+                          <ActionButton
+                            className="btn btn-quiet"
+                            action={revokeInvite.bind(null, i.id)}
+                            success="Revoked."
+                          >
+                            Revoke
+                          </ActionButton>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <Empty>No invites yet.</Empty>
+        )}
+      </Panel>
     </>
   );
 }

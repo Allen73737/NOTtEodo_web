@@ -1,3 +1,4 @@
+import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Monogram } from "@/components/brand/Monogram";
@@ -33,7 +34,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             Sign in
           </Link>
         )}
-        <Link href="/">Back to NOTtEodo</Link>
+        <Link href="/" className="admin__site">
+          <ArrowLeft size={15} strokeWidth={1.8} aria-hidden />
+          Back to the website
+        </Link>
       </main>
     );
   }
@@ -41,10 +45,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="admin">
       <IdleTimeout />
       <aside className="admin__side">
-        <Link href="/" className="admin__brand" aria-label="NOTtEodo website">
-          <Wordmark />
-          <span className="mono-cap">Admin</span>
-        </Link>
+        <div className="admin__top">
+          <Link href="/admin" className="admin__brand" aria-label="Admin overview">
+            <Wordmark />
+            <span className="mono-cap">Admin</span>
+          </Link>
+          <Link href="/" className="admin__site">
+            <ArrowLeft size={15} strokeWidth={1.8} aria-hidden />
+            Back to the website
+          </Link>
+        </div>
         <AdminNav />
         <div className="admin__me">
           <p className="mono-cap">Signed in</p>

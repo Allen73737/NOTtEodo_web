@@ -12,7 +12,7 @@ export default function GuidesPage() {
       <PageHeader eyebrow="Guides" title="Step by step." italic={["step."]}>
         <ReadBadge paths={guides.map((g) => `/guides/${g.slug}`)} mode="count" />
       </PageHeader>
-      <section className="wrap grid-auto" style={{ paddingBottom: 96 }}>
+      <section className="wrap grid-auto page-body">
         {guides.map((g) => (
           <Link key={g.slug} href={`/guides/${g.slug}`} className="card pad sheen pressable" style={{ textDecoration: "none" }}>
             <p className="t-label row" style={{ margin: 0, justifyContent: "space-between" }}>

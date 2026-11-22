@@ -97,18 +97,95 @@ html.reduced .nav__links::before {
   align-items: center;
   gap: 2px;
 }
+/* Menu: every page of the site. A labelled pill on wide screens, an icon on phones. */
 .nav__menu {
-  display: none !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  margin-left: 4px;
+  padding: 0 16px 0 13px;
+  border-radius: 999px;
+  border: 1px solid var(--c-hairline);
+  background: transparent;
+  color: var(--c-text);
+  font: 500 0.9rem/1 var(--font-sans);
+  cursor: pointer;
+  transition:
+    background-color var(--d-quick),
+    border-color var(--d-quick);
+}
+.nav__menu:hover,
+.nav__menu[data-state="open"] {
+  background: color-mix(in oklab, var(--c-ink) 6%, transparent);
+  border-color: color-mix(in oklab, var(--c-text) 24%, transparent);
+}
+/* Signed in as an admin: straight back to the portal. */
+.nav__admin {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  margin-left: 4px;
+  padding: 0 13px 0 11px;
+  border-radius: 999px;
+  background: var(--c-accent-fill);
+  color: var(--c-on-accent);
+  font: 600 0.82rem/1 var(--font-sans);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.nav__admin:hover {
+  filter: brightness(1.08);
+}
+/* The view and sound switches step into the menu when the bar gets short of room. */
+.nav__opt {
+  display: contents;
+}
+@media (max-width: 1180px) {
+  .nav__opt {
+    display: none;
+  }
+}
+.nav--compact .nav__opt {
+  display: none;
+}
+.nav--compact .nav__admin span,
+.nav--compact .nav__menu-label {
+  display: none;
+}
+.nav--compact .nav__admin,
+.nav--compact .nav__menu {
+  width: 40px;
+  padding: 0;
+  justify-content: center;
 }
 @media (max-width: 900px) {
   .nav__links {
     display: none;
   }
-  .nav__menu {
-    display: inline-flex !important;
-  }
   .nav__bar {
     padding-left: 18px;
+  }
+  .nav__menu {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    justify-content: center;
+  }
+  .nav__menu-label {
+    display: none;
+  }
+}
+@media (max-width: 520px) {
+  .nav__admin span {
+    display: none;
+  }
+  .nav__admin {
+    width: 36px;
+    padding: 0;
+    justify-content: center;
   }
 }
 @media (max-width: 520px) {
@@ -287,6 +364,43 @@ html.reduced .nav__links::before {
   display: grid;
   gap: 6px;
 }
+.drawer__bigs {
+  display: grid;
+  gap: 6px;
+}
+.drawer__groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 20px;
+}
+.drawer > * {
+  flex-shrink: 0;
+}
+.drawer__groups .drawer__group {
+  align-content: start;
+}
+.drawer a[aria-current="page"] {
+  color: var(--c-accent);
+}
+.drawer__admin {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+  padding: 14px 18px;
+  border-radius: var(--radius-xl);
+  background: color-mix(in oklab, var(--c-accent) 9%, transparent);
+  color: var(--c-accent);
+  font: 500 1.05rem/1.2 var(--font-sans);
+  text-decoration: none;
+}
+.drawer__admin > span {
+  display: grid;
+  gap: 4px;
+}
+.drawer__admin .t-label {
+  color: var(--c-text-soft);
+}
 .drawer__big {
   font: 500 2rem/1.1 var(--font-display);
   text-decoration: none;
@@ -313,6 +427,76 @@ html.reduced .nav__links::before {
     opacity: 0;
     transform: translateY(14px);
   }
+}
+/* Wide screens: the bar expands down into an index of the whole site. */
+@media (min-width: 901px) {
+  .drawer {
+    inset: 0 0 auto;
+    width: auto;
+    max-height: 100dvh;
+    padding: 18px max(var(--gutter), calc((100vw - var(--maxw)) / 2 + var(--gutter))) 36px;
+    border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+    box-shadow: var(--shadow-lift);
+    gap: 26px;
+    animation: drawer-drop 560ms var(--e-silk);
+  }
+  .drawer__search {
+    max-width: 560px;
+  }
+  .drawer__nav {
+    gap: 26px;
+  }
+  .drawer__bigs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px clamp(20px, 3vw, 40px);
+  }
+  .drawer__big {
+    font-size: clamp(2rem, 3vw, 2.8rem);
+  }
+  .drawer__admin {
+    justify-self: start;
+    margin-top: 0;
+  }
+  .drawer__groups {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 24px;
+    padding-top: 22px;
+    border-top: 1px solid var(--c-divider);
+  }
+  .drawer__group {
+    margin-top: 0;
+    align-content: start;
+  }
+  .drawer__group a:hover {
+    color: var(--c-text);
+  }
+  /* The longest list gets two columns of its own, so the index stays one screen tall. */
+  .drawer__group--features {
+    grid-column: span 2;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 24px;
+  }
+  .drawer__group--features > .t-label {
+    grid-column: 1 / -1;
+  }
+  .drawer__tools {
+    margin-top: 0;
+  }
+}
+@keyframes drawer-drop {
+  from {
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(-12px);
+  }
+  to {
+    clip-path: inset(0 0 -40px 0);
+  }
+}
+html.reduced .drawer,
+html.reduced .drawer__big,
+html.reduced .drawer__search {
+  animation: none;
 }
 
 /* ---------- Footer ---------- */

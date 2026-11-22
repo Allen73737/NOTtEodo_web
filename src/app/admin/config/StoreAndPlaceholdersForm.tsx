@@ -49,30 +49,25 @@ export function StoreAndPlaceholdersForm({ initial }: StoreAndPlaceholdersProps)
   };
 
   return (
-    <form onSubmit={handleSubmit} className="stack" style={{ gap: 24 }}>
+    <form onSubmit={handleSubmit} className="admin-form">
       {/* 1. App Distribution & Google Play */}
-      <div className="card pad stack" style={{ gap: 20 }}>
-        <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
-          <div>
-            <p className="mono-cap" style={{ color: "var(--c-accent)", margin: "0 0 4px" }}>
-              App Distribution & Store
-            </p>
-            <h2 className="t-h3" style={{ margin: 0 }}>
-              Google Play & App Versioning
-            </h2>
-            <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.9rem" }}>
-              Controls where users download the app, whether Google Play buttons are live, and minimum app version.
+      <section className="card panel">
+        <header className="panel__head">
+          <div className="panel__title">
+            <h2 className="mono-cap">Google Play & app versioning</h2>
+            <p className="panel__note">
+              Where people download the app, whether Google Play buttons are live, and the minimum app version.
             </p>
           </div>
           <span className="pill-state" data-on={state.playLive}>
             {state.playLive ? "Play Store Live" : "Early Access / APK Mode"}
           </span>
-        </div>
+        </header>
 
         <div className="stack" style={{ gap: 16 }}>
           <label className="field">
             <span>Google Play Store URL</span>
-            <div className="row" style={{ gap: 8 }}>
+            <div className="admin-form__inline">
               <input
                 type="url"
                 className="input"
@@ -86,9 +81,9 @@ export function StoreAndPlaceholdersForm({ initial }: StoreAndPlaceholdersProps)
                   href={state.playStoreUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn btn-quiet"
-                  style={{ minWidth: 44, padding: "0 12px" }}
+                  className="btn btn-ghost admin-form__icon"
                   title="Test Google Play Link"
+                  aria-label="Open the Google Play link"
                 >
                   <ExternalLink size={16} />
                 </a>
@@ -100,8 +95,8 @@ export function StoreAndPlaceholdersForm({ initial }: StoreAndPlaceholdersProps)
           </label>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16 }}>
-            <label className="field" style={{ cursor: "pointer", background: "var(--c-field)", padding: "14px 16px", borderRadius: "var(--radius-lg)" }}>
-              <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
+            <label className="admin-form__toggle">
+              <div className="admin-form__inline">
                 <div>
                   <span style={{ fontWeight: 600 }}>Google Play is Live</span>
                   <p className="muted" style={{ margin: "2px 0 0", fontSize: "0.8rem" }}>
@@ -133,21 +128,18 @@ export function StoreAndPlaceholdersForm({ initial }: StoreAndPlaceholdersProps)
             </label>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* 2. Identity, Support & Legal Placeholders */}
-      <div className="card pad stack" style={{ gap: 20 }}>
-        <div>
-          <p className="mono-cap" style={{ color: "var(--c-accent)", margin: "0 0 4px" }}>
-            Identity & Legal Disclosures
-          </p>
-          <h2 className="t-h3" style={{ margin: 0 }}>
-            Owner, Support & Compliance Placeholders
-          </h2>
-          <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.9rem" }}>
-            Dynamically populates your Terms, Privacy Policy, Child Safety, Support, and security.txt pages.
-          </p>
-        </div>
+      <section className="card panel">
+        <header className="panel__head">
+          <div className="panel__title">
+            <h2 className="mono-cap">Owner, support & compliance</h2>
+            <p className="panel__note">
+              Fills in the Terms, Privacy Policy, Child Safety, Support and security.txt pages.
+            </p>
+          </div>
+        </header>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
           <label className="field">
@@ -258,10 +250,10 @@ export function StoreAndPlaceholdersForm({ initial }: StoreAndPlaceholdersProps)
             required
           />
         </label>
-      </div>
+      </section>
 
       {/* Action Bar */}
-      <div className="card pad row" style={{ justifyContent: "space-between", alignItems: "center", position: "sticky", bottom: 16, zIndex: 10, background: "var(--c-canvas)", border: "1px solid var(--c-hairline)", boxShadow: "var(--shadow-card)" }}>
+      <div className="card admin-form__bar">
         <div className="row" style={{ gap: 8, alignItems: "center" }}>
           {isDirty ? (
             <span className="mono-cap" style={{ color: "var(--c-accent)" }}>

@@ -20,9 +20,9 @@
     "sync:tokens": "tsx scripts/sync-tokens.ts",
     "sync:content": "tsx scripts/sync-content.ts",
     "sync:screenshots": "tsx scripts/sync-screenshots.ts",
-    "sync:logo": "tsx scripts/trace-logo.ts && tsx scripts/make-icons.ts",
+    "sync:logo": "tsx scripts/trace-logo.ts && tsx scripts/sync-pens.ts && tsx scripts/make-icons.ts",
     "sync:all": "tsx scripts/sync-tokens.ts && tsx scripts/sync-content.ts && tsx scripts/sync-screenshots.ts && tsx scripts/hash-theme-script.ts",
-    "check:drift": "tsx scripts/sync-tokens.ts --check && tsx scripts/sync-content.ts --check && tsx scripts/sync-screenshots.ts --check && tsx scripts/trace-logo.ts --check",
+    "check:drift": "tsx scripts/sync-tokens.ts --check && tsx scripts/sync-content.ts --check && tsx scripts/sync-screenshots.ts --check && tsx scripts/trace-logo.ts --check && tsx scripts/sync-pens.ts --check",
     "posters": "tsx poster-studio/render.ts",
     "check:server-only": "tsx scripts/check-server-only.ts"
   },

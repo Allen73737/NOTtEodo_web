@@ -22,7 +22,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
   const { sb, user, isAdmin } = await getViewer();
   if (!sb) {
     return (
-      <PageHeader eyebrow="Account" title="Accounts are offline here." italic={["offline"]} lede="This copy of the site isn't connected to NOTtEodo's servers." />
+      <PageHeader compact eyebrow="Account" title="Accounts are offline here." italic={["offline"]} lede="This copy of the site isn't connected to NOTtEodo's servers." />
     );
   }
   if (!user) redirect("/auth/sign-in?next=/account");
@@ -37,13 +37,15 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
 
   return (
     <>
-      <PageHeader eyebrow="Your account" title="Everything in one place." italic={["one"]} lede={`Signed in as ${user.email}.`} />
+      <PageHeader compact eyebrow="Your account" title="Everything in one place." italic={["one"]} lede={`Signed in as ${user.email}.`} />
       {sp.password === "updated" && (
-        <p className="wrap" role="status">
-          Password updated.
-        </p>
+        <div className="wrap account-status">
+          <p className="callout" role="status">
+            Password updated.
+          </p>
+        </div>
       )}
-      <section className="wrap grid-auto" style={{ paddingBottom: 96 }}>
+      <section className="wrap grid-auto page-body">
         <div className="card pad stack">
           <p className="t-eyebrow">Sync</p>
           <p className="t-h3" style={{ margin: 0 }}>

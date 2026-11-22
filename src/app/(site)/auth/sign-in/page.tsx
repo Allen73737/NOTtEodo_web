@@ -10,8 +10,8 @@ export const dynamic = "force-dynamic";
 export default function Page() {
   return (
     <>
-      <PageHeader eyebrow="Account" title="Welcome back." italic={["back."]} lede="Sign in with the same email or Google account you use in the app." />
-      <section className="prose-wrap" style={{ maxWidth: 520, paddingBottom: 96 }}>
+      <PageHeader compact eyebrow="Account" title="Welcome back." italic={["back."]} lede="Sign in with the same email or Google account you use in the app." />
+      <section className="prose-wrap form-wrap">
         <div className="card pad">
           <Suspense>
             <SignInForm />

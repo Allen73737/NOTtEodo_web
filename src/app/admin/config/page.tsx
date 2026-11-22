@@ -1,4 +1,4 @@
-import { AdminHead, Panel } from "@/components/admin/parts";
+import { AdminHead, Panel, Panels } from "@/components/admin/parts";
 import { requireAdmin } from "@/lib/admin";
 import { DEFAULT_CONFIG, type IdentityConfig } from "@/lib/platform";
 import { ConfigEditor } from "./ConfigEditor";
@@ -8,7 +8,8 @@ import { StoreAndPlaceholdersForm } from "./StoreAndPlaceholdersForm";
 export const metadata = { title: "Platform Config" };
 
 const HELP: Record<string, string> = {
-  play_live: "true once the Play listing is public: every Play button becomes a live link, APK becomes secondary.",
+  play_live:
+    "true once the Play listing is public: every Play button becomes a live link, APK becomes secondary.",
   nodo_cloud_opt_in: "true once the app asks before cloud Nodo; the privacy policy wording follows.",
   groq_zdr: "true once zero data retention is on in the Groq console.",
   maintenance: "Banner on the website and in the app. Needs a recent sign-in.",
@@ -18,7 +19,7 @@ const HELP: Record<string, string> = {
   flags: "Website features: release emails, testimonials, roadmap.",
   hero: "Homepage eyebrow and headline.",
   ai: "Kill switch for cloud Nodo.",
-  posters: "Poster id per website section, e.g. { \"features\": \"cover-notes-notes-light\" }.",
+  posters: 'Poster id per website section, e.g. { "features": "cover-notes-notes-light" }.',
   identity: "Legal disclosures, grievance officer, contact emails and developer entity.",
 };
 
@@ -49,7 +50,9 @@ export default async function ConfigPage() {
         initial={{
           playStoreUrl: currentUrls.play ?? DEFAULT_CONFIG.urls.play,
           playLive: Boolean(stored.play_live ?? false),
-          minSupportedVersionCode: Number(stored.min_supported_version_code ?? DEFAULT_CONFIG.min_supported_version_code),
+          minSupportedVersionCode: Number(
+            stored.min_supported_version_code ?? DEFAULT_CONFIG.min_supported_version_code,
+          ),
           latestVersionCode: Number(stored.latest_version_code ?? DEFAULT_CONFIG.latest_version_code),
           developer: currentIdentity.developer ?? DEFAULT_CONFIG.identity.developer,
           supportEmail: currentIdentity.supportEmail ?? DEFAULT_CONFIG.identity.supportEmail,
@@ -64,23 +67,19 @@ export default async function ConfigPage() {
       />
 
       {/* Developer Raw JSON Inspection Mode */}
-      <details className="card pad stack" style={{ marginTop: 24, gap: 16 }}>
-        <summary className="mono-cap" style={{ cursor: "pointer", color: "var(--c-text-muted)" }}>
-          Advanced: Raw JSON Keys & Overrides ({keys.length} keys)
-        </summary>
-        <p className="muted" style={{ margin: 0, fontSize: "0.85rem" }}>
-          Direct database view for low-level configuration overrides.
-        </p>
-        <div className="metrics" style={{ marginTop: 8 }}>
+      <details className="card panel admin-advanced">
+        <summary className="mono-cap">Advanced: raw JSON keys & overrides ({keys.length} keys)</summary>
+        <p className="panel__note">Direct database view for low-level configuration overrides.</p>
+        <Panels>
           {keys.map((k) => (
-            <Panel key={k} cap={k}>
-              <p className="t-label" style={{ margin: 0 }}>
-                {HELP[k] ?? ""}
-              </p>
-              <ConfigEditor k={k} initial={stored[k] ?? (DEFAULT_CONFIG as unknown as Record<string, unknown>)[k] ?? {}} />
+            <Panel key={k} cap={k} note={HELP[k]}>
+              <ConfigEditor
+                k={k}
+                initial={stored[k] ?? (DEFAULT_CONFIG as unknown as Record<string, unknown>)[k] ?? {}}
+              />
             </Panel>
           ))}
-        </div>
+        </Panels>
       </details>
     </>
   );
