@@ -134,7 +134,7 @@ describe("announcements", () => {
 
 describe("private tables", () => {
   it("anon and users cannot read subscribers, invites or the audit log", async () => {
-    for (const t of ["release_subscribers", "admin_invites", "admin_audit_log"]) {
+    for (const t of ["release_subscribers", "admin_invites", "admin_audit_log", "page_feedback"]) {
       await fails(anon((q) => q.query(`SELECT * FROM ${t}`)), /permission denied/);
       const r = await user((q) => q.query(`SELECT * FROM ${t}`));
       expect(r.rows.length).toBe(0);

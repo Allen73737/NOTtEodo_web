@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ViewTransition } from "react";
 import { Illustration } from "@/components/site/Illustration";
 import { Breadcrumbs } from "@/components/site/JsonLd";
 import { DownloadCta } from "@/components/site/DownloadCta";
@@ -20,12 +21,11 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const m = moduleBySlug[(await params).slug];
   if (!m) return {};
-  const poster = posterFor(m.slug);
+  // The preview card comes from opengraph-image.tsx (posters are portrait, previews landscape).
   return {
     title: `${m.name}: ${m.line}`,
     description: m.summary,
     alternates: { canonical: `/features/${m.slug}` },
-    openGraph: poster ? { images: [{ url: poster.src, width: poster.width, height: poster.height }] } : undefined,
   };
 }
 
@@ -43,7 +43,23 @@ export default async function FeaturePage({ params }: { params: Promise<{ slug: 
   return (
     <>
       <Breadcrumbs items={[{ name: "Features", path: "/features" }, { name: m.name, path: `/features/${m.slug}` }]} />
-      <PageHeader eyebrow={m.name} title={m.line} italic={m.line.split(" ").slice(-1)} lede={m.summary}>
+      <PageHeader
+        eyebrow={m.name}
+        title={m.line}
+        italic={m.line.split(" ").slice(-1)}
+        lede={m.summary}
+        aside={
+          poster ? (
+            // The same poster as the card on /features, so the card grows into it.
+            <ViewTransition name={`poster-${m.slug}`} share="morph" default="none">
+              <picture className="feature-aside">
+                {darkPoster && <source srcSet={darkPoster.src} media="(prefers-color-scheme: dark)" />}
+                <img src={poster.src} alt={poster.alt} width={poster.width} height={poster.height} fetchPriority="high" />
+              </picture>
+            </ViewTransition>
+          ) : undefined
+        }
+      >
         <DownloadCta release={release} playLive={cfg.play_live} playUrl={cfg.urls.play} meta={false} />
       </PageHeader>
 
@@ -67,16 +83,6 @@ export default async function FeaturePage({ params }: { params: Promise<{ slug: 
           {m.shot ? <Screenshot screen={m.shot} priority /> : m.illustration ? <Illustration kind={m.illustration} /> : null}
         </div>
       </section>
-
-      {poster && (
-        <section className="wrap" aria-label="Poster">
-          <picture>
-            {darkPoster && <source srcSet={darkPoster.src} media="(prefers-color-scheme: dark)" />}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={poster.src} alt={poster.alt} width={poster.width} height={poster.height} loading="lazy" className="feature-poster" />
-          </picture>
-        </section>
-      )}
 
       {section && (
         <section className="prose-wrap section" aria-labelledby="how">

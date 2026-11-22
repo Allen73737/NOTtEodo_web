@@ -36,10 +36,13 @@
   gap: 10px;
 }
 .nav__links {
+  position: relative;
   display: flex;
   gap: 4px;
 }
 .nav__links a {
+  position: relative;
+  z-index: 1;
   text-decoration: none;
   font: 500 0.92rem/1 var(--font-sans);
   padding: 10px 14px;
@@ -53,6 +56,41 @@
 .nav__links a[aria-current="page"] {
   color: var(--c-text);
   background: color-mix(in oklab, var(--c-ink) 6%, transparent);
+}
+/* With JS the highlight is one pill that glides between links (set by Nav: --gx, --gw). */
+.nav__links::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--gw, 0);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--c-ink) 7%, transparent);
+  transform: translateX(var(--gx, 0));
+  opacity: 0;
+  transition:
+    transform 520ms var(--e-silk),
+    width 520ms var(--e-silk),
+    opacity 240ms var(--e-silk);
+  pointer-events: none;
+}
+.nav__links.has-glide::before {
+  opacity: 1;
+}
+.nav__links.has-glide a:hover,
+.nav__links.has-glide a[aria-current="page"] {
+  background: transparent;
+}
+/* Tucked: slides up out of the way while reading down; any scroll up brings it straight back. */
+.nav {
+  transition: transform 560ms var(--e-silk);
+}
+.nav--tucked {
+  transform: translateY(calc(-100% - 24px));
+  transition-duration: 420ms;
+}
+html.reduced .nav,
+html.reduced .nav__links::before {
+  transition: none;
 }
 .nav__tools {
   display: flex;
@@ -650,3 +688,240 @@ html.reduced .cursor {
 .sound-bars i:nth-child(2) { animation-delay: -0.3s; }
 .sound-bars i:nth-child(3) { animation-delay: -0.6s; }
 .icon-btn { position: relative; }
+
+/* ---------- Contents pill + sheet (TocSpy) ---------- */
+.toc-host > [data-toc] ol {
+  columns: 1;
+}
+.toc-pill {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: 44;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--c-hairline);
+  border-radius: 999px;
+  background: var(--c-sheet);
+  color: var(--c-text);
+  font: 500 0.86rem/1 var(--font-sans);
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  transform: translateY(160%);
+  transition: transform var(--d-entrance) var(--e-silk);
+}
+.toc-pill.is-on {
+  transform: none;
+}
+.toc-pill .t-num {
+  color: var(--c-text-soft);
+  font-size: 0.78rem;
+}
+/* Phones: above the download pill, never under it. */
+@media (max-width: 640px) {
+  .toc-pill {
+    left: 16px;
+    bottom: 84px;
+  }
+}
+.toc-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 82;
+}
+.toc-sheet__scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: color-mix(in oklab, var(--c-ink) 32%, transparent);
+  animation: fade-in var(--d-standard) var(--e-silk);
+}
+.toc-sheet__panel {
+  position: absolute;
+  inset: auto 0 0;
+  max-height: 72svh;
+  overflow: auto;
+  padding: 10px 22px calc(22px + env(safe-area-inset-bottom));
+  border-radius: 28px 28px 0 0;
+  background: var(--c-sheet);
+  animation: sheet-up 420ms var(--e-silk);
+}
+@media (min-width: 700px) {
+  .toc-sheet__panel {
+    inset: auto auto 18px 18px;
+    width: 380px;
+    border-radius: 24px;
+  }
+}
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+.toc-sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.toc-sheet__head .t-label {
+  margin: 0;
+}
+.toc-sheet ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.toc-sheet a {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  padding: 12px 0;
+  border-top: 1px solid var(--c-divider);
+  color: var(--c-text-muted);
+  text-decoration: none;
+}
+.toc-sheet a[aria-current] {
+  color: var(--c-text);
+}
+.toc-sheet a .t-num {
+  font-size: 0.78rem;
+  color: var(--c-text-soft);
+}
+.toc-sheet a[aria-current] .t-num {
+  color: var(--c-accent);
+}
+html.reduced .toc-pill,
+html.reduced .toc-sheet__panel,
+html.reduced .toc-sheet__scrim {
+  transition: none;
+  animation: none;
+}
+
+/* ---------- Was this helpful? ---------- */
+.helpful {
+  margin-top: 8px;
+  padding: 22px 24px;
+  border: 1px solid var(--c-hairline);
+  border-radius: var(--radius-2xl);
+  background: var(--c-sheet);
+}
+.helpful__ask {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.helpful__q {
+  margin: 0;
+  font: 400 1.3rem/1.2 var(--font-display);
+}
+.helpful__form {
+  display: grid;
+  gap: 12px;
+  animation: rise 420ms var(--e-silk) both;
+}
+.helpful__form textarea {
+  width: 100%;
+  resize: vertical;
+}
+.helpful__thanks {
+  margin: 0;
+  font: italic 400 1.2rem/1.3 var(--font-display);
+  animation: rise 420ms var(--e-silk) both;
+}
+.helpful__err {
+  margin: 0;
+  color: var(--c-error);
+}
+.helpful .chip svg {
+  flex: none;
+}
+
+/* Search, first thing in the phone menu (the bar's search icon is hidden on small screens). */
+.drawer__search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 52px;
+  padding: 0 18px;
+  border: 1px solid var(--c-hairline);
+  border-radius: 999px;
+  background: var(--c-canvas);
+  color: var(--c-text-muted);
+  font: 400 0.98rem/1 var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+  animation: rise var(--d-entrance) var(--e-silk) both;
+}
+.drawer__search:active {
+  transform: scale(0.985);
+}
+
+/* ---------- New in vX (ReleaseNote) ---------- */
+.release-note {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: 47;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  width: min(360px, calc(100vw - 36px));
+  padding: 14px 8px 14px 16px;
+  border: 1px solid var(--c-hairline);
+  border-radius: 22px;
+  background: var(--c-sheet);
+  box-shadow: var(--shadow-card);
+  animation: note-in 640ms var(--e-silk) both;
+}
+@keyframes note-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+}
+.release-note__ico {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--c-accent) 12%, transparent);
+  color: var(--c-accent);
+}
+.release-note__body {
+  display: grid;
+  gap: 4px;
+}
+.release-note__body p {
+  margin: 0;
+}
+.release-note__line {
+  font: 400 1.05rem/1.3 var(--font-display);
+}
+.release-note__go {
+  font-size: 0.88rem;
+  color: var(--c-accent);
+  text-decoration: none;
+}
+.release-note__x {
+  width: 36px;
+  height: 36px;
+}
+/* Phones: above the download pill. */
+@media (max-width: 640px) {
+  .release-note {
+    left: 16px;
+    bottom: 84px;
+    width: calc(100vw - 32px);
+  }
+}
+html.reduced .release-note {
+  animation: none;
+}

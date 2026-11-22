@@ -96,14 +96,38 @@ export function FilmProvider({ children }: { children: ReactNode }) {
     const copies = [...document.querySelectorAll<HTMLElement>("[data-act]:not([data-act='tour']) .act__copy")];
     let raf = 0;
     let last = scrollY;
+    // Measure only when something moved: scroll, a resize or a layout change. A still page costs
+    // nothing per frame, and every frame reads all its rects before it writes any style, so the
+    // browser never has to lay the page out twice in one frame.
+    let dirty = true;
+    let seenY = NaN;
+    let seenW = 0;
+    let seenH = 0;
+    const ro = new ResizeObserver(() => (dirty = true));
+    ro.observe(document.body);
     const loop = () => {
+      scrollState.velocity += (scrollY - last - scrollState.velocity) * 0.15;
+      last = scrollY;
+      raf = requestAnimationFrame(loop);
+      if (!dirty && scrollY === seenY && innerWidth === seenW && innerHeight === seenH) return;
+      dirty = false;
+      seenY = scrollY;
+      seenW = innerWidth;
+      seenH = innerHeight;
+      measure();
+    };
+    const measure = () => {
       const vh = innerHeight;
-      for (const el of chapters) {
-        const r = el.getBoundingClientRect();
+      const chapterRects = chapters.map((el) => el.getBoundingClientRect());
+      const actRects = acts.map((el) => el.getBoundingClientRect());
+      const copyRects = innerWidth < vh ? copies.map((el) => el.getBoundingClientRect()) : [];
+      const end = actRects[actRects.length - 1];
+      chapters.forEach((el, i) => {
+        const r = chapterRects[i]!;
         const v = Math.max(0, Math.min(1, (vh - r.top) / (r.height + vh)));
         progress.set(el.dataset.chapter!, v);
         setVar(el, "--p", v.toFixed(3));
-      }
+      });
       // Story position. Acts are contiguous, so exactly one has its top above the viewport top.
       // Each act also gets CSS variables for scroll-scrubbed motion:
       //   --a  screens scrolled since the act's top reached the viewport top (negative while it arrives)
@@ -112,7 +136,7 @@ export function FilmProvider({ children }: { children: ReactNode }) {
       let t = 0;
       for (let i = 0; i < acts.length; i++) {
         const el = acts[i]!;
-        const r = el.getBoundingClientRect();
+        const r = actRects[i]!;
         const pin = Math.max(1, r.height - vh);
         const hold = pin / r.height;
         journey.hold[i] = hold;
@@ -127,19 +151,12 @@ export function FilmProvider({ children }: { children: ReactNode }) {
       journey.t = t;
       // Portrait: the highest copy panel still on screen pushes the stage up once it reaches the window's bottom.
       let push = 0;
-      if (innerWidth < vh) {
-        for (const el of copies) {
-          const r = el.getBoundingClientRect();
-          if (r.bottom > 0 && r.top < vh) push = Math.max(push, vh * STAGE_BOTTOM - r.top);
-        }
+      for (const r of copyRects) {
+        if (r.bottom > 0 && r.top < vh) push = Math.max(push, vh * STAGE_BOTTOM - r.top);
       }
       journey.push = Math.max(0, push);
       // The stage fades out as the last act leaves, so it never sits over the footer.
-      const end = acts[acts.length - 1]?.getBoundingClientRect();
-      if (end) document.documentElement.style.setProperty("--journey-out", Math.max(0, Math.min(1, (vh * 0.6 - end.bottom) / (vh * 0.45))).toFixed(3));
-      scrollState.velocity += (scrollY - last - scrollState.velocity) * 0.15;
-      last = scrollY;
-      raf = requestAnimationFrame(loop);
+      if (end) setVar(document.documentElement, "--journey-out", Math.max(0, Math.min(1, (vh * 0.6 - end.bottom) / (vh * 0.45))).toFixed(3));
     };
     raf = requestAnimationFrame(loop);
     const onPointer = (e: PointerEvent) => {
@@ -149,6 +166,7 @@ export function FilmProvider({ children }: { children: ReactNode }) {
     addEventListener("pointermove", onPointer, { passive: true });
     return () => {
       cancelAnimationFrame(raf);
+      ro.disconnect();
       removeEventListener("pointermove", onPointer);
     };
   }, [mode]);

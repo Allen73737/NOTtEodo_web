@@ -5,6 +5,7 @@ import QRCode from "qrcode";
 import { LiveRelease } from "@/components/download/LiveRelease";
 import { Subscribe } from "@/components/download/Subscribe";
 import { Notices } from "@/components/download/Notices";
+import { PhoneInstall } from "@/components/download/PhoneInstall";
 import { Screenshot } from "@/components/shots/Screenshot";
 import { Chapter } from "@/components/site/Chapter";
 import { PageHeader } from "@/components/site/PageHeader";
@@ -43,6 +44,7 @@ export default async function DownloadPage() {
         aside={<Screenshot screen="home" priority />}
         word="Android"
       />
+      <PhoneInstall release={release} playLive={cfg.play_live} playUrl={cfg.urls.play} />
       <Suspense fallback={null}>
         <Notices />
       </Suspense>
@@ -66,7 +68,7 @@ export default async function DownloadPage() {
               </div>
             )}
             <LiveRelease initial={release} />
-            <div className="card pad row" style={{ gap: 20, alignItems: "center" }}>
+            <div className="card pad row qr-card" style={{ gap: 20, alignItems: "center" }}>
               <div className="qr" aria-hidden="true" dangerouslySetInnerHTML={{ __html: qr }} />
               <div>
                 <p className="t-h3" style={{ margin: 0 }}>

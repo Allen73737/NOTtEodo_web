@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Fragment } from "react";
+import { Fragment, ViewTransition } from "react";
 import { Chapter, Interlude } from "@/components/site/Chapter";
 import { PosterFan } from "@/components/site/HeadVisuals";
 import { PageHeader } from "@/components/site/PageHeader";
@@ -73,15 +73,18 @@ export default function FeaturesPage() {
                       data-word={poster ? undefined : m.name}
                     >
                       {poster && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={poster.src}
-                          alt=""
-                          loading="lazy"
-                          width={poster.width}
-                          height={poster.height}
-                          className="feature-card__poster"
-                        />
+                        // The poster grows into the feature page's header (see its ViewTransition).
+                        <ViewTransition name={`poster-${m.slug}`} share="morph" default="none">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={poster.src}
+                            alt=""
+                            loading="lazy"
+                            width={poster.width}
+                            height={poster.height}
+                            className="feature-card__poster"
+                          />
+                        </ViewTransition>
                       )}
                       <div className="feature-card__body">
                         <p className="t-eyebrow" style={{ margin: 0 }}>

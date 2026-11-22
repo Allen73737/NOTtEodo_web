@@ -17,11 +17,21 @@ export default async function FeedbackPage({ searchParams }: { searchParams: Pro
   let q = sb.from("user_feedback").select("*").order("created_at", { ascending: false }).limit(100);
   if (sp.status && (STATUSES as readonly string[]).includes(sp.status)) q = q.eq("status", sp.status);
   if (sp.type && (TYPES as readonly string[]).includes(sp.type)) q = q.eq("type", sp.type);
-  const [{ data }, ...counts] = await Promise.all([
+  const [{ data }, { data: votes }, ...counts] = await Promise.all([
     q,
+    sb.from("page_feedback").select("path, helpful, note, created_at").order("created_at", { ascending: false }).limit(500),
     ...STATUSES.map((s) => sb.from("user_feedback").select("id", { count: "exact", head: true }).eq("status", s)),
   ]);
   const items = (data ?? []) as Feedback[];
+  // "Was this helpful?" answers from the website, grouped by page, least helpful first.
+  const pageVotes = (votes ?? []) as { path: string; helpful: boolean; note: string | null; created_at: string }[];
+  const byPage = [...Map.groupBy(pageVotes, (v) => v.path)].map(([path, vs]) => ({
+    path,
+    yes: vs.filter((v) => v.helpful).length,
+    no: vs.filter((v) => !v.helpful).length,
+    notes: vs.filter((v) => v.note),
+  }));
+  byPage.sort((a, b) => a.yes / (a.yes + a.no) - b.yes / (b.yes + b.no));
   return (
     <>
       <AdminHead cap="User voice & feature suggestions" title="User Voice" lede="Replies appear to the author in the app and on their web account page." />
@@ -91,6 +101,28 @@ export default async function FeedbackPage({ searchParams }: { searchParams: Pro
           </article>
         ))
       )}
+      <section className="stack" aria-labelledby="page-votes">
+        <h2 id="page-votes" className="mono-cap">Website · was this page helpful? (last 500)</h2>
+        {byPage.length === 0 ? (
+          <Empty>No answers yet.</Empty>
+        ) : (
+          byPage.map((p) => (
+            <article key={p.path} className="card pad stack">
+              <div className="row" style={{ justifyContent: "space-between" }}>
+                <Link href={p.path}>{p.path}</Link>
+                <span className="t-label">
+                  {p.yes} yes · {p.no} no
+                </span>
+              </div>
+              {p.notes.map((n) => (
+                <p key={n.created_at} style={{ margin: 0, whiteSpace: "pre-wrap" }}>
+                  <span className="t-label">{n.helpful ? "yes" : "no"} · {formatDate(n.created_at)}</span> {n.note}
+                </p>
+              ))}
+            </article>
+          ))
+        )}
+      </section>
     </>
   );
 }

@@ -100,9 +100,19 @@ function Cursor() {
       cy = y,
       raf = 0;
     let first = true;
+    let shown = "";
+    let hotNow = false;
+    const loop = () => {
+      cx += (x - cx) * 0.22;
+      cy += (y - cy) * 0.22;
+      if (dot.current) dot.current.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
+      // Sleep once the dot has caught up; the next move wakes it.
+      raf = Math.abs(x - cx) + Math.abs(y - cy) > 0.1 ? requestAnimationFrame(loop) : 0;
+    };
     const move = (e: PointerEvent) => {
       x = e.clientX;
       y = e.clientY;
+      if (!raf) raf = requestAnimationFrame(loop);
       // Shown from the first move, starting where the pointer is (never parked mid-screen).
       if (first) {
         first = false;
@@ -110,19 +120,14 @@ function Cursor() {
         cy = y;
         document.documentElement.classList.add("has-cursor");
       }
+      // Labels and the hot ring change only when the target does, so moving costs no re-render.
       const t = (e.target as HTMLElement | null)?.closest<HTMLElement>("[data-cursor]");
-      setLabel(t?.dataset.cursor ?? "");
-      const hot = (e.target as HTMLElement | null)?.closest("a,button,[role=button],input,textarea,select,summary");
-      dot.current?.classList.toggle("is-hot", Boolean(hot));
-    };
-    const loop = () => {
-      cx += (x - cx) * 0.22;
-      cy += (y - cy) * 0.22;
-      if (dot.current) dot.current.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
-      raf = requestAnimationFrame(loop);
+      const next = t?.dataset.cursor ?? "";
+      if (next !== shown) setLabel((shown = next));
+      const hot = Boolean((e.target as HTMLElement | null)?.closest("a,button,[role=button],input,textarea,select,summary"));
+      if (hot !== hotNow) dot.current?.classList.toggle("is-hot", (hotNow = hot));
     };
     addEventListener("pointermove", move, { passive: true });
-    raf = requestAnimationFrame(loop);
     return () => {
       removeEventListener("pointermove", move);
       cancelAnimationFrame(raf);

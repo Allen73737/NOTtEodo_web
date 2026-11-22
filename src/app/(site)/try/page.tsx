@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { StepsCard } from "@/components/site/HeadVisuals";
 import { PageHeader } from "@/components/site/PageHeader";
+import { SimTour } from "@/simulator/SimTour";
 import { ContinueOnPhone, Simulator } from "@/simulator/Simulator";
 
 export const metadata: Metadata = {
@@ -19,7 +19,6 @@ export default function TryPage() {
         title="Don’t take our word for it. Touch it."
         italic={["Touch", "it."]}
         lede="Capture a line, strike a task, spin the Focus Dial, press and hold the seal, and switch Cards ↔ Editorial or Ivory ↔ OLED. Everything stays in this tab."
-        aside={<StepsCard title="Five things to try" steps={["Type a line into Capture", "Tap a task to strike it", "Turn the Focus Dial", "Press and hold the seal", "Flip Aa and the theme"]} />}
         word="Touch"
       />
       <section className="stage-band" aria-label="The simulator">
@@ -32,6 +31,7 @@ export default function TryPage() {
               It&rsquo;s running. <span className="it">Go on, touch it.</span>
             </h2>
             <p className="stage-band__lede">A working sketch of the app: the same screens, colours and motion. Nothing you do here leaves this tab.</p>
+            <SimTour />
             <ContinueOnPhone />
           </div>
           <Simulator />

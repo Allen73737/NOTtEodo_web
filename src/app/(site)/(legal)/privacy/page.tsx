@@ -278,7 +278,8 @@ export default async function PrivacyPage() {
                 </li>
                 <li>
                   <strong>Preferences stay in your browser.</strong> Your theme, Cards/Editorial view, sound and &ldquo;Start where
-                  you are&rdquo; choice are kept in your browser&rsquo;s local storage and never sent to us.
+                  you are&rdquo; choice, how far you have read long pages, and the last release you saw are kept in your
+                  browser&rsquo;s local storage and never sent to us.
                 </li>
                 <li>
                   <strong>Sign-in cookies</strong> are set only when you sign in to <Link href="/account">your account</Link> or
@@ -291,6 +292,11 @@ export default async function PrivacyPage() {
                 <li>
                   <strong>Download counter:</strong> we count APK downloads with a one-way hash of your IP address and a secret
                   that changes daily. The raw IP is never stored, and the hash is deleted after two days.
+                </li>
+                <li>
+                  <strong>&ldquo;Was this helpful?&rdquo;</strong> (optional): on help, guide and FAQ pages, your answer is stored
+                  with the page it was about and any note you write, and nothing else: no account, IP address or cookie. Notes are
+                  read only by our admins, and every answer is deleted after 180 days.
                 </li>
                 <li>
                   <strong>Release emails</strong> (optional): if you ask to hear when NOTtEodo reaches Google Play or ships a new

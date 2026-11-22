@@ -4,7 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { Menu, Search, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Monogram } from "@/components/brand/Monogram";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { footerGroups, nav } from "@/content/site";
@@ -13,25 +13,65 @@ import { SoundToggle, ThemeToggle, ViewToggle } from "./Toggles";
 /** Floating glass nav that compresses after the first screen of scroll. */
 export function Nav() {
   const [compact, setCompact] = useState(false);
+  const [tucked, setTucked] = useState(false);
   const [open, setOpen] = useState(false);
   const path = usePathname();
+  const links = useRef<HTMLElement>(null);
 
+  // Compact after the first screen; tucked away while reading down, back on any scroll up.
   useEffect(() => {
-    const on = () => setCompact(window.scrollY > 80);
+    let last = window.scrollY;
+    let travel = 0;
+    const on = () => {
+      const y = window.scrollY;
+      const dy = y - last;
+      last = y;
+      setCompact(y > 80);
+      // A little hysteresis, so a trackpad's jitter never makes the bar flicker.
+      travel = Math.sign(dy) === Math.sign(travel) ? travel + dy : dy;
+      if (y < innerHeight * 0.6 || travel < -24) setTucked(false);
+      else if (travel > 48) setTucked(true);
+    };
     on();
     window.addEventListener("scroll", on, { passive: true });
     return () => window.removeEventListener("scroll", on);
   }, []);
-  useEffect(() => setOpen(false), [path]);
+  useEffect(() => {
+    setOpen(false);
+    setTucked(false);
+  }, [path]);
+
+  // A soft pill glides to whichever link the pointer is over, and back to the current page.
+  const glide = (to: Element | null) => {
+    const box = links.current;
+    if (!box) return;
+    const el = (to ?? box.querySelector("[aria-current=page]")) as HTMLElement | null;
+    box.classList.toggle("has-glide", Boolean(el));
+    if (!el) return;
+    box.style.setProperty("--gx", `${el.offsetLeft}px`);
+    box.style.setProperty("--gw", `${el.offsetWidth}px`);
+  };
+  useEffect(() => {
+    glide(null);
+  }, [path]);
 
   return (
-    <header className={`nav no-print${compact ? " nav--compact" : ""}`}>
+    <header
+      className={`nav no-print${compact ? " nav--compact" : ""}${tucked && !open ? " nav--tucked" : ""}`}
+      onFocus={() => setTucked(false)}
+    >
       <div className="nav__bar glass">
         <Link href="/" className="nav__brand" aria-label="NOTtEodo home">
           <Monogram size={26} className="nav__mark" />
           <Wordmark />
         </Link>
-        <nav aria-label="Primary" className="nav__links">
+        <nav
+          aria-label="Primary"
+          className="nav__links"
+          ref={links}
+          onPointerOver={(e) => glide((e.target as Element).closest("a"))}
+          onPointerLeave={() => glide(null)}
+        >
           {nav.map((n) => (
             <Link key={n.href} href={n.href} aria-current={path?.startsWith(n.href) ? "page" : undefined}>
               {n.label}
@@ -69,6 +109,18 @@ export function Nav() {
                     <X size={20} strokeWidth={1.6} />
                   </Dialog.Close>
                 </div>
+                <button
+                  type="button"
+                  className="drawer__search"
+                  onClick={() => {
+                    setOpen(false);
+                    // Let the drawer close first, so the palette takes focus cleanly.
+                    setTimeout(() => window.dispatchEvent(new Event("nt:palette")), 120);
+                  }}
+                >
+                  <Search size={18} strokeWidth={1.6} aria-hidden />
+                  Search features, help and guides
+                </button>
                 <nav aria-label="Menu" className="drawer__nav">
                   {nav.map((n, i) => (
                     <Link key={n.href} href={n.href} className="drawer__big" style={{ ["--i" as string]: i }}>

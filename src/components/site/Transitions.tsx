@@ -9,8 +9,27 @@ import { haptic, play } from "@/lib/sound";
 /** Keep in step with the curtain keyframes in editorial.css. */
 const COVER_MS = 420;
 const LIFT_MS = 640;
+/**
+ * With view transitions the old page holds until the new one is ready and PageSwap animates the
+ * change, so the curtain only comes up for a load that takes longer than this.
+ */
+const DEFER_MS = 260;
 /** A slow load: show the loading line on the sheet. */
 const SLOW_MS = 1200;
+
+const canSwap = () => "startViewTransition" in document;
+
+/**
+ * Which way the page change moves (PageSwap): deeper into the site goes forward, back up goes
+ * back, across the same level opens in place. A link can say so itself with data-nav.
+ */
+function directionOf(a: HTMLAnchorElement, to: string) {
+  const own = a.dataset.nav;
+  if (own === "forward" || own === "back") return `nav-${own}`;
+  const depth = (p: string) => p.split("/").filter(Boolean).length;
+  const d = depth(to) - depth(location.pathname);
+  return d > 0 ? "nav-forward" : d < 0 ? "nav-back" : "nav-same";
+}
 /** A stalled client navigation: fall back to an ordinary page load, so a click always arrives. */
 const HARD_MS = process.env.NODE_ENV === "production" ? 9000 : 60000;
 
@@ -28,11 +47,13 @@ function nameFor(pathname: string, text: string | null) {
 /**
  * Page transitions and site-wide micro-interactions.
  *
- * Curtain: clicking an internal link starts the navigation at once and sweeps two sheets (wine,
- * then ink) up over the page with the destination's name and the ribbon N; as soon as the new
- * page is in and the sheet has covered (420 ms), it lifts away and the page's opening rises in. A
- * slow load shows a loading line; a stalled one falls back to a full page load. Modified
- * clicks, new tabs, downloads, hash links and reduced motion are left alone.
+ * Clicking an internal link starts the navigation at once. Where view transitions exist, the
+ * current page holds until the next is ready and PageSwap opens it in; only a load slower than
+ * 260 ms raises the curtain. The curtain (elsewhere, at once) sweeps two sheets (wine, then ink) up
+ * over the page with the destination's name and the ribbon N; as soon as the new page is in and
+ * the sheet has covered (420 ms), it lifts away and the page's opening rises in. A slow load
+ * shows a loading line; a stalled one falls back to a full page load. Modified clicks, new tabs,
+ * downloads, hash links and reduced motion are left alone.
  *
  * Micro-interactions, delegated from the document so every page gets them:
  *   - cards and buttons follow the pointer with a soft light (--sx/--sy), cards tilt a little and
@@ -45,16 +66,25 @@ export function Transitions() {
   const path = usePathname();
   const curtain = useRef<HTMLDivElement>(null);
   const label = useRef<HTMLParagraphElement>(null);
-  /** When the current cover started (0 when no navigation is under way). */
+  /** When the current navigation started (0 when none is under way). */
+  const navAt = useRef(0);
+  /** When the sheet started covering (0 while it is down). */
   const coverAt = useRef(0);
   const lastPath = useRef(path);
 
-  // The route changed: once the sheet has fully covered, lift it off the new page.
+  // The route changed. A quick load never raised the sheet (PageSwap did the motion); otherwise,
+  // once the sheet has fully covered, lift it off the new page.
   useEffect(() => {
     const el = curtain.current;
     if (lastPath.current === path || !el) return;
     lastPath.current = path;
-    const wait = coverAt.current ? Math.max(0, coverAt.current + COVER_MS - performance.now()) : 0;
+    navAt.current = 0;
+    if (!coverAt.current) {
+      el.classList.remove("is-waiting");
+      play("land");
+      return;
+    }
+    const wait = Math.max(0, coverAt.current + COVER_MS - performance.now());
     let t2: ReturnType<typeof setTimeout> | undefined;
     const t1 = setTimeout(() => {
       scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
@@ -89,22 +119,26 @@ export function Transitions() {
       if (!el) return;
       e.preventDefault();
       // Start loading straight away; the animation never delays the navigation.
-      router.push(url.pathname + url.search + url.hash);
+      router.push(url.pathname + url.search + url.hash, { transitionTypes: [directionOf(a, url.pathname)] });
       if (label.current) label.current.textContent = nameFor(url.pathname, a.textContent);
-      if (!coverAt.current) {
+      const started = (navAt.current = performance.now());
+      const cover = () => {
+        if (navAt.current !== started || coverAt.current) return;
         coverAt.current = performance.now();
         el.classList.remove("is-lifting");
         el.classList.add("is-covering");
         play("whoosh");
-      }
+      };
+      // Without view transitions the sheet covers at once; with them, only if the page is slow.
+      if (canSwap()) setTimeout(cover, DEFER_MS);
+      else cover();
       // A slow load keeps the sheet up with a loading line; a stalled one becomes a full page load.
-      const started = coverAt.current;
       const href = url.href;
       setTimeout(() => {
-        if (coverAt.current === started) el.classList.add("is-waiting");
+        if (navAt.current === started) el.classList.add("is-waiting");
       }, SLOW_MS);
       setTimeout(() => {
-        if (coverAt.current === started && location.href !== href) location.assign(href);
+        if (navAt.current === started && location.href !== href) location.assign(href);
       }, HARD_MS);
     };
     // Warm the next page as soon as a pointer heads for a link (production only to prevent dev JIT compile storms).
@@ -138,7 +172,18 @@ export function Transitions() {
     const fine = matchMedia("(pointer: fine)").matches;
     let lit: HTMLElement | null = null;
     const SEL = ".card, .btn, .chip, .why__card, .endband";
+    // At most one measure per frame, however fast the pointer reports.
+    let pending: PointerEvent | null = null;
+    let frame = 0;
     const onMove = (e: PointerEvent) => {
+      pending = e;
+      if (!frame)
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          if (pending) light(pending);
+        });
+    };
+    const light = (e: PointerEvent) => {
       const el = (e.target as Element | null)?.closest?.(SEL) as HTMLElement | null;
       if (lit && lit !== el) {
         lit.classList.remove("is-lit");
@@ -183,6 +228,7 @@ export function Transitions() {
     document.addEventListener("pointermove", onMove, { passive: true });
     document.addEventListener("pointerdown", onDown, { passive: true });
     return () => {
+      cancelAnimationFrame(frame);
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerdown", onDown);
     };
@@ -192,7 +238,7 @@ export function Transitions() {
   // ever blinks out; without JS or with reduced motion everything is simply there.
   useEffect(() => {
     if (document.documentElement.classList.contains("reduced") || document.querySelector("[data-act]")) return;
-    const blocks = [...document.querySelectorAll<HTMLElement>("main > section, main > article > *, main .reveal-me, main section > *")].filter(
+    const blocks = [...document.querySelectorAll<HTMLElement>(".page-swap > section, .page-swap > article > *, main .reveal-me, main section > *")].filter(
       (el) => el.getBoundingClientRect().top > innerHeight * 0.95 && !el.closest("[data-no-reveal]"),
     );
     blocks.forEach((el) => el.setAttribute("data-reveal", ""));

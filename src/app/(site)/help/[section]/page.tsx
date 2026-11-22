@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Helpful } from "@/components/site/Helpful";
 import { Breadcrumbs } from "@/components/site/JsonLd";
 import { PageHeader } from "@/components/site/PageHeader";
 import guide from "@/content/generated/app_guide.json";
@@ -50,9 +51,10 @@ export default async function HelpSection({ params }: { params: Promise<{ sectio
           </p>
         )}
         <nav className="row" style={{ justifyContent: "space-between" }} aria-label="More help">
-          {prev ? <Link href={`/help/${prev.id}`}>← {prev.title}</Link> : <span />}
-          {next ? <Link href={`/help/${next.id}`}>{next.title} →</Link> : <span />}
+          {prev ? <Link href={`/help/${prev.id}`} data-nav="back">← {prev.title}</Link> : <span />}
+          {next ? <Link href={`/help/${next.id}`} data-nav="forward">{next.title} →</Link> : <span />}
         </nav>
+        <Helpful />
       </article>
     </>
   );

@@ -3,7 +3,7 @@ import { KineticText } from "@/motion/primitives";
 import { HeadDrift } from "./HeadDrift";
 
 /**
- * Editorial page opener, the same on every page: a rail with the ribbon N and the eyebrow, a
+ * Editorial page opener, the same on every page: the ribbon N and the eyebrow over a
  * Bodoni title with italic words, a lede under a drawn hairline, an optional aside (a phone,
  * a poster, a fact card) and a giant outlined word that drifts as you scroll.
  */
@@ -31,11 +31,11 @@ export function PageHeader({
       <p className="page-head__word" aria-hidden="true">
         {word ?? eyebrow}
       </p>
-      <div className="page-head__rail">
-        <Monogram size={22} className="page-head__mono" />
-        <p className="t-eyebrow page-head__eyebrow">{eyebrow}</p>
-      </div>
       <div className="page-head__main">
+        <div className="page-head__kicker">
+          <Monogram size={20} className="page-head__mono" />
+          <p className="t-eyebrow page-head__eyebrow">{eyebrow}</p>
+        </div>
         <h1 className="t-display page-head__title">
           <KineticText text={title} italicWords={italic} start="mount" />
         </h1>

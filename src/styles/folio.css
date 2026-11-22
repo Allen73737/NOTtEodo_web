@@ -852,6 +852,109 @@
   }
 }
 
+@supports (animation-timeline: view()) {
+  /* Chapter titles rise out of a mask line by line as they arrive; the lede follows a beat later. */
+  html:not(.reduced) .chapter__title {
+    animation: title-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 28%;
+  }
+  html:not(.reduced) .chapter__lede {
+    animation: lede-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 10% cover 32%;
+  }
+  /* The interlude's ribbon N turns a quarter as the band passes. */
+  html:not(.reduced) .interlude__mark {
+    animation: mark-turn linear both;
+    animation-timeline: view();
+  }
+}
+@keyframes title-rise {
+  from {
+    clip-path: inset(0 0 100% 0);
+    translate: 0 0.6em;
+  }
+  to {
+    clip-path: inset(-10% -4% -20% -4%);
+    translate: 0 0;
+  }
+}
+@keyframes lede-rise {
+  from {
+    opacity: 0;
+    translate: 0 24px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes mark-turn {
+  from {
+    rotate: -14deg;
+    scale: 0.9;
+  }
+  to {
+    rotate: 14deg;
+    scale: 1.05;
+  }
+}
+
+/* Card art leans in a touch under the pointer (transform, so it composes with img-open's scale). */
+.card img,
+.feature-card__poster {
+  transition: transform 900ms var(--e-silk);
+}
+@media (hover: hover) {
+  .card:hover img,
+  .feature-card:hover .feature-card__poster {
+    transform: scale(1.035);
+  }
+}
+/* A button's trailing icon slips out to the right and comes back in from the left. */
+@media (hover: hover) {
+  html:not(.reduced) .btn:hover > svg:last-child {
+    animation: icon-slip 560ms var(--e-silk);
+  }
+}
+@keyframes icon-slip {
+  45% {
+    translate: 140% 0;
+    opacity: 0;
+  }
+  46% {
+    translate: -140% 0;
+  }
+  to {
+    translate: 0 0;
+    opacity: 1;
+  }
+}
+
+/* Touch: cards give under the finger the way the app's do. */
+@media (hover: none) {
+  .card {
+    transition: transform 260ms var(--e-silk);
+  }
+  .card:active {
+    transform: scale(0.985);
+    transition-duration: 90ms;
+  }
+}
+html.reduced .card:active,
+html.reduced .card:hover img {
+  transform: none;
+}
+
+/* Off-screen chapters and the footer skip rendering until they come near the viewport, so a long
+ * page paints its first screen at once. `auto` remembers each one's real height once seen. */
+.chapter:nth-of-type(n + 3),
+.footer {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
+
 /* The footer ends on the name, full width, in a whisper of the page's ink. */
 .footer {
   overflow: clip;

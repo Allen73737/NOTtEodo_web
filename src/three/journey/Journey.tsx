@@ -1,6 +1,6 @@
 "use client";
 
-import { Environment, Lightformer } from "@react-three/drei";
+import { Environment, Lightformer, PerformanceMonitor } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Suspense, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
@@ -20,6 +20,11 @@ const TAU = Math.PI * 2;
  */
 export default function Journey() {
   const [source, setSource] = useState<HTMLElement | null>(null);
+  // Pixel density follows the frame rate: sharp while it holds 60 fps, softer the moment it drops,
+  // so a busy phone or laptop keeps scrolling smoothly instead of stuttering at full resolution.
+  // Client only (loaded with ssr: false), so the window is there to read.
+  const [ceil] = useState(() => Math.min(devicePixelRatio, innerWidth < 760 ? 1.5 : 1.75));
+  const [dpr, setDpr] = useState(() => Math.min(ceil, 1.5));
   useEffect(() => setSource(document.body), []);
   if (!source) return null;
   return (
@@ -27,7 +32,7 @@ export default function Journey() {
       className="journey"
       eventSource={source}
       eventPrefix="client"
-      dpr={[1, 1.75]}
+      dpr={dpr}
       camera={{ position: [0, 0, 6], fov: 35, near: 0.1, far: 40 }}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       onCreated={({ gl }) => {
@@ -40,6 +45,12 @@ export default function Journey() {
       }}
       aria-hidden="true"
     >
+      <PerformanceMonitor
+        flipflops={3}
+        onIncline={() => setDpr(ceil)}
+        onDecline={() => setDpr(1)}
+        onFallback={() => setDpr(1)}
+      />
       <Director />
       <Rig />
       <Dust />

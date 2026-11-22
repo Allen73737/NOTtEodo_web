@@ -44,6 +44,10 @@ export default function CookiesPage() {
                   ["nt-sound", "Whether site sounds are on"],
                   ["nt-motion", "Whether you reduced motion on this site"],
                   ["nt-persona", "Your “Start where you are” choice"],
+                  ["nt-read", "How far you read long pages (guides, legal pages), so you can pick up where you left off"],
+                  ["nt-seen-release", "The last app version you were told about, so “New in” appears only once"],
+                  ["nt-sim, nt-tour (session)", "The Try it simulator's state and which tour steps you've done, this visit"],
+                  ["nt-helpful:… (session)", "That you already answered “Was this helpful?” on a page, this visit"],
                   ["nt-hidden-ann (session)", "Announcements you dismissed this visit"],
                   ["nt-preloaded (session)", "That the opening animation already played this visit"],
                 ]}

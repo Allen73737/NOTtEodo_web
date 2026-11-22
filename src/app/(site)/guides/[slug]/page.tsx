@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Helpful } from "@/components/site/Helpful";
 import { PageHeader } from "@/components/site/PageHeader";
+import { ReadMemory } from "@/components/site/ReadMemory";
+import { TocSpy } from "@/components/site/TocSpy";
 import { guides } from "@/content/guides";
 import { moduleBySlug } from "@/content/site";
 
@@ -29,10 +32,22 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, "\\u003c") }} />
       <PageHeader eyebrow="Guide" title={g.title} lede={g.lede} />
-      <article className="prose-wrap legal__body">
+      <article className="prose-wrap legal__body toc-host">
+        <nav className="guide-toc" aria-labelledby="steps" data-toc>
+          <h2 id="steps" className="t-label">
+            {g.steps.length} steps
+          </h2>
+          <ol>
+            {g.steps.map((s, i) => (
+              <li key={s.name}>
+                <a href={`#step-${i + 1}`}>{s.name}</a>
+              </li>
+            ))}
+          </ol>
+        </nav>
         <ol className="guide-steps">
-          {g.steps.map((s) => (
-            <li key={s.name}>
+          {g.steps.map((s, i) => (
+            <li key={s.name} id={`step-${i + 1}`}>
               <h2 className="t-h3">{s.name}</h2>
               <p>{s.text}</p>
             </li>
@@ -47,7 +62,10 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
             </span>
           ))}
         </p>
+        <Helpful />
       </article>
+      <TocSpy />
+      <ReadMemory />
     </>
   );
 }

@@ -20,12 +20,24 @@
 :root[data-view="editorial"] .feature-card__poster {
   display: none;
 }
-.feature-poster {
-  width: 100%;
-  max-width: 720px;
+/* The feature's poster in its header: the card on /features grows into it (ViewTransition). */
+.feature-aside {
+  display: block;
+  width: min(420px, 100%);
   margin-inline: auto;
+}
+.feature-aside img {
+  display: block;
+  width: 100%;
   height: auto;
   border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-card);
+  rotate: 2deg;
+}
+@media (max-width: 860px) {
+  .feature-aside {
+    width: min(320px, 82vw);
+  }
 }
 .benefits {
   list-style: none;
@@ -371,4 +383,240 @@ html.reduced .scene * {
   .scene * {
     animation: none !important;
   }
+}
+.guide-steps li {
+  scroll-margin-top: calc(var(--nav-h) + 24px);
+}
+/* A guide's steps list is short: on narrow screens the Contents pill stands in for it. */
+.guide-toc {
+  display: none;
+}
+@media (min-width: 1180px) {
+  .guide-toc {
+    display: block;
+  }
+}
+.guide-toc h2 {
+  margin: 0 0 8px;
+}
+
+/* Reading memory (ReadMemory) */
+.resume {
+  position: fixed;
+  left: 50%;
+  top: calc(var(--nav-h) + 26px);
+  z-index: 46;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 5px;
+  border-radius: 999px;
+  background: var(--c-inverse-surface);
+  color: var(--c-inverse-text);
+  box-shadow: var(--shadow-card);
+  transform: translateX(-50%);
+  animation: resume-in 560ms var(--e-silk) both;
+}
+@keyframes resume-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -16px);
+  }
+}
+.resume button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+}
+.resume__go {
+  height: 38px;
+  padding: 0 16px;
+  font: 500 0.88rem/1 var(--font-sans);
+}
+.resume__x {
+  width: 38px;
+  height: 38px;
+  justify-content: center;
+}
+.resume button:hover {
+  background: color-mix(in oklab, var(--c-inverse-text) 12%, transparent);
+}
+html.reduced .resume {
+  animation: none;
+}
+.read-mark {
+  color: var(--c-text-soft);
+}
+.read-mark.is-done {
+  color: var(--c-accent);
+}
+.read-count {
+  margin: 0;
+}
+
+/* Download, as a phone sees it (PhoneInstall) */
+.phone-install {
+  margin-top: -24px;
+  margin-bottom: 24px;
+}
+.phone-install__card {
+  display: grid;
+  gap: 16px;
+  max-width: 560px;
+}
+.phone-install__go {
+  width: 100%;
+  min-height: 64px;
+  justify-content: center;
+  font-size: 1.08rem;
+}
+.phone-install__go span {
+  display: grid;
+  text-align: left;
+  line-height: 1.15;
+}
+.phone-install__go small {
+  font: 500 0.74rem/1.2 var(--font-mono);
+  opacity: 0.75;
+}
+.phone-install__steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+.phone-install__steps li {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  animation: rise var(--d-entrance) var(--e-silk) both;
+  animation-delay: calc(120ms + var(--i) * 70ms);
+}
+.phone-install__steps li > span:last-child {
+  display: grid;
+  gap: 2px;
+}
+.phone-install__ico {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--c-accent) 12%, transparent);
+  color: var(--c-accent);
+}
+.phone-install__more {
+  font-size: 0.9rem;
+  color: var(--c-text-muted);
+}
+html.reduced .phone-install__steps li {
+  animation: none;
+}
+/* The QR code is for computers; a phone is already where it needs to be. */
+@media (max-width: 760px) and (pointer: coarse) {
+  .qr-card {
+    display: none !important;
+  }
+}
+
+/* Try it: the tour beside the simulator (SimTour) */
+.tour {
+  display: grid;
+  gap: 14px;
+  padding: 20px 22px;
+  border: 1px solid var(--c-hairline);
+  border-radius: var(--radius-2xl);
+  background: color-mix(in oklab, var(--c-text) 4%, transparent);
+  max-width: 440px;
+}
+.tour__head {
+  display: flex;
+  justify-content: space-between;
+}
+.tour__bar {
+  height: 2px;
+  background: var(--c-divider);
+  overflow: hidden;
+  border-radius: 2px;
+}
+.tour__bar span {
+  display: block;
+  height: 100%;
+  background: var(--c-accent);
+  transform-origin: left;
+  transition: transform 700ms var(--e-silk);
+}
+.tour__steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.tour__steps li {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  color: var(--c-text-muted);
+  transition: color var(--d-standard);
+}
+.tour__steps li > span:last-child {
+  display: grid;
+  gap: 3px;
+}
+.tour__steps li.is-now,
+.tour__steps li.is-ok {
+  color: var(--c-text);
+}
+.tour__tick {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--c-hairline);
+  transition:
+    background-color var(--d-standard),
+    border-color var(--d-standard),
+    transform 420ms var(--e-ease-out-back);
+}
+.is-now > .tour__tick {
+  border-color: var(--c-accent);
+}
+.is-ok > .tour__tick {
+  background: var(--c-accent);
+  border-color: var(--c-accent);
+  color: var(--c-on-accent);
+  transform: scale(1.08);
+}
+.is-ok .tour__title {
+  text-decoration: line-through;
+  text-decoration-color: var(--c-accent);
+}
+.tour__hint {
+  font-size: 0.88rem;
+  color: var(--c-text-soft);
+  animation: rise 420ms var(--e-silk) both;
+}
+.tour__end {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+  animation: rise 520ms var(--e-silk) both;
+}
+.tour__line {
+  margin: 0;
+  font: 400 1.5rem/1.15 var(--font-display);
+}
+html.reduced .tour__hint,
+html.reduced .tour__end {
+  animation: none;
 }

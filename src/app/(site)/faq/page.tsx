@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Helpful } from "@/components/site/Helpful";
 import { PageHeader } from "@/components/site/PageHeader";
 import guide from "@/content/generated/app_guide.json";
 import { getFaqOverrides } from "@/lib/platform";
@@ -44,6 +45,7 @@ export default async function FaqPage() {
             {i.help && guide.sections.some((s) => s.id === i.help) && <Link href={`/help/${i.help}`}>Read more</Link>}
           </details>
         ))}
+        <Helpful />
       </section>
     </>
   );

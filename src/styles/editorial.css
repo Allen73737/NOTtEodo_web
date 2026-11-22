@@ -1,24 +1,14 @@
 /*
- * The site-wide editorial system. Every inner page shares one grid: a left rail (labels, the
- * ribbon N, contents) and a reading column that starts at the same line on every page, so
- * headers, prose and legal text all hang from one edge instead of floating in the centre.
- * Media (cards, posters, the simulator) runs the full width of .wrap.
+ * The site-wide editorial system. Every inner page hangs from one edge, the .wrap gutter:
+ * headers, prose and legal text start on the same line as the cards and media below them.
+ * Long pages carry their contents on the right (see Toc), never in a side rail.
  */
-:root {
-  --rail: clamp(0px, 7vw, 108px);
-  --rail-gap: clamp(24px, 3vw, 48px);
-}
-@media (max-width: 860px) {
-  :root {
-    --rail: 0px;
-  }
-}
 
 /* ---------- Page header ---------- */
 .page-head {
   position: relative;
   display: grid;
-  grid-template-columns: var(--rail) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: end;
   gap: 0;
   min-height: min(86svh, 860px);
@@ -28,15 +18,15 @@
   isolation: isolate;
 }
 .page-head--aside {
-  grid-template-columns: var(--rail) minmax(0, 1.15fr) minmax(0, 0.85fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
   column-gap: clamp(24px, 4vw, 64px);
 }
-.page-head__rail {
-  align-self: start;
-  display: grid;
-  gap: 14px;
-  justify-items: start;
-  padding-top: 12px;
+/* The eyebrow sits on one line above the title, led by the ribbon N. */
+.page-head__kicker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
 }
 .page-head__mono {
   color: var(--c-text);
@@ -51,9 +41,7 @@
 }
 .page-head__eyebrow {
   margin: 0;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  letter-spacing: 0.24em;
+  letter-spacing: 0.2em;
 }
 .page-head__main {
   display: grid;
@@ -145,15 +133,6 @@
     min-height: 0;
     row-gap: 22px;
   }
-  .page-head__eyebrow {
-    writing-mode: horizontal-tb;
-    transform: none;
-  }
-  .page-head__rail {
-    display: flex;
-    align-items: center;
-    padding-top: 0;
-  }
   .page-head__aside {
     justify-self: start;
   }
@@ -162,7 +141,7 @@
 /* ---------- Reading column ---------- */
 .prose-wrap {
   max-width: var(--maxw);
-  padding-left: calc(var(--gutter) + var(--rail));
+  padding-left: var(--gutter);
   padding-right: var(--gutter);
 }
 .prose-wrap > * {
@@ -173,7 +152,9 @@
   max-width: 980px;
 }
 
-/* Legal and long reading pages: contents stick in the rail; text hangs from the reading line. */
+/* Legal and long reading pages: text hangs from the gutter; on wide screens the contents stick
+ * in a column on the right with the section being read lit (TocSpy). Narrower, they sit in the
+ * flow and a floating Contents pill opens them as a sheet. */
 .legal__head.prose-wrap {
   padding-top: calc(var(--nav-h) + clamp(48px, 8vw, 110px));
 }
@@ -183,52 +164,61 @@
   letter-spacing: -0.03em;
   max-width: 14ch;
 }
-@media (min-width: 861px) {
-  .legal .legal__body.prose-wrap {
-    padding-left: var(--gutter);
+[data-toc] ol {
+  padding-left: 0;
+  list-style: none;
+  counter-reset: toc;
+}
+[data-toc] li {
+  counter-increment: toc;
+}
+[data-toc] a {
+  text-decoration: none;
+  display: inline-block;
+  padding: 5px 0;
+  color: var(--c-text-muted);
+  transition:
+    color var(--d-quick),
+    transform var(--d-standard) var(--e-silk);
+}
+[data-toc] a::before {
+  content: counter(toc, decimal-leading-zero) "  ";
+  font: 500 0.72rem/1 var(--font-mono);
+  color: var(--c-text-soft);
+}
+[data-toc] a:hover,
+[data-toc] a[aria-current] {
+  color: var(--c-text);
+}
+[data-toc] a[aria-current]::before {
+  color: var(--c-accent);
+}
+@media (min-width: 1180px) {
+  .toc-host.prose-wrap {
     display: grid;
-    grid-template-columns: calc(var(--rail) - var(--rail-gap)) minmax(0, 76ch);
-    column-gap: var(--rail-gap);
+    grid-template-columns: minmax(0, 76ch) minmax(200px, 260px);
+    column-gap: clamp(48px, 6vw, 112px);
     align-items: start;
   }
-  .legal .legal__body > * {
-    grid-column: 2;
+  .toc-host > * {
+    grid-column: 1;
     max-width: none;
   }
-  .legal .legal__body > .legal__toc {
-    grid-column: 1;
+  .toc-host > [data-toc] {
+    grid-column: 2;
     grid-row: 1 / span 80;
     position: sticky;
     top: calc(var(--nav-h) + 28px);
     max-height: calc(100svh - var(--nav-h) - 56px);
     overflow: auto;
     font-size: 0.86rem;
-  }
-  .legal .legal__toc ol {
-    columns: 1;
-    padding-left: 0;
-    list-style: none;
-    counter-reset: toc;
+    padding-left: 18px;
     border-left: 1px solid var(--c-divider);
   }
-  .legal .legal__toc li {
-    counter-increment: toc;
-    padding: 5px 0 5px 14px;
+  .toc-host > [data-toc] a {
+    padding: 4px 0;
   }
-  .legal .legal__toc a {
-    text-decoration: none;
-    display: inline-block;
-    transition:
-      color var(--d-quick),
-      transform var(--d-standard) var(--e-silk);
-  }
-  .legal .legal__toc a::before {
-    content: counter(toc, decimal-leading-zero) "  ";
-    font: 500 0.72rem/1 var(--font-mono);
-    color: var(--c-text-soft);
-  }
-  .legal .legal__toc a:hover {
-    color: var(--c-accent);
+  .toc-host > [data-toc] a[aria-current] {
     transform: translateX(4px);
   }
 }
@@ -340,19 +330,17 @@ main .wrap > h2.t-h1 {
 }
 
 /* ---------- Scroll reveal (inner pages; set up by Transitions only below the fold) ---------- */
+/* Opacity and transform only: both run on the compositor, so a reveal never costs a repaint. */
 html.js:not(.reduced) [data-reveal] {
   opacity: 0;
   transform: translate3d(0, 48px, 0);
-  filter: blur(6px);
   transition:
     opacity 900ms var(--e-silk),
-    transform 1100ms var(--e-silk),
-    filter 900ms var(--e-silk);
+    transform 1100ms var(--e-silk);
 }
 html.js:not(.reduced) [data-reveal].is-in {
   opacity: 1;
   transform: none;
-  filter: none;
 }
 /* Grids reveal their items one after another. */
 html.js:not(.reduced) [data-reveal].is-in > * {
@@ -519,6 +507,120 @@ html.page-enter main {
     opacity: 0.4;
     transform: translateY(70px) scale(0.985);
   }
+}
+
+/* ---------- Page swap (View Transitions, set up by PageSwap) ----------
+ * The old page drifts up and dims; the new one opens from the bottom edge through a window with
+ * rounded shoulders, rising as it comes. Insets are in vh, not %, because a page's snapshot box
+ * is as tall as the page while only the first screen is ever in view. */
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-old(.page-out) {
+  animation: swap-out 480ms cubic-bezier(0.7, 0, 0.3, 1) both;
+}
+::view-transition-new(.page-in) {
+  animation: swap-in 820ms cubic-bezier(0.16, 1, 0.3, 1) 40ms both;
+}
+@keyframes swap-out {
+  to {
+    opacity: 0;
+    transform: translateY(-9vh);
+  }
+}
+@keyframes swap-in {
+  from {
+    clip-path: inset(100vh 0 0 0 round 56px 56px 0 0);
+    transform: translateY(14vh);
+  }
+  60% {
+    clip-path: inset(0 0 0 0 round 24px 24px 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0 round 0);
+    transform: none;
+  }
+}
+/* Going deeper slides the pages left (the new one opens from the right edge); going back up
+ * slides them right. Same window, same easing as the plain opening. */
+::view-transition-old(.page-out-fwd) {
+  animation: swap-out-fwd 480ms cubic-bezier(0.7, 0, 0.3, 1) both;
+}
+::view-transition-new(.page-in-fwd) {
+  animation: swap-in-fwd 820ms cubic-bezier(0.16, 1, 0.3, 1) 40ms both;
+}
+::view-transition-old(.page-out-back) {
+  animation: swap-out-back 480ms cubic-bezier(0.7, 0, 0.3, 1) both;
+}
+::view-transition-new(.page-in-back) {
+  animation: swap-in-back 820ms cubic-bezier(0.16, 1, 0.3, 1) 40ms both;
+}
+@keyframes swap-out-fwd {
+  to {
+    opacity: 0;
+    transform: translateX(-10vw);
+  }
+}
+@keyframes swap-out-back {
+  to {
+    opacity: 0;
+    transform: translateX(10vw);
+  }
+}
+@keyframes swap-in-fwd {
+  from {
+    clip-path: inset(0 0 0 100vw round 48px 0 0 48px);
+    transform: translateX(14vw);
+  }
+  to {
+    clip-path: inset(0 0 0 0 round 0);
+    transform: none;
+  }
+}
+@keyframes swap-in-back {
+  from {
+    clip-path: inset(0 100vw 0 0 round 0 48px 48px 0);
+    transform: translateX(-14vw);
+  }
+  to {
+    clip-path: inset(0 0 0 0 round 0);
+    transform: none;
+  }
+}
+@media (max-width: 640px) {
+  ::view-transition-old(.page-out-fwd),
+  ::view-transition-old(.page-out-back) {
+    animation-duration: 360ms;
+  }
+  ::view-transition-new(.page-in-fwd),
+  ::view-transition-new(.page-in-back) {
+    animation-duration: 620ms;
+  }
+  ::view-transition-old(.page-out) {
+    animation-duration: 360ms;
+  }
+  ::view-transition-new(.page-in) {
+    animation-duration: 620ms;
+  }
+}
+/* Shared elements (a feature card's poster into its page): one object moving, softened mid-flight. */
+::view-transition-group(.morph) {
+  animation-duration: 640ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 2;
+}
+::view-transition-image-pair(.morph) {
+  animation: morph-soften 640ms ease both;
+}
+@keyframes morph-soften {
+  40% {
+    filter: blur(2px);
+  }
+}
+html.reduced::view-transition-old(*),
+html.reduced::view-transition-new(*),
+html.reduced::view-transition-group(*) {
+  animation: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

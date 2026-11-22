@@ -49,6 +49,12 @@ const INITIAL: State = {
   checkedIn: false,
 };
 
+/** The tour's steps (SimTour listens): each fires when the visitor first does the thing. */
+export type TourStep = "capture" | "strike" | "dial" | "seal" | "flip";
+function emit(step: TourStep) {
+  window.dispatchEvent(new CustomEvent<TourStep>("nt:sim", { detail: step }));
+}
+
 function useSimState() {
   const [s, setS] = useState<State>(INITIAL);
   useEffect(() => {
@@ -97,6 +103,23 @@ export function Simulator() {
     setNotice(msg);
     setTimeout(() => setNotice(null), 2200);
   };
+
+  // Tour steps that show in the state: a task struck, the seal pressed, the look switched.
+  const done = s.tasks.filter((t) => t.done).length;
+  const lastDone = useRef(done);
+  useEffect(() => {
+    if (done > lastDone.current) emit("strike");
+    lastDone.current = done;
+  }, [done]);
+  useEffect(() => {
+    if (s.checkedIn) emit("seal");
+  }, [s.checkedIn]);
+  const look = `${theme}/${view}`;
+  const lastLook = useRef(look);
+  useEffect(() => {
+    if (look !== lastLook.current) emit("flip");
+    lastLook.current = look;
+  }, [look]);
 
   return (
     <div className="sim-wrap">
@@ -163,6 +186,7 @@ export function Simulator() {
             return { ...st, notes: [p.title, ...st.notes] };
           });
           say(`Saved as ${p.kind === "event" ? "a dated task" : `a ${p.kind}`}.`);
+          emit("capture");
           setScreen(p.kind === "expense" ? "expenses" : p.kind === "note" ? "notes" : "tasks");
         }} />}
         {notice && <p className="sim__toast" role="status">{notice}</p>}
@@ -313,7 +337,11 @@ function FocusScreen() {
   const [mins, setMins] = useState(25);
   const [left, setLeft] = useState(25 * 60);
   const [running, setRunning] = useState(false);
-  useEffect(() => setLeft(mins * 60), [mins]);
+  const firstMins = useRef(mins);
+  useEffect(() => {
+    setLeft(mins * 60);
+    if (mins !== firstMins.current) emit("dial");
+  }, [mins]);
   useEffect(() => {
     if (!running) return;
     const id = setInterval(() => {

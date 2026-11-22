@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { getLegalVersions } from "@/lib/platform";
 import { formatDate } from "@/lib/format";
+import { ReadMemory } from "@/components/site/ReadMemory";
+import { TocSpy } from "@/components/site/TocSpy";
 
 export type LegalDoc = "privacy" | "terms" | "child-safety" | "cookies" | "data-safety" | "accessibility";
 
@@ -66,7 +68,7 @@ export async function LegalPage({
         </p>
       </header>
 
-      <div className="prose-wrap legal__body">
+      <div className="prose-wrap legal__body toc-host">
         <aside className="legal__summary card pad" aria-labelledby="summary">
           <h2 id="summary" className="t-h3">
             In plain English
@@ -74,7 +76,7 @@ export async function LegalPage({
           {summary}
         </aside>
 
-        <nav className="legal__toc" aria-labelledby="toc">
+        <nav className="legal__toc" aria-labelledby="toc" data-toc>
           <h2 id="toc" className="t-label">
             Contents
           </h2>
@@ -127,6 +129,8 @@ export async function LegalPage({
           </Link>
         </p>
       </div>
+      <TocSpy />
+      <ReadMemory />
     </article>
   );
 }
