@@ -26,7 +26,7 @@ export const live = {
 
 /** Resolves a timeline x/y/z into world space for the current viewport. */
 export function place(p: readonly [number, number, number], out: THREE.Vector3, vh: number) {
-  if (live.portrait) return out.set(p[0] * live.half * 0.12, p[1] * 0.5 + vh * 0.17, p[2]);
+  if (live.portrait) return out.set(p[0] * live.half * 0.12, p[1] * 0.5 + vh * 0.175, p[2]);
   return out.set(p[0] * live.half, p[1], p[2]);
 }
 

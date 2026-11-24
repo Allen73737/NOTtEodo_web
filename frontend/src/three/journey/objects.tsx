@@ -499,7 +499,7 @@ export function Monogram3D() {
 const monoWorld = new THREE.Vector3();
 function placeMono(): [number, number, number] {
   const p = live.mono.p;
-  if (live.portrait) monoWorld.set(p[0] * live.half * 0.18, p[1] * 0.45 + 0.72, p[2]);
+  if (live.portrait) monoWorld.set(p[0] * live.half * 0.18, p[1] * 0.45 + 0.87, p[2]);
   else monoWorld.set(p[0] * live.half, p[1], p[2]);
   return [monoWorld.x, monoWorld.y, monoWorld.z];
 }
@@ -517,7 +517,7 @@ export function Halo() {
     const [x, y, z] = atFinale ? [live.phoneWorld.x, live.phoneWorld.y, live.phoneWorld.z - 0.4] : placeMono();
     el.position.set(x, y, z - 0.3);
     el.rotation.set(1.15 + Math.sin(s.clock.elapsedTime * 0.2) * 0.1, 0, s.clock.elapsedTime * 0.1);
-    el.scale.setScalar((live.portrait ? 0.6 : 1) * (0.7 + 0.3 * k) * (atFinale ? 1.25 : 1));
+    el.scale.setScalar((live.portrait ? 0.42 : 1) * (0.7 + 0.3 * k) * (atFinale ? 1.25 : 1));
   });
   return (
     <group ref={g} visible={false}>

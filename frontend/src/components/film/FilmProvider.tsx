@@ -35,17 +35,18 @@ export const journey = {
   /** Extra phone spin from dragging (radians), and whether a drag is under way. */
   spin: 0,
   dragging: false,
-  /**
-   * Portrait screens only: how far (px) the act copy has risen into the stage window. The 3D stage
-   * moves up by exactly this much, so the copy pushes the phone off the top instead of covering it.
-   */
-  push: 0,
 };
 
-/** Bottom of the portrait stage window, as a share of the viewport height (keep in step with film.css). */
-export const STAGE_BOTTOM = 0.62;
+/** Portrait 3D pages: the share of a page's scroll spent fading it in, and out again. */
+const FADE = 0.18;
 
 const Journey = dynamic(() => import("@/three/journey/Journey"), { ssr: false });
+
+/** 0..1 with eased ends. */
+function smooth(v: number) {
+  const k = Math.max(0, Math.min(1, v));
+  return k * k * (3 - 2 * k);
+}
 
 /** Writes a CSS variable only when it changed, so idle frames cost no style work. */
 const varCache = new WeakMap<HTMLElement, Record<string, string>>();
@@ -92,8 +93,13 @@ export function FilmProvider({ children }: { children: ReactNode }) {
     const chapters = [...document.querySelectorAll<HTMLElement>("[data-chapter]")];
     const acts = [...document.querySelectorAll<HTMLElement>("[data-act]")];
     journey.acts = acts.map((a) => a.dataset.act!);
-    // The tour keeps its phone above its captions by layout, so it never pushes.
-    const copies = [...document.querySelectorAll<HTMLElement>("[data-act]:not([data-act='tour']) .act__copy")];
+    // Portrait 3D: the phone keeps the top of the screen to itself and each act's copy lives in a
+    // band below it, never over it. A copy is shown a page at a time (as many lines as fit the
+    // band; a line taller than the band is scaled to fit), and the pages cross-fade as the act
+    // plays. The tour lays out its own captions.
+    const copies = mode === "full" ? [...document.querySelectorAll<HTMLElement>("[data-act]:not([data-act='tour']) .act__copy")] : [];
+    const copyActs = copies.map((el) => el.closest<HTMLElement>("[data-act]")!.dataset.act!);
+    const copyLines = copies.map((el) => [...el.children] as HTMLElement[]);
     let raf = 0;
     let last = scrollY;
     // Measure only when something moved: scroll, a resize or a layout change. A still page costs
@@ -120,7 +126,8 @@ export function FilmProvider({ children }: { children: ReactNode }) {
       const vh = innerHeight;
       const chapterRects = chapters.map((el) => el.getBoundingClientRect());
       const actRects = acts.map((el) => el.getBoundingClientRect());
-      const copyRects = innerWidth < vh ? copies.map((el) => el.getBoundingClientRect()) : [];
+      const paged = innerWidth < vh && copies.length > 0;
+      const bands = paged ? copies.map((el, i) => ({ area: el.clientHeight, lines: copyLines[i]!.map((l) => [l.offsetTop, l.offsetHeight] as const) })) : [];
       const end = actRects[actRects.length - 1];
       chapters.forEach((el, i) => {
         const r = chapterRects[i]!;
@@ -139,9 +146,9 @@ export function FilmProvider({ children }: { children: ReactNode }) {
         const r = actRects[i]!;
         const pin = Math.max(1, r.height - vh);
         const hold = pin / r.height;
-        journey.hold[i] = hold;
         const lp = Math.max(0, Math.min(1, -r.top / pin));
         const x = Math.max(0, Math.min(1, (-r.top - pin) / vh));
+        journey.hold[i] = hold;
         journey.lp.set(el.dataset.act!, lp);
         setVar(el, "--a", Math.max(-2, Math.min(4, -r.top / vh)).toFixed(3));
         setVar(el, "--lp", lp.toFixed(3));
@@ -149,12 +156,32 @@ export function FilmProvider({ children }: { children: ReactNode }) {
         if (r.top <= 0 && (r.bottom > 0 || i === acts.length - 1)) t = i + Math.max(0, Math.min(1, -r.top / r.height));
       }
       journey.t = t;
-      // Portrait: the highest copy panel still on screen pushes the stage up once it reaches the window's bottom.
-      let push = 0;
-      for (const r of copyRects) {
-        if (r.bottom > 0 && r.top < vh) push = Math.max(push, vh * STAGE_BOTTOM - r.top);
+      // Pages: pack the lines into pages that fit the band, then show the page for this point in
+      // the act. One page fades out before the next fades in, so two never overlap.
+      if (paged) {
+        copies.forEach((_, i) => {
+          const { area, lines } = bands[i]!;
+          const page: number[] = [];
+          const tops: number[] = [];
+          lines.forEach(([top, h], j) => {
+            if (h > 0 && (tops.length === 0 || top + h - tops[tops.length - 1]! > area)) tops.push(top);
+            page[j] = Math.max(0, tops.length - 1);
+          });
+          const n = Math.max(1, tops.length);
+          const v = (journey.lp.get(copyActs[i]!) ?? 0) * n;
+          copyLines[i]!.forEach((line, j) => {
+            const p = page[j]!;
+            const fin = p === 0 ? 1 : smooth((v - p) / FADE);
+            const fout = p === n - 1 ? 1 : smooth((p + 1 - v) / FADE);
+            const o = fin * fout;
+            const h = lines[j]![1];
+            setVar(line, "--o", o.toFixed(3));
+            setVar(line, "--dy", `${(-(tops[p] ?? 0) + (1 - fin) * 16).toFixed(1)}px`);
+            setVar(line, "--s", h > area ? (area / h).toFixed(3) : "1");
+            setVar(line, "visibility", o < 0.01 ? "hidden" : "visible");
+          });
+        });
       }
-      journey.push = Math.max(0, push);
       // The stage fades out as the last act leaves, so it never sits over the footer.
       if (end) setVar(document.documentElement, "--journey-out", Math.max(0, Math.min(1, (vh * 0.6 - end.bottom) / (vh * 0.45))).toFixed(3));
     };

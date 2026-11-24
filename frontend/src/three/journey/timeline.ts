@@ -108,9 +108,9 @@ const smooth = (t: number) => t * t * (3 - 2 * t);
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const mix3 = (a: V3, b: V3, t: number): V3 => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
 const mixPose = (a: Pose, b: Pose, t: number): Pose => ({ p: mix3(a.p, b.p, t), r: mix3(a.r, b.r, t), s: lerp(a.s, b.s, t), v: lerp(a.v, b.v, t) });
-const mixScene = (a: Scene, b: Scene, t: number) => {
+const mixScene = (a: Scene, b: Scene, t: number, fxT = t) => {
   const fx = {} as Record<Fx, number>;
-  for (const k of FX) fx[k] = lerp(a.fx[k] ?? 0, b.fx[k] ?? 0, t);
+  for (const k of FX) fx[k] = lerp(a.fx[k] ?? 0, b.fx[k] ?? 0, fxT);
   return { phone: mixPose(a.phone, b.phone, t), mono: mixPose(a.mono, b.mono, t), fx };
 };
 
@@ -129,7 +129,10 @@ export function sample(acts: string[], t: number, hold: number[]): Sample {
   const key = KEYS[list[i]!]!;
   const next = KEYS[list[Math.min(list.length - 1, i + 1)]!]!;
   const lp = Math.min(1, s / h);
-  const scene = s <= h ? mixScene(key.from, key.to, easeInOut(lp)) : mixScene(key.to, next.from, smooth((s - h) / (1 - h)));
+  // Between acts, the leaving act's objects clear in the first part of the flight, so they never
+  // linger over the phone as it arrives.
+  const u = (s - h) / (1 - h);
+  const scene = s <= h ? mixScene(key.from, key.to, easeInOut(lp)) : mixScene(key.to, next.from, smooth(u), smooth(Math.min(1, u * 1.8)));
   const n = key.screens.length;
   // Same formula as the tour captions' --seg in film.css, so the screen and its caption change together.
   const idx = Math.max(0, Math.min(n - 1, Math.floor(lp * n * 0.92 + 0.25)));

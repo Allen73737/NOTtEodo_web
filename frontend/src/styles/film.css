@@ -1543,29 +1543,83 @@ html.reduced .intro__words .intro__line {
     --in: clamp(0, calc((var(--a, 5) + 1.1 - var(--k, 0) * 0.05) * 2.4), 1);
     --out: 0;
   }
-  /* With 3D, the phone sits in the top of the screen and the copy rides over it on paper. */
-  html[data-film="full"] .act__pin {
-    padding-top: 70svh;
+  /* With 3D, every act stays pinned as on desktop. The phone and its objects keep the top of the
+     screen; the copy lives in the band below, a page at a time (--o, --dy and --s on each line,
+     from the scroll loop), so text never crosses the 3D. As the act leaves, its copy holds its
+     place and fades (--x) while the next act's copy rises into the band from below. */
+  html[data-film="full"] .act {
+    height: calc(var(--len, 2.6) * 100svh);
+    min-height: 0;
   }
-  html[data-film="full"] .act--hero .act__pin {
-    padding-top: 50svh;
+  html[data-film="full"] .act__pin {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    min-height: 0;
+    overflow: hidden;
+    padding: 0;
+  }
+  html[data-film="full"] .act:not(.act--tour) .act__pin > .wrap {
+    position: static;
+  }
+  html[data-film="full"] .act__copy {
+    position: absolute;
+    inset: 57svh var(--gutter) 76px;
+    z-index: 1;
+    display: grid;
+    min-height: 0;
+    max-height: none;
+    align-content: start;
+    gap: 14px;
+    transform: translate3d(0, calc(var(--x, 0) * 100svh), 0);
+    opacity: calc(1 - var(--x, 0) * 2.5);
+  }
+  html[data-film="full"] .act--hero .act__copy {
+    top: 42svh;
+  }
+  html[data-film="full"] .act__copy > * {
+    opacity: var(--o, 1);
+    transform: translate3d(0, var(--dy, 0px), 0) scale(var(--s, 1));
+    transform-origin: top center;
+  }
+  /* The floating download pill would sit in the band; the hero and the finale carry the button. */
+  html[data-film="full"] .pill {
+    display: none;
+  }
+  html[data-film="full"] .act--center .act__line:last-child {
+    margin-top: 8px;
+  }
+  /* The tour's phone is large on phones too: only the current caption sits under it, and its
+     heading is kept for screen readers. */
+  html[data-film="full"] .act--tour .tour__head {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  html[data-film="full"] .act--tour .tour__caps {
+    grid-row: 2;
+    height: 10.5rem;
+    transform: translate3d(0, calc(var(--x, 0) * 100svh), 0);
+    opacity: calc(1 - var(--x, 0) * 2.5);
+  }
+  /* Keep the demos short enough to read in one pinned screen or a little more. */
+  html[data-film="full"] .act .capture__tile {
+    min-height: 64px;
+  }
+  html[data-film="full"] .act .memories__item:nth-child(n + 4) {
+    display: none;
+  }
+  html[data-film="full"] .act .ask__log {
+    max-height: 132px;
+    overflow: auto;
+  }
+  html[data-film="full"] .hero__cue {
+    display: none;
   }
   html[data-film="full"] .act__visual {
     display: none;
-  }
-  html[data-film="full"] .act__copy {
-    padding: 22px 18px;
-    border-radius: 22px;
-    background: color-mix(in oklab, var(--c-canvas) 84%, transparent);
-    backdrop-filter: blur(16px) saturate(1.1);
-    -webkit-backdrop-filter: blur(16px) saturate(1.1);
-    border: 1px solid var(--c-hairline);
-  }
-  :root:not([data-mode="dark"])[data-film="full"] .act--night .act__copy {
-    background: color-mix(in oklab, #1a1614 80%, transparent);
-  }
-  html[data-film="full"] .act--center .act__copy {
-    min-height: 0;
   }
   .act--center .act__copy {
     min-height: 0;
@@ -1580,7 +1634,11 @@ html.reduced .intro__words .intro__line {
     top: 0;
     height: 100svh;
     min-height: 0;
-    padding-block: calc(var(--nav-h) + 16px) 24px;
+    padding-block: calc(var(--nav-h) + 16px) 96px;
+  }
+  /* With 3D there is no download pill over the captions. */
+  html[data-film="full"] .act--tour .act__pin {
+    padding-bottom: 32px;
   }
   /* Phone in the top half; heading and the current caption below it. */
   .tour__grid {
