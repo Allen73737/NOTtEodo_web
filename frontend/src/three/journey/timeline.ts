@@ -20,18 +20,23 @@ const pose = (p: V3, r: V3, s = 1, v = 1): Pose => ({ p, r, s, v });
 const hidden = (p: V3, r: V3 = [0, 0, 0], s = 0.3): Pose => ({ p, r, s, v: 0 });
 const still = (s: Scene): { from: Scene; to: Scene } => ({ from: s, to: s });
 const away = hidden([0, 0, -0.3]);
+/** The ribbon N at the end of the hero, as it heads for the phone. */
+const heroN = pose([0.48, 0.0, 0.2], [0.05, 0.9, 0], 0.9);
+/** The ribbon N out of the phone at the end, beside it and above, facing you. */
+const finaleN = pose([0.78, 0.7, 0.3], [0.04, -0.3, 0], 0.3);
 
 export const KEYS: Record<string, Key> = {
   // Dawn. The ribbon N turns in ink; scrolling turns it toward its back, where the phone waits.
   hero: {
     from: { mono: pose([0.5, 0.02, 0], [0.1, -0.45, 0], 1.0), phone: hidden([0.48, -3.6, -1], [0.3, Math.PI, 0], 0.9), fx: { halo: 1 } },
-    to: { mono: pose([0.48, 0.0, 0.2], [0.05, 0.9, 0], 0.9), phone: hidden([0.48, -2.6, -1], [0.3, Math.PI, 0], 0.9), fx: { halo: 0.6 } },
+    to: { mono: heroN, phone: hidden([0.48, -2.6, -1], [0.3, Math.PI, 0], 0.9), fx: { halo: 0.6 } },
     screens: ["home"],
   },
-  // The N sinks into the back of the phone, which rises and turns to face you.
+  // The phone rises with its back to you and the N settles into the N on its back (see `merge`),
+  // then the phone turns to face you.
   open: {
-    from: { mono: hidden([0.48, 0, -0.2], [0, Math.PI - 0.3, 0], 0.22), phone: pose([0.46, -0.1, 0], [0.12, Math.PI - 0.4, 0.05], 0.98), fx: {} },
-    to: { mono: away, phone: pose([0.44, 0.0, 0.3], [0.04, -0.28, 0.02], 1.06), fx: {} },
+    from: { mono: heroN, phone: pose([0.46, -0.1, 0], [0.12, Math.PI - 0.4, 0.05], 0.98), fx: {} },
+    to: { mono: heroN, phone: pose([0.44, 0.0, 0.3], [0.04, -0.28, 0.02], 1.06), fx: {} },
     screens: ["home"],
   },
   // Capture: one line flies out of the phone and becomes four things.
@@ -75,9 +80,9 @@ export const KEYS: Record<string, Key> = {
     to: { mono: away, phone: pose([-0.48, 0.0, 0.2], [0.02, 2 * TAU + 0.2, 0], 0.98), fx: { bars: 1 } },
     screens: ["expenses@cards", "expenses@editorial"],
   },
-  // Evening: the phone steps aside; the wax seal presses the N.
+  // Evening: the phone steps aside and back, the wax seal comes out of it and presses the N.
   evening: {
-    ...still({ mono: away, phone: hidden([0.95, -0.4, -1.4], [0.05, 2 * TAU + 0.6, 0], 0.6), fx: { seal: 1 } }),
+    ...still({ mono: away, phone: pose([0.95, -0.4, -1.4], [0.05, 2 * TAU + 0.6, 0], 0.6), fx: { seal: 1 } }),
     screens: ["habits"],
   },
   // Nodo: memories orbit; some are forgotten on request.
@@ -92,11 +97,12 @@ export const KEYS: Record<string, Key> = {
     to: { mono: away, phone: pose([-0.46, -0.05, -0.1], [0.06, 3 * TAU + 0.2, 0], 0.8), fx: {} },
     screens: ["home"],
   },
-  // Tomorrow: the phone makes one slow full turn (its back, with the ribbon N, catches the light
-  // half-way) and comes to rest facing you, beside the download.
+  // Tomorrow: the phone makes one slow full turn; half-way, with its back to you, the ribbon N
+  // lifts out of the N on its back (see `merge`) and takes its place beside it in its halo, and
+  // the phone comes to rest facing you, beside the download.
   finale: {
-    from: { mono: away, phone: pose([0.46, -0.06, 0], [0.02, 4 * TAU - 0.45, 0], 0.94), fx: {} },
-    to: { mono: away, phone: pose([0.42, -0.04, 0.35], [-0.02, 5 * TAU - 0.22, 0], 1.0), fx: {} },
+    from: { mono: finaleN, phone: pose([0.46, -0.06, 0], [0.02, 4 * TAU - 0.45, 0], 0.94), fx: { halo: 1 } },
+    to: { mono: finaleN, phone: pose([0.42, -0.04, 0.35], [-0.02, 5 * TAU - 0.22, 0], 1.0), fx: { halo: 1 } },
     screens: ["home"],
   },
 };
@@ -114,7 +120,25 @@ const mixScene = (a: Scene, b: Scene, t: number, fxT = t) => {
   return { phone: mixPose(a.phone, b.phone, t), mono: mixPose(a.mono, b.mono, t), fx };
 };
 
-export type Sample = { phone: Pose; mono: Pose; fx: Record<Fx, number>; screen: string; act: string; lp: number; screenIndex: number; screenCount: number };
+export type Sample = { phone: Pose; mono: Pose; fx: Record<Fx, number>; screen: string; act: string; lp: number; screenIndex: number; screenCount: number; merge: number };
+
+/**
+ * How far the ribbon N is merged into the N on the phone's back. It settles in over the middle of
+ * the flight from the hero to the next act, stays there, and lifts back out in the finale while
+ * the phone has its back to you (the turn passes its back at about 0.52 of the act).
+ */
+function mergeAt(list: string[], t: number, hold: number[]) {
+  const at = (i: number) => Math.max(0.05, Math.min(0.95, hold[i] ?? 0.7));
+  const clamp = (x: number) => Math.max(0, Math.min(1, x));
+  const fi = list.indexOf("finale");
+  if (fi >= 0 && t >= fi) return 1 - smooth(clamp((Math.min(1, (t - fi) / at(fi)) - 0.46) / 0.34));
+  const hi = list.indexOf("hero");
+  if (hi < 0) return 1;
+  const s = t - hi;
+  const h = at(hi);
+  if (s <= h) return 0;
+  return smooth(clamp(((s - h) / (1 - h) - 0.28) / 0.6));
+}
 
 /**
  * The scene at story position t (act index + fraction of that act scrolled). `hold` is each act's
@@ -145,5 +169,6 @@ export function sample(acts: string[], t: number, hold: number[]): Sample {
     lp,
     screenIndex: idx,
     screenCount: n,
+    merge: mergeAt(list, t, hold),
   };
 }

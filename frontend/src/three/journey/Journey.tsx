@@ -78,7 +78,10 @@ function dampPose(cur: Pose, to: Pose, lambda: number, dt: number) {
   cur.v = THREE.MathUtils.damp(cur.v, to.v, lambda, dt);
 }
 
-/** Runs first each frame: samples the timeline at the reader's position and eases toward it. */
+/**
+ * Runs first each frame (then the Phone, then everything that comes out of it): samples the
+ * timeline at the reader's position and eases toward it.
+ */
 function Director() {
   useFrame((state, delta) => {
     const dt = Math.min(delta, 1 / 20);
@@ -95,12 +98,19 @@ function Director() {
     dampPose(live.phone, target.phone, 3.6, dt);
     dampPose(live.mono, target.mono, 3.6, dt);
     for (const k of FX) live.fx[k] = THREE.MathUtils.damp(live.fx[k], target.fx[k], 4, dt);
+    live.merge = THREE.MathUtils.damp(live.merge, target.merge, 6, dt);
+    // What passed through the screen last frame lights it this frame.
+    live.portal = live.portalNext;
+    live.portalNext = 0;
     live.screen = target.screen;
     live.act = target.act;
     live.screenIndex = target.screenIndex;
     place(live.phone.p, live.phoneWorld, vp.height);
-    // Portrait: the phone has the screen above the copy band to itself.
-    live.phoneScale = live.phone.s * (live.portrait ? 0.72 : 1);
+    // Portrait: the phone has the screen above the copy band to itself. In the finale it makes
+    // room above it for the N that comes out of it.
+    const out = live.portrait && live.act === "finale" ? 1 - live.merge : 0;
+    live.phoneScale = live.phone.s * (live.portrait ? 0.72 * (1 - 0.24 * out) : 1);
+    live.phoneWorld.y -= out * 0.3;
 
     // Drag spin settles to the nearest whole turn when released.
     if (!journey.dragging) journey.spin = THREE.MathUtils.damp(journey.spin, Math.round(journey.spin / TAU) * TAU, 2.4, dt);
@@ -109,7 +119,7 @@ function Director() {
     state.camera.position.x = THREE.MathUtils.damp(state.camera.position.x, journey.pointer.x * 0.18, 2, dt);
     state.camera.position.y = THREE.MathUtils.damp(state.camera.position.y, -journey.pointer.y * 0.12, 2, dt);
     state.camera.lookAt(0, 0, 0);
-  });
+  }, -2);
   return null;
 }
 

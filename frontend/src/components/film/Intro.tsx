@@ -17,7 +17,7 @@ const STAGES: [number, string][] = [
   [101, "Welcome"],
 ];
 /** The pens' box: the app's 100×100 design box, cropped to the stroke so it lies over the traced N. */
-const PEN_BOX = "3.74 2.57 92.3 94.3";
+export const PEN_BOX = "3.74 2.57 92.3 94.3";
 /** Ink dust, seeded so the server and the browser agree. */
 const MOTES = Array.from({ length: 22 }, (_, i) => {
   const r = (n: number) => Number(((((Math.sin((i + 1) * 739 + n * 17) * 10000) % 1) + 1) % 1).toFixed(4));

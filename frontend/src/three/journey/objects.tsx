@@ -11,9 +11,15 @@ import { colors } from "@/content/generated/tokens";
 import { useTheme, useView } from "@/lib/prefs";
 import { play } from "@/lib/sound";
 import { cardTexture, monogramGeometry, screenTexture, screenUrl, type CardColors } from "./assets";
-import { band, ease, live, lpOf } from "./live";
+import { band, clamp01, ease, emerge, live, lpOf } from "./live";
 
 const TAU = Math.PI * 2;
+
+/** Scratch objects for the per-frame maths (nothing is allocated while the story plays). */
+const home = new THREE.Vector3();
+const at = new THREE.Vector3();
+const turn = new THREE.Quaternion();
+const euler = new THREE.Euler();
 
 function usePalette() {
   const dark = useTheme() === "dark";
@@ -39,6 +45,8 @@ function useCardColors(): CardColors {
  *   1  push              the new screen slides in as a card over the old one, casting a shadow
  *   2  container         a ghost finger taps the tab bar; the tab grows into the new screen
  *   3  zoom-through      a new chapter: the old screen swells and fades as the new one settles in
+ * While an act's object passes through the glass (uPortal), the screen's content twists gently in
+ * toward its middle, where a soft, oxblood-stained depth opens (no light, no rings).
  * Textures are sRGB, so the output is converted back with colorspace_fragment.
  */
 const SCREEN_VERT = /* glsl */ `
@@ -67,6 +75,7 @@ uniform vec3 uBase;
 uniform vec3 uInk;
 uniform vec3 uEnv;
 uniform float uGlare;
+uniform float uPortal;
 varying vec2 vUv;
 varying vec3 vN;
 varying vec3 vV;
@@ -162,9 +171,25 @@ void main() {
   vec2 suv = (p + sh) / (2.0 * sh);
   // The bezel: deep black glass with a faint inner edge.
   vec3 bezel = vec3(0.012, 0.011, 0.011) + smoothstep(0.012, 0.0, abs(dScreen - 0.004)) * 0.025;
-  vec3 scr = content(suv, p, sh);
+  // Ink vortex: the content swirls and is drawn in toward the middle, as if through a lens.
+  vec2 pw = p;
+  float rr = 0.0;
+  if (uPortal > 0.002) {
+    rr = length(p) / sh.x;
+    float a = uPortal * 0.8 * exp(-rr * rr * 3.0);
+    float cs = cos(a), sn = sin(a);
+    pw = mat2(cs, -sn, sn, cs) * p * (1.0 + uPortal * 0.16 * exp(-rr * rr * 4.0));
+  }
+  vec2 suvW = clamp((pw + sh) / (2.0 * sh), 0.0, 1.0);
+  vec3 scr = content(suvW, pw, sh);
   // A real panel falls off a little at its very edges.
   scr *= 1.0 - 0.06 * smoothstep(-0.05, 0.0, dScreen);
+  if (uPortal > 0.002) {
+    // A soft depth opens at the centre, stained with oxblood ink, with no edge to it.
+    float depth = exp(-rr * rr * 7.0);
+    scr = mix(scr, uInk * 0.55, uPortal * 0.45 * depth);
+    scr *= 1.0 - uPortal * (0.12 + 0.55 * depth);
+  }
   vec3 col = mix(bezel, scr, inScreen);
   // The punch-hole camera, with a pin of light in its lens.
   vec2 cam = p - vec2(0.0, sh.y - 0.055);
@@ -267,6 +292,7 @@ export function Phone() {
           uInk: { value: new THREE.Color() },
           uEnv: { value: new THREE.Color() },
           uGlare: { value: 0.12 },
+          uPortal: { value: 0 },
         },
         toneMapped: false,
       }),
@@ -305,6 +331,12 @@ export function Phone() {
       ph.r[2] - st.wobble * 0.3,
     );
     el.scale.setScalar(live.phoneScale * (0.15 + 0.85 * vis) * (1 + kick * 0.08));
+    // The phone as drawn, for everything that comes out of it or goes back into it this frame.
+    live.body.pos.copy(el.position);
+    live.body.quat.setFromEuler(el.rotation);
+    live.body.size = el.scale.x;
+    live.mouth.set(0, 0, PD / 2 + 0.04).multiplyScalar(el.scale.x).applyQuaternion(live.body.quat).add(el.position);
+    screen.uniforms.uPortal!.value = THREE.MathUtils.damp(screen.uniforms.uPortal!.value as number, live.portal, 7, dt);
 
     // Screen: move to the act's screenshot once it has loaded, with the transition that fits.
     const [name, forced] = live.screen.split("@") as [string, string | undefined];
@@ -358,7 +390,7 @@ export function Phone() {
         st.mix = 0;
       }
     }
-  });
+  }, -1);
 
   const body = dark ? c["ink-container"] : c.ink;
   const rim = dark ? c["text-muted"] : c.bronze;
@@ -455,42 +487,93 @@ function Shadow() {
 
 /* ============================================================== monogram */
 
-/** The ribbon N as a solid in one ink. It tilts toward the pointer and spins when tapped. */
+/** Where the N sits on the phone's back (see the Phone's back), in the phone's own space. */
+const SEAT_AT = new THREE.Vector3(0, -0.12, -PD / 2 - 0.0132);
+const SEAT_TURN = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
+const own = { pos: new THREE.Vector3(), quat: new THREE.Quaternion(), scale: new THREE.Vector3() };
+const seat = { pos: new THREE.Vector3(), quat: new THREE.Quaternion(), scale: new THREE.Vector3() };
+/** The N as drawn this frame, for its halo. */
+const monoAt = { pos: new THREE.Vector3(), s: 1 };
+
+/**
+ * The ribbon N as a solid in one ink. It tilts toward the pointer and spins when tapped. As it
+ * merges (live.merge) it becomes the N on the phone's back: it travels onto it, turns, shrinks
+ * and flattens to it, takes on its polished metal, catches a glint as it seats, and hands over to
+ * it. In the finale the same happens in reverse, out of the phone.
+ */
 export function Monogram3D() {
   const { dark, c } = usePalette();
   const g = useRef<THREE.Group>(null);
+  const mat = useRef<THREE.MeshPhysicalMaterial>(null);
   const spin = useRef({ v: 0, a: 0 });
   const geo = useMemo(() => monogramGeometry(0.12), []);
+  const tones = useMemo(
+    () => ({ ink: new THREE.Color(dark ? c.text : c.ink), seat: new THREE.Color(dark ? c.text : colors.light.linen), metal: dark ? 0.35 : 0.55 }),
+    [dark, c],
+  );
   useFrame((s, dt) => {
     const el = g.current;
     if (!el) return;
     const m = live.mono;
     const vis = ease(m.v);
-    el.visible = vis > 0.01;
+    const mg = live.merge;
+    el.visible = vis > 0.01 && mg < 0.995;
     const t = s.clock.elapsedTime;
     const sp = spin.current;
     sp.a += sp.v * dt;
     sp.v *= Math.exp(-dt * 1.6);
-    el.position.set(...placeMono());
-    el.position.y += Math.sin(t * 0.7) * 0.06 * vis;
-    el.rotation.set(m.r[0] - journey.pointer.y * 0.25, m.r[1] + journey.pointer.x * 0.45 + Math.sin(t * 0.35) * 0.18 + sp.a, m.r[2]);
+    own.pos.set(...placeMono());
+    own.pos.y += Math.sin(t * 0.7) * 0.06 * vis;
+    own.quat.setFromEuler(euler.set(m.r[0] - journey.pointer.y * 0.25, m.r[1] + journey.pointer.x * 0.45 + Math.sin(t * 0.35) * 0.18 + sp.a, m.r[2]));
     const k = m.s * 1.9 * (live.portrait ? 0.62 : 1) * (0.4 + 0.6 * vis);
-    el.scale.set(k, -k, k);
-  });
+    own.scale.set(k, -k, k);
+    if (mg > 0.001) {
+      const b = live.body;
+      seat.pos.copy(SEAT_AT).multiplyScalar(b.size).applyQuaternion(b.quat).add(b.pos);
+      seat.quat.copy(b.quat).multiply(SEAT_TURN);
+      // The phone's N is a thinner casting (0.03 deep against 0.12).
+      seat.scale.set(0.4, -0.4, 0.1).multiplyScalar(b.size);
+      el.position.lerpVectors(own.pos, seat.pos, mg);
+      el.quaternion.slerpQuaternions(own.quat, seat.quat, mg);
+      el.scale.lerpVectors(own.scale, seat.scale, mg);
+    } else {
+      el.position.copy(own.pos);
+      el.quaternion.copy(own.quat);
+      el.scale.copy(own.scale);
+    }
+    monoAt.pos.copy(el.position);
+    monoAt.s = m.s * (1 - mg);
+    const ma = mat.current;
+    if (ma) {
+      ma.color.lerpColors(tones.ink, tones.seat, mg);
+      ma.metalness = THREE.MathUtils.lerp(tones.metal, 0.9, mg);
+      ma.roughness = THREE.MathUtils.lerp(0.28, 0.18, mg);
+      ma.emissiveIntensity = Math.sin(Math.PI * clamp01((mg - 0.7) / 0.3)) * 0.6;
+    }
+  }, -0.5);
   return (
     <group
       ref={g}
       visible={false}
       onPointerDown={(e) => {
-        if (live.mono.v < 0.5) return;
+        if (live.mono.v < 0.5 || live.merge > 0.5) return;
         e.stopPropagation();
         spin.current.v += 9;
       }}
-      onPointerOver={() => live.mono.v > 0.5 && (document.body.style.cursor = "pointer")}
+      onPointerOver={() => live.mono.v > 0.5 && live.merge < 0.5 && (document.body.style.cursor = "pointer")}
       onPointerOut={() => (document.body.style.cursor = "")}
     >
       <mesh geometry={geo}>
-        <meshPhysicalMaterial color={dark ? c.text : c.ink} metalness={dark ? 0.35 : 0.55} roughness={0.28} clearcoat={1} clearcoatRoughness={0.15} />
+        <meshPhysicalMaterial
+          ref={mat}
+          color={dark ? c.text : c.ink}
+          metalness={dark ? 0.35 : 0.55}
+          roughness={0.28}
+          clearcoat={1}
+          clearcoatRoughness={0.15}
+          emissive={c.accent}
+          emissiveIntensity={0}
+        />
       </mesh>
     </group>
   );
@@ -499,40 +582,43 @@ export function Monogram3D() {
 const monoWorld = new THREE.Vector3();
 function placeMono(): [number, number, number] {
   const p = live.mono.p;
-  if (live.portrait) monoWorld.set(p[0] * live.half * 0.18, p[1] * 0.45 + 0.87, p[2]);
+  // Portrait: over the phone at dawn; at the end, above it (the Director lowers the phone for it).
+  if (live.portrait) monoWorld.set(p[0] * live.half * 0.18, live.act === "finale" ? live.phoneWorld.y + 0.92 : p[1] * 0.45 + 0.87, p[2]);
   else monoWorld.set(p[0] * live.half, p[1], p[2]);
   return [monoWorld.x, monoWorld.y, monoWorld.z];
 }
 
-/** A hairline ring around the N, turning slowly, like a watch bezel. */
+/** A hairline ring around the N, turning slowly, like a watch bezel. It goes where the N goes. */
 export function Halo() {
   const { c } = usePalette();
   const g = useRef<THREE.Group>(null);
+  const mats = useMemo(
+    () => [0.5, 0.3, 0.6].map((o) => new THREE.MeshBasicMaterial({ color: c["text-soft"], transparent: true, opacity: o, depthWrite: false, userData: { o } })),
+    [c],
+  );
+  useEffect(() => () => mats.forEach((m) => m.dispose()), [mats]);
   useFrame((s) => {
     const el = g.current;
     if (!el) return;
-    const k = ease(live.fx.halo);
-    el.visible = k > 0.01;
-    const atFinale = live.act === "finale";
-    const [x, y, z] = atFinale ? [live.phoneWorld.x, live.phoneWorld.y, live.phoneWorld.z - 0.4] : placeMono();
-    el.position.set(x, y, z - 0.3);
+    const k = ease(live.fx.halo) * (1 - live.merge);
+    el.visible = k > 0.01 && monoAt.s > 0.01;
+    el.position.copy(monoAt.pos);
+    el.position.z -= 0.3 * monoAt.s;
     el.rotation.set(1.15 + Math.sin(s.clock.elapsedTime * 0.2) * 0.1, 0, s.clock.elapsedTime * 0.1);
-    el.scale.setScalar((live.portrait ? 0.42 : 1) * (0.7 + 0.3 * k) * (atFinale ? 1.25 : 1));
+    el.scale.setScalar(Math.max(0.001, monoAt.s * (live.portrait ? 0.42 : 1) * (0.7 + 0.3 * k)));
+    for (const m of mats) m.opacity = (m.userData.o as number) * k;
   });
   return (
     <group ref={g} visible={false}>
-      <mesh>
+      <mesh material={mats[0]}>
         <torusGeometry args={[1.9, 0.006, 8, 160]} />
-        <meshBasicMaterial color={c["text-soft"]} transparent opacity={0.5} />
       </mesh>
-      <mesh rotation={[0.3, 0.2, 0]}>
+      <mesh rotation={[0.3, 0.2, 0]} material={mats[1]}>
         <torusGeometry args={[2.25, 0.004, 8, 160]} />
-        <meshBasicMaterial color={c["text-soft"]} transparent opacity={0.3} />
       </mesh>
       {Array.from({ length: 60 }, (_, i) => (
-        <mesh key={i} position={[Math.cos((i / 60) * TAU) * 1.9, Math.sin((i / 60) * TAU) * 1.9, 0]} rotation={[0, 0, (i / 60) * TAU]}>
+        <mesh key={i} material={mats[2]} position={[Math.cos((i / 60) * TAU) * 1.9, Math.sin((i / 60) * TAU) * 1.9, 0]} rotation={[0, 0, (i / 60) * TAU]}>
           <boxGeometry args={[i % 5 === 0 ? 0.12 : 0.05, 0.008, 0.008]} />
-          <meshBasicMaterial color={c["text-soft"]} transparent opacity={0.6} />
         </mesh>
       ))}
     </group>
@@ -556,24 +642,26 @@ const CHIPS_PORTRAIT: [number, number, number][] = [
   [0.42, -0.48, 0.6],
 ];
 
-/** One captured line, split into four things that fly out of the phone to their places. */
+/** One captured line, split into four things that come out through the screen to their places. */
 export function Chips() {
   const cc = useCardColors();
   const tex = useMemo(() => CHIPS.map(([k, t]) => cardTexture(k, t, undefined, cc, 640, 230)), [cc]);
   const refs = useRef<(THREE.Mesh | null)[]>([]);
   useFrame((s) => {
-    const k = live.fx.chips;
+    const k = ease(live.fx.chips);
     const p = lpOf("capture");
     const sc = live.portrait ? 0.4 : 1;
     refs.current.forEach((m, i) => {
       if (!m) return;
-      const t = band(p, 0.08 + i * 0.07, 0.32 + i * 0.07) * ease(k);
+      const t = band(p, 0.08 + i * 0.07, 0.32 + i * 0.07) * k;
       m.visible = t > 0.01;
       const [ox, oy, oz] = live.portrait ? CHIPS_PORTRAIT[i]! : CHIPS[i]![2];
-      const k2 = live.portrait ? 1 : sc;
-      m.position.set(live.phoneWorld.x + ox * t * k2, live.phoneWorld.y + oy * t * k2 + Math.sin(s.clock.elapsedTime * 1.2 + i) * 0.03, live.phoneWorld.z + oz * t);
-      m.rotation.set(0, journey.pointer.x * 0.2 - ox * 0.12, (1 - t) * 0.6 * (i % 2 ? 1 : -1));
-      m.scale.setScalar(sc * (0.2 + 0.8 * t));
+      home.set(live.phoneWorld.x + ox, live.phoneWorld.y + oy + Math.sin(s.clock.elapsedTime * 1.2 + i) * 0.03, live.phoneWorld.z + oz);
+      turn.setFromEuler(euler.set(0, journey.pointer.x * 0.2 - ox * 0.12, 0));
+      const g = emerge(home, t, at, turn);
+      m.position.copy(at);
+      m.quaternion.copy(turn);
+      m.scale.setScalar(sc * g);
     });
   });
   return (
@@ -590,7 +678,10 @@ export function Chips() {
 
 /* ================================================================ orbit */
 
-/** Every module as a paper card in orbit around the phone. Hover lifts one; click opens its page. */
+/**
+ * Every module as a paper card in orbit around the phone, dealt out of its screen one after
+ * another and gathered back into it. Hover lifts one; click opens its page.
+ */
 export function Orbit() {
   const cc = useCardColors();
   const router = useRouter();
@@ -606,15 +697,18 @@ export function Orbit() {
     const rot = p * TAU * 0.75 + s.clock.elapsedTime * 0.05;
     refs.current.forEach((m, i) => {
       if (!m) return;
-      m.visible = k > 0.01;
+      const e = clamp01(k * 1.5 - (i / list.length) * 0.5);
+      m.visible = e > 0.01;
       const a = (i / list.length) * TAU + rot;
       lift.current[i] = THREE.MathUtils.damp(lift.current[i]!, hover.current === i ? 1 : 0, 10, dt);
-      const r = R * (0.4 + 0.6 * k);
-      m.position.set(live.phoneWorld.x + Math.sin(a) * r, live.phoneWorld.y + 0.12 - Math.cos(a) * 0.42 + lift.current[i]! * 0.18, live.phoneWorld.z + Math.cos(a) * r * 0.5);
-      m.quaternion.copy(s.camera.quaternion);
+      home.set(live.phoneWorld.x + Math.sin(a) * R, live.phoneWorld.y + 0.12 - Math.cos(a) * 0.42 + lift.current[i]! * 0.18, live.phoneWorld.z + Math.cos(a) * R * 0.5);
+      turn.copy(s.camera.quaternion);
+      const g = emerge(home, e, at, turn);
+      m.position.copy(at);
+      m.quaternion.copy(turn);
       const depth = (Math.cos(a) + 1) / 2;
-      m.scale.setScalar((live.portrait ? 0.5 : 0.7) * k * (0.75 + 0.25 * depth + lift.current[i]! * 0.15));
-      (m.material as THREE.MeshBasicMaterial).opacity = k * (0.35 + 0.65 * depth);
+      m.scale.setScalar((live.portrait ? 0.5 : 0.7) * g * (0.75 + 0.25 * depth + lift.current[i]! * 0.15));
+      (m.material as THREE.MeshBasicMaterial).opacity = Math.min(1, e * 3) * (0.35 + 0.65 * depth);
     });
   });
   return (
@@ -691,7 +785,10 @@ const GEARS: [number, number, [number, number], number, number][] = [
   [30, 0.42, [0.8, -0.95], -0.55, -0.03],
 ];
 
-/** An openworked watch movement that assembles as the Focus act scrolls, and runs faster when you scroll faster. */
+/**
+ * An openworked watch movement that comes out of the phone's screen, assembles as the Focus act
+ * scrolls, and runs faster when you scroll faster.
+ */
 export function Movement() {
   const { dark, c } = usePalette();
   const root = useRef<THREE.Group>(null);
@@ -712,9 +809,12 @@ export function Movement() {
     el.visible = k > 0.01;
     const p = lpOf("focus");
     const spread = 1 - band(p, 0.0, 0.5);
-    el.position.set(live.portrait ? 0 : 0.42 * live.half, live.portrait ? 0.62 : 0.05, -0.4);
-    el.rotation.set(-0.45 + band(p, 0, 0.55) * 0.45 + journey.pointer.y * 0.1, journey.pointer.x * 0.2, p * 0.5);
-    el.scale.setScalar((live.portrait ? 0.44 : 0.74) * (0.6 + 0.4 * k));
+    home.set(live.portrait ? 0 : 0.42 * live.half, live.portrait ? 0.62 : 0.05, -0.4);
+    turn.setFromEuler(euler.set(-0.45 + band(p, 0, 0.55) * 0.45 + journey.pointer.y * 0.1, journey.pointer.x * 0.2, p * 0.5));
+    const g = emerge(home, k, at, turn);
+    el.position.copy(at);
+    el.quaternion.copy(turn);
+    el.scale.setScalar((live.portrait ? 0.44 : 0.74) * g);
     parts.current.forEach((g, i) => {
       if (!g) return;
       const [hx, hy] = (i < GEARS.length ? GEARS[i]![2] : i === GEARS.length ? [-1.35, -0.55] : [1.45, -0.2]) as [number, number];
@@ -779,7 +879,7 @@ function Tourbillon({ color }: { color: string }) {
 
 const WEEK = [0.42, 0.7, 0.3, 1.0, 0.55, 0.82, 0.38];
 
-/** The week's spending as a ledger skyline that rises behind the phone; today is in oxblood. */
+/** The week's spending as a ledger that comes out of the phone and rises beside it; today is in oxblood. */
 export function Bars() {
   const { dark, c } = usePalette();
   const g = useRef<THREE.Group>(null);
@@ -791,9 +891,12 @@ export function Bars() {
     el.visible = k > 0.01;
     const p = lpOf("money");
     const sc = live.portrait ? 0.55 : 1;
-    el.position.set(live.phoneWorld.x + 1.25 * sc, live.phoneWorld.y - 1.05 * sc, live.phoneWorld.z - 0.7);
-    el.rotation.set(0.08, -0.5 + journey.pointer.x * 0.15, 0);
-    el.scale.setScalar(sc * Math.max(0.001, k));
+    home.set(live.phoneWorld.x + 1.25 * sc, live.phoneWorld.y - 1.05 * sc, live.phoneWorld.z + 0.2);
+    turn.setFromEuler(euler.set(0.08, -0.5 + journey.pointer.x * 0.15, 0));
+    const out = emerge(home, k, at, turn);
+    el.position.copy(at);
+    el.quaternion.copy(turn);
+    el.scale.setScalar(sc * out);
     bars.current.forEach((m, i) => {
       if (!m) return;
       const h = Math.max(0.001, WEEK[i]! * 1.9 * band(p, 0.04 + i * 0.05, 0.3 + i * 0.05) * k);
@@ -819,7 +922,10 @@ export function Bars() {
 
 /* ================================================================= seal */
 
-/** Wax pools, the stamp presses as you scroll, lifts, and the ribbon N is left in the wax. */
+/**
+ * The seal comes out of the phone; wax pools, the stamp presses as you scroll, lifts, and the
+ * ribbon N is left in the wax.
+ */
 export function Seal() {
   const { c } = usePalette();
   const g = useRef<THREE.Group>(null);
@@ -851,9 +957,12 @@ export function Seal() {
     const p = lpOf("evening");
     const press = band(p, 0.2, 0.42);
     const up = band(p, 0.5, 0.64);
-    el.position.set(live.portrait ? 0 : 0.42 * live.half, live.portrait ? 0.55 : -0.25, 0);
-    el.rotation.set(0.5 + journey.pointer.y * 0.08, -0.35 + journey.pointer.x * 0.15, 0);
-    el.scale.setScalar((live.portrait ? 0.55 : 0.82) * (0.5 + 0.5 * k));
+    home.set(live.portrait ? 0 : 0.42 * live.half, live.portrait ? 0.55 : -0.25, 0);
+    turn.setFromEuler(euler.set(0.5 + journey.pointer.y * 0.08, -0.35 + journey.pointer.x * 0.15, 0));
+    const out = emerge(home, k, at, turn);
+    el.position.copy(at);
+    el.quaternion.copy(turn);
+    el.scale.setScalar((live.portrait ? 0.55 : 0.82) * out);
     if (stamp.current) stamp.current.position.y = 2.6 - press * 2.42 + up * 2.6;
     if (wax.current) {
       const s = 0.45 + band(p, 0, 0.2) * 0.55 + press * 0.12;
@@ -899,7 +1008,10 @@ export function Seal() {
 
 const MOTES = 54;
 
-/** Memories in orbit around Nodo. Past the middle of the act, every third one is forgotten. */
+/**
+ * Memories in orbit around Nodo, streaming out of the screen and back into it. Past the middle of
+ * the act, every third one is forgotten.
+ */
 export function Motes() {
   const { c } = usePalette();
   const ref = useRef<THREE.InstancedMesh>(null);
@@ -917,8 +1029,11 @@ export function Motes() {
     seeds.forEach((sd, i) => {
       const a = sd.a + t * 0.18 * (i % 2 ? 1 : -0.7);
       const gone = i % 3 === 0 ? forget : 0;
-      m.position.set(live.phoneWorld.x + Math.cos(a) * sd.r * sc * (1 + gone * 0.6), live.phoneWorld.y + sd.y * sc + gone * 0.8, live.phoneWorld.z + Math.sin(a) * sd.r * sc * 0.7);
-      m.scale.setScalar(0.02 * sd.s * k * (1 - gone) * sc + 0.00001);
+      const e = clamp01(k * 1.4 - (i / MOTES) * 0.4);
+      home.set(live.phoneWorld.x + Math.cos(a) * sd.r * sc * (1 + gone * 0.6), live.phoneWorld.y + sd.y * sc + gone * 0.8, live.phoneWorld.z + Math.sin(a) * sd.r * sc * 0.7);
+      const g = emerge(home, e, at);
+      m.position.copy(at);
+      m.scale.setScalar(e > 0.001 ? 0.02 * sd.s * g * (1 - gone) * sc + 0.00001 : 0.00001);
       m.updateMatrix();
       el.setMatrixAt(i, m.matrix);
     });

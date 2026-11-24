@@ -3,11 +3,16 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { LOGO_MONOGRAM } from "@/components/brand/logo-paths";
+import { PEN_PATHS, PEN_WIDTH } from "@/components/brand/pen-paths";
+import { PEN_BOX } from "@/components/film/Intro";
 import { nav } from "@/content/site";
 import { haptic, play } from "@/lib/sound";
 
-/** Keep in step with the curtain keyframes in editorial.css. */
-const COVER_MS = 420;
+/**
+ * Keep in step with the curtain keyframes in editorial.css. The sheet stays up at least long
+ * enough for the logo to be drawn and flooded with ink.
+ */
+const COVER_MS = 800;
 const LIFT_MS = 640;
 /**
  * With view transitions the old page holds until the new one is ready and PageSwap animates the
@@ -50,8 +55,10 @@ function nameFor(pathname: string, text: string | null) {
  * Clicking an internal link starts the navigation at once. Where view transitions exist, the
  * current page holds until the next is ready and PageSwap opens it in; only a load slower than
  * 260 ms raises the curtain. The curtain (elsewhere, at once) sweeps two sheets (wine, then ink) up
- * over the page with the destination's name and the ribbon N; as soon as the new page is in and
- * the sheet has covered (420 ms), it lifts away and the page's opening rises in. A slow load
+ * over the page with the destination's name and the ribbon N, drawn as the app draws it when it
+ * opens (and as the opening title does): two pens with glowing nibs trace its line, the ink floods
+ * in with a bloom, a sheen crosses it and a ripple runs out. As soon as the new page is in and the
+ * logo has flooded (800 ms), the sheet lifts away and the page's opening rises in. A slow load
  * shows a loading line; a stalled one falls back to a full page load. Modified clicks, new tabs,
  * downloads, hash links and reduced motion are left alone.
  *
@@ -71,6 +78,8 @@ export function Transitions() {
   /** When the sheet started covering (0 while it is down). */
   const coverAt = useRef(0);
   const lastPath = useRef(path);
+  /** Starts the logo's SMIL parts (the nibs and the sheen) in step with its CSS. */
+  const draw = useRef<SVGSetElement>(null);
 
   // The route changed. A quick load never raised the sheet (PageSwap did the motion); otherwise,
   // once the sheet has fully covered, lift it off the new page.
@@ -127,6 +136,11 @@ export function Transitions() {
         coverAt.current = performance.now();
         el.classList.remove("is-lifting");
         el.classList.add("is-covering");
+        try {
+          draw.current?.beginElement();
+        } catch {
+          /* no SMIL: the CSS still draws the logo */
+        }
         play("whoosh");
       };
       // Without view transitions the sheet covers at once; with them, only if the page is slow.
@@ -256,14 +270,49 @@ export function Transitions() {
   }, [path]);
 
   const { d, w, h } = LOGO_MONOGRAM;
+  const pens = [...PEN_PATHS.loops, ...PEN_PATHS.tails];
   return (
     <div ref={curtain} className="curtain" aria-hidden="true">
       <div className="curtain__sheet curtain__sheet--wine" />
       <div className="curtain__sheet" />
       <div className="curtain__body">
-        <svg className="curtain__mark" viewBox={`0 0 ${w} ${h}`}>
-          <path d={d} fillRule="evenodd" pathLength={1} />
-        </svg>
+        <div className="curtain__logo">
+          <span className="curtain__ripple" />
+          <svg className="curtain__mark" viewBox={`0 0 ${w} ${h}`}>
+            <defs>
+              <linearGradient id="curtain-sheen" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={w} y2={h} gradientTransform={`translate(${-w} 0)`}>
+                <stop offset="0.38" stopColor="white" stopOpacity="0" />
+                <stop offset="0.5" stopColor="white" stopOpacity="0.55" />
+                <stop offset="0.62" stopColor="white" stopOpacity="0" />
+                <animateTransform attributeName="gradientTransform" type="translate" from={`${-w} 0`} to={`${w} 0`} begin="curtain-draw.begin+0.7s" dur="0.6s" fill="freeze" />
+              </linearGradient>
+            </defs>
+            <set ref={draw} id="curtain-draw" attributeName="opacity" to="1" begin="indefinite" />
+            <path className="curtain__ink" d={d} fillRule="evenodd" />
+            <path className="curtain__sheen" d={d} fillRule="evenodd" fill="url(#curtain-sheen)" />
+          </svg>
+          {/* The app's two pens: the loop drawn from both ends at once, then the tails as a flourish. */}
+          <svg className="curtain__pens" viewBox={PEN_BOX}>
+            {pens.map((p, i) => (
+              <path key={i} id={`curtain-pen-${i}`} d={p} pathLength={1} strokeWidth={PEN_WIDTH * 1.15} className={i < 2 ? "is-loop" : "is-tail"} />
+            ))}
+            {pens.map((_, i) => {
+              const begin = i < 2 ? 0.1 : 0.34;
+              const dur = i < 2 ? 0.4 : 0.22;
+              return (
+                <g key={i} opacity="0">
+                  <circle r={PEN_WIDTH * 1.5} className="intro__nib-halo" />
+                  <circle r={PEN_WIDTH * 0.42} className="intro__nib-core" />
+                  <animateMotion begin={`curtain-draw.begin+${begin}s`} dur={`${dur}s`} fill="freeze" calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines="0.645 0.045 0.355 1">
+                    <mpath href={`#curtain-pen-${i}`} />
+                  </animateMotion>
+                  <set attributeName="opacity" to="1" begin={`curtain-draw.begin+${begin}s`} />
+                  <animate attributeName="opacity" from="1" to="0" begin={`curtain-draw.begin+${(begin + dur - 0.04).toFixed(2)}s`} dur="0.18s" fill="freeze" />
+                </g>
+              );
+            })}
+          </svg>
+        </div>
         <p ref={label} className="curtain__label" />
       </div>
     </div>
