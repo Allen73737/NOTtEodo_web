@@ -84,6 +84,15 @@
   background: var(--c-sheet);
 }
 
+/* Optimization: content-visibility for heavy below-the-fold sections */
+.stage-band,
+.endband,
+.interlude,
+.bento {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
+}
+
 /* ---------- Chapters ---------- */
 .chapter {
   position: relative;

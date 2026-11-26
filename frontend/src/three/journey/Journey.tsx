@@ -34,7 +34,7 @@ export default function Journey() {
       eventPrefix="client"
       dpr={dpr}
       camera={{ position: [0, 0, 6], fov: 35, near: 0.1, far: 40 }}
-      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+      gl={{ antialias: true, alpha: true, powerPreference: "high-performance", stencil: false, depth: true }}
       onCreated={({ gl }) => {
         gl.toneMapping = THREE.ACESFilmicToneMapping;
         gl.domElement.addEventListener("webglcontextlost", (e) => {
@@ -84,6 +84,11 @@ function dampPose(cur: Pose, to: Pose, lambda: number, dt: number) {
  */
 function Director() {
   useFrame((state, delta) => {
+    if ((typeof document !== "undefined" && document.hidden) || journey.out >= 1) {
+      live.sleeping = true;
+      return;
+    }
+    live.sleeping = false;
     const dt = Math.min(delta, 1 / 20);
     const vp = state.viewport.getCurrentViewport(state.camera, [0, 0, 0]);
     live.portrait = vp.aspect < 0.9;

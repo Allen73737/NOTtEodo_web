@@ -20,9 +20,9 @@ export function SmoothScroll() {
     let dead = false;
     void import("lenis").then(({ default: Lenis }) => {
       if (dead) return;
-      lenis.current = new Lenis({ lerp: 0.1, smoothWheel: true, wheelMultiplier: 1, allowNestedScroll: true, anchors: true }) as unknown as LenisLike;
+      lenis.current = new Lenis({ lerp: 0.125, smoothWheel: true, wheelMultiplier: 1.05, allowNestedScroll: true, anchors: true }) as unknown as LenisLike;
       const loop = (t: number) => {
-        lenis.current?.raf(t);
+        if (!document.hidden) lenis.current?.raf(t);
         raf = requestAnimationFrame(loop);
       };
       raf = requestAnimationFrame(loop);

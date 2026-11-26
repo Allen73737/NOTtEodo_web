@@ -314,6 +314,7 @@ export function Phone() {
   }, [theme]);
 
   useFrame((s, dt) => {
+    if (live.sleeping) return;
     const el = g.current;
     if (!el) return;
     const st = state.current;
@@ -469,6 +470,7 @@ function Shadow() {
     return new THREE.CanvasTexture(cv);
   }, []);
   useFrame(() => {
+    if (live.sleeping) return;
     const m = ref.current;
     if (!m) return;
     const vis = ease(live.phone.v);
@@ -512,6 +514,7 @@ export function Monogram3D() {
     [dark, c],
   );
   useFrame((s, dt) => {
+    if (live.sleeping) return;
     const el = g.current;
     if (!el) return;
     const m = live.mono;
@@ -598,6 +601,7 @@ export function Halo() {
   );
   useEffect(() => () => mats.forEach((m) => m.dispose()), [mats]);
   useFrame((s) => {
+    if (live.sleeping) return;
     const el = g.current;
     if (!el) return;
     const k = ease(live.fx.halo) * (1 - live.merge);
@@ -648,6 +652,7 @@ export function Chips() {
   const tex = useMemo(() => CHIPS.map(([k, t]) => cardTexture(k, t, undefined, cc, 640, 230)), [cc]);
   const refs = useRef<(THREE.Mesh | null)[]>([]);
   useFrame((s) => {
+    if (live.sleeping) return;
     const k = ease(live.fx.chips);
     const p = lpOf("capture");
     const sc = live.portrait ? 0.4 : 1;
@@ -691,6 +696,7 @@ export function Orbit() {
   const hover = useRef(-1);
   const lift = useRef(list.map(() => 0));
   useFrame((s, dt) => {
+    if (live.sleeping) return;
     const k = ease(live.fx.orbit);
     const p = lpOf("modules");
     const R = live.portrait ? 1.35 : 2.85;
@@ -803,6 +809,7 @@ export function Movement() {
     [],
   );
   useFrame((s, dt) => {
+    if (live.sleeping) return;
     const el = root.current;
     if (!el) return;
     const k = ease(live.fx.gears);
@@ -859,7 +866,7 @@ export function Movement() {
 function Tourbillon({ color }: { color: string }) {
   const cage = useRef<THREE.Group>(null);
   useFrame((s) => {
-    if (!cage.current) return;
+    if (live.sleeping || !cage.current) return;
     cage.current.rotation.z = s.clock.elapsedTime * 0.5;
     cage.current.rotation.y = s.clock.elapsedTime * 0.25;
   });
@@ -885,6 +892,7 @@ export function Bars() {
   const g = useRef<THREE.Group>(null);
   const bars = useRef<(THREE.Mesh | null)[]>([]);
   useFrame(() => {
+    if (live.sleeping) return;
     const el = g.current;
     if (!el) return;
     const k = ease(live.fx.bars);
@@ -950,6 +958,7 @@ export function Seal() {
     return geo;
   }, []);
   useFrame(() => {
+    if (live.sleeping) return;
     const el = g.current;
     if (!el) return;
     const k = ease(live.fx.seal);
@@ -1018,6 +1027,7 @@ export function Motes() {
   const seeds = useMemo(() => Array.from({ length: MOTES }, (_, i) => ({ r: 1.05 + ((i * 37) % 11) / 11, a: (i / MOTES) * TAU, y: (((i * 53) % 17) / 17 - 0.5) * 2.4, s: 0.6 + ((i * 7) % 5) / 6 })), []);
   const m = useMemo(() => new THREE.Object3D(), []);
   useFrame((s) => {
+    if (live.sleeping) return;
     const el = ref.current;
     if (!el) return;
     const k = ease(live.fx.motes);
@@ -1069,6 +1079,7 @@ export function Dust() {
   }, []);
   const drift = useRef(0);
   useFrame((s, dt) => {
+    if (live.sleeping) return;
     const el = ref.current;
     if (!el) return;
     drift.current += dt * 0.05 + scrollState.velocity * 0.0006;

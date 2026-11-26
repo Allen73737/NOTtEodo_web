@@ -35,6 +35,8 @@ export const journey = {
   /** Extra phone spin from dragging (radians), and whether a drag is under way. */
   spin: 0,
   dragging: false,
+  /** 0..1 how far the journey has scrolled out of view. */
+  out: 0,
 };
 
 /** Portrait 3D pages: the share of a page's scroll spent fading it in, and out again. */
@@ -183,7 +185,9 @@ export function FilmProvider({ children }: { children: ReactNode }) {
         });
       }
       // The stage fades out as the last act leaves, so it never sits over the footer.
-      if (end) setVar(document.documentElement, "--journey-out", Math.max(0, Math.min(1, (vh * 0.6 - end.bottom) / (vh * 0.45))).toFixed(3));
+      const outVal = end ? Math.max(0, Math.min(1, (vh * 0.6 - end.bottom) / (vh * 0.45))) : 0;
+      journey.out = outVal;
+      if (end) setVar(document.documentElement, "--journey-out", outVal.toFixed(3));
     };
     raf = requestAnimationFrame(loop);
     const onPointer = (e: PointerEvent) => {

@@ -37,6 +37,8 @@ export const live = {
   /** How much is passing through the screen this frame (0..1); the screen glows with it. */
   portal: 0,
   portalNext: 0,
+  /** Whether the stage is sleeping (hidden tab or scrolled past the stage). */
+  sleeping: false,
 };
 
 /** Resolves a timeline x/y/z into world space for the current viewport. */

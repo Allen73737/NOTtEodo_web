@@ -12,13 +12,13 @@ import { haptic, play } from "@/lib/sound";
  * Keep in step with the curtain keyframes in editorial.css. The sheet stays up at least long
  * enough for the logo to be drawn and flooded with ink.
  */
-const COVER_MS = 800;
-const LIFT_MS = 640;
+const COVER_MS = 440;
+const LIFT_MS = 460;
 /**
  * With view transitions the old page holds until the new one is ready and PageSwap animates the
  * change, so the curtain only comes up for a load that takes longer than this.
  */
-const DEFER_MS = 260;
+const DEFER_MS = 160;
 /** A slow load: show the loading line on the sheet. */
 const SLOW_MS = 1200;
 
@@ -155,13 +155,14 @@ export function Transitions() {
         if (navAt.current === started && location.href !== href) location.assign(href);
       }, HARD_MS);
     };
-    // Warm the next page as soon as a pointer heads for a link (production only to prevent dev JIT compile storms).
+    // Warm the next page as soon as a pointer heads for a link.
     const onIntent = (e: Event) => {
-      if (process.env.NODE_ENV !== "production") return;
       const a = (e.target as Element | null)?.closest?.("a");
-      if (!a || a.target === "_blank") return;
+      if (!a || a.target === "_blank" || a.hasAttribute("download") || a.dataset.noCurtain !== undefined) return;
       const url = new URL(a.href, location.href);
-      if (url.origin === location.origin && url.pathname !== location.pathname && !url.pathname.startsWith("/api/")) router.prefetch(url.pathname);
+      if (url.origin === location.origin && url.pathname !== location.pathname && !url.pathname.startsWith("/api/")) {
+        router.prefetch(url.pathname);
+      }
     };
     // Once the page is idle, fetch the main pages ahead of time, so the first click is instant.
     // Production only: in development every prefetch compiles a route, and eight at once starve

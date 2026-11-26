@@ -12,8 +12,21 @@ const config: NextConfig = {
       dynamic: 30,
       static: 180,
     },
-    optimizePackageImports: ["@radix-ui/react-dialog", "@radix-ui/react-tabs", "motion", "gsap"],
+    optimizePackageImports: [
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-tabs",
+      "motion",
+      "gsap",
+      "three",
+      "@react-three/fiber",
+      "@react-three/drei",
+      "lucide-react",
+      "sonner",
+      "clsx",
+      "tailwind-merge",
+    ],
   },
+  compress: true,
   async headers() {
     return [
       { source: "/screenshots/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
