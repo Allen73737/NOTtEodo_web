@@ -80,6 +80,95 @@
   margin: 0 0 10px;
   color: var(--c-text-muted);
 }
+/* ---------- FAQ Explorer & Filter ---------- */
+.faq-explorer__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.faq-explorer__icon {
+  position: absolute;
+  left: 16px;
+  color: var(--c-text-muted);
+  pointer-events: none;
+}
+.faq-explorer__input {
+  width: 100%;
+  height: 48px;
+  padding: 0 44px 0 46px;
+  border-radius: 999px;
+  background: var(--c-field);
+  border: 1px solid var(--c-hairline);
+  color: var(--c-text);
+  font: 500 0.95rem/1 var(--font-sans);
+  transition: border-color var(--d-quick), background-color var(--d-quick);
+}
+.faq-explorer__input:focus {
+  outline: none;
+  border-color: var(--c-outline);
+  background: var(--c-surface-high);
+}
+.faq-explorer__clear {
+  position: absolute;
+  right: 6px;
+}
+.faq-explorer__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.faq-explorer__chip {
+  cursor: pointer;
+  background: var(--c-field);
+  border: 1px solid var(--c-hairline);
+  color: var(--c-text-muted);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font: 500 0.85rem/1 var(--font-sans);
+  transition: all var(--d-quick) var(--e-silk);
+}
+.faq-explorer__chip:hover {
+  background: var(--c-surface-high);
+  color: var(--c-text);
+}
+.faq-explorer__chip.is-active {
+  background: var(--c-accent-fill);
+  color: var(--c-on-accent);
+  border-color: transparent;
+}
+.faq__link {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: var(--c-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---------- Release Channel Tabs ---------- */
+.release__tabs {
+  display: inline-flex;
+  gap: 6px;
+}
+.release__tabs .chip {
+  cursor: pointer;
+  background: var(--c-field);
+  border: 1px solid var(--c-hairline);
+  color: var(--c-text-muted);
+  font-size: 0.82rem;
+  padding: 4px 12px;
+  border-radius: 999px;
+  transition: all var(--d-quick);
+}
+.release__tabs .chip:hover {
+  background: var(--c-surface-high);
+  color: var(--c-text);
+}
+.release__tabs .chip.is-active {
+  background: var(--c-accent-fill);
+  color: var(--c-on-accent);
+  border-color: transparent;
+}
 /* Previous / next help section: full-height targets on either side. */
 .help-pager {
   justify-content: space-between;

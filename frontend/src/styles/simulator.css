@@ -391,3 +391,47 @@
 .sim__label {
   text-align: center;
 }
+
+/* ---------- Simulator Presets & Desktop Key Hints ---------- */
+.sim-presets__sparkle {
+  color: var(--c-accent);
+}
+.sim-presets__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.sim-presets__chip {
+  cursor: pointer;
+  background: var(--c-sheet);
+  border: 1px solid var(--c-hairline);
+  color: var(--c-text);
+  font-size: 0.82rem;
+  padding: 6px 12px;
+  border-radius: 999px;
+  transition: background-color var(--d-quick), transform var(--d-quick) var(--e-silk);
+}
+.sim-presets__chip:hover {
+  background: var(--c-surface-high);
+  transform: translateY(-1px);
+}
+.sim-presets__chip:active {
+  transform: scale(0.96);
+}
+.sim-presets__keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.78rem;
+  color: var(--c-text-muted);
+  margin-top: 4px;
+}
+.sim-presets__keys kbd {
+  font-family: inherit;
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-hairline);
+  color: var(--c-text);
+}

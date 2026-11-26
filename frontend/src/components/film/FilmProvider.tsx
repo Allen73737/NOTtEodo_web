@@ -187,6 +187,7 @@ export function FilmProvider({ children }: { children: ReactNode }) {
       // The stage fades out as the last act leaves, so it never sits over the footer.
       const outVal = end ? Math.max(0, Math.min(1, (vh * 0.6 - end.bottom) / (vh * 0.45))) : 0;
       journey.out = outVal;
+      document.documentElement.classList.toggle("journey-past", outVal >= 0.95);
       if (end) setVar(document.documentElement, "--journey-out", outVal.toFixed(3));
     };
     raf = requestAnimationFrame(loop);
@@ -199,6 +200,7 @@ export function FilmProvider({ children }: { children: ReactNode }) {
       cancelAnimationFrame(raf);
       ro.disconnect();
       removeEventListener("pointermove", onPointer);
+      document.documentElement.classList.remove("journey-past");
     };
   }, [mode]);
 

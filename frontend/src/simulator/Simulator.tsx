@@ -121,6 +121,30 @@ export function Simulator() {
     lastLook.current = look;
   }, [look]);
 
+  useEffect(() => {
+    const onPreset = (e: Event) => {
+      const detail = (e as CustomEvent<{ action: "capture" | "focus" | "tasks" | "seal" | "nodo"; text?: string }>).detail;
+      if (!detail) return;
+      if (detail.action === "capture") {
+        setCapture(true);
+      } else if (detail.action === "focus") {
+        setCapture(false);
+        setScreen("focus");
+      } else if (detail.action === "tasks") {
+        setCapture(false);
+        setScreen("tasks");
+      } else if (detail.action === "seal") {
+        setCapture(false);
+        setScreen("home");
+      } else if (detail.action === "nodo") {
+        setCapture(false);
+        setScreen("nodo");
+      }
+    };
+    window.addEventListener("nt:sim-preset", onPreset);
+    return () => window.removeEventListener("nt:sim-preset", onPreset);
+  }, []);
+
   return (
     <div className="sim-wrap">
       <div className={`sim sim--${view}`} data-sim-theme={theme} role="application" aria-label="NOTtEodo simulator">

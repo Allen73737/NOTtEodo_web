@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { FaqExplorer } from "@/components/site/FaqExplorer";
 import { Helpful } from "@/components/site/Helpful";
 import { PageHeader } from "@/components/site/PageHeader";
 import guide from "@/content/generated/app_guide.json";
@@ -38,13 +38,7 @@ export default async function FaqPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, "\\u003c") }} />
       <PageHeader eyebrow="FAQ" title="Short answers." italic={["answers."]} lede="The longer versions live in the help centre." />
       <section className="prose-wrap legal__body">
-        {items.map((i) => (
-          <details key={i.q} className="faq" open={false}>
-            <summary>{i.q}</summary>
-            <p>{i.a}</p>
-            {i.help && guide.sections.some((s) => s.id === i.help) && <Link href={`/help/${i.help}`}>Read more</Link>}
-          </details>
-        ))}
+        <FaqExplorer items={items} guideSections={guide.sections} />
         <Helpful />
       </section>
     </>

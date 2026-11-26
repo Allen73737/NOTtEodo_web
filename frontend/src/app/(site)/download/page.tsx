@@ -23,7 +23,11 @@ export const metadata: Metadata = {
 export const revalidate = 120;
 
 export default async function DownloadPage() {
-  const [cfg, release] = await Promise.all([getConfig(), getLatestRelease()]);
+  const [cfg, stableRelease, betaRelease] = await Promise.all([
+    getConfig(),
+    getLatestRelease("stable"),
+    getLatestRelease("beta"),
+  ]);
   const qr = await QRCode.toString(`${siteUrl}/open/release/latest`, {
     type: "svg",
     margin: 0,
@@ -44,7 +48,7 @@ export default async function DownloadPage() {
         aside={<Screenshot screen="home" priority />}
         word="Android"
       />
-      <PhoneInstall release={release} playLive={cfg.play_live} playUrl={cfg.urls.play} />
+      <PhoneInstall release={stableRelease} playLive={cfg.play_live} playUrl={cfg.urls.play} />
       <Suspense fallback={null}>
         <Notices />
       </Suspense>
@@ -67,7 +71,7 @@ export default async function DownloadPage() {
                 <Subscribe topic="play_launch" label="Your email" />
               </div>
             )}
-            <LiveRelease initial={release} />
+            <LiveRelease initial={stableRelease} betaInitial={betaRelease} />
             <div className="card pad row qr-card" style={{ gap: 20, alignItems: "center" }}>
               <div className="qr" aria-hidden="true" dangerouslySetInnerHTML={{ __html: qr }} />
               <div>

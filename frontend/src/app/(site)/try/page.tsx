@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/site/PageHeader";
+import { SimPresets } from "@/simulator/SimPresets";
 import { SimTour } from "@/simulator/SimTour";
 import { ContinueOnPhone, Simulator } from "@/simulator/Simulator";
 
@@ -32,6 +33,7 @@ export default function TryPage() {
             </h2>
             <p className="stage-band__lede">A working sketch of the app: the same screens, colours and motion. Nothing you do here leaves this tab.</p>
             <SimTour />
+            <SimPresets />
             <ContinueOnPhone />
           </div>
           <Simulator />

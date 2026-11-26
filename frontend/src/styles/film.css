@@ -1583,7 +1583,7 @@ html.reduced .intro__words .intro__line {
     transform-origin: top center;
   }
   /* The floating download pill would sit in the band; the hero and the finale carry the button. */
-  html[data-film="full"] .pill {
+  html[data-film="full"]:not(.journey-past) .pill {
     display: none;
   }
   html[data-film="full"] .act--center .act__line:last-child {

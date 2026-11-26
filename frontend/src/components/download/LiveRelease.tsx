@@ -13,9 +13,13 @@ import { supabaseBrowser } from "@/lib/supabase/client";
  * The live release card on /download. Subscribes to app_releases over Realtime, so when an admin
  * publishes, visitors see the new version immediately, with a small ceremony.
  */
-export function LiveRelease({ initial }: { initial: Release | null }) {
-  const [release, setRelease] = useState(initial);
+export function LiveRelease({ initial, betaInitial = null }: { initial: Release | null; betaInitial?: Release | null }) {
+  const [channel, setChannel] = useState<"stable" | "beta">("stable");
+  const [stableRelease, setStableRelease] = useState(initial);
+  const [betaRelease, setBetaRelease] = useState(betaInitial);
   const [fresh, setFresh] = useState(false);
+
+  const release = channel === "stable" ? stableRelease : betaRelease;
 
   useEffect(() => {
     const sb = supabaseBrowser();
@@ -23,45 +27,67 @@ export function LiveRelease({ initial }: { initial: Release | null }) {
     const ch = sb
       .channel("web-releases")
       .on("postgres_changes", { event: "*", schema: "public", table: "app_releases" }, async () => {
-        const { data } = await sb
-          .from("app_releases")
-          .select("*")
-          .eq("is_published", true)
-          .eq("channel", "stable")
-          .eq("is_latest", true)
-          .maybeSingle();
-        if (data && (data as Release).id !== release?.id) {
-          setRelease(data as Release);
-          setFresh(true);
-          play("wax");
-          haptic(20);
-          toast(`New version just released: ${(data as Release).version_name}`);
-        }
+        const [stableRes, betaRes] = await Promise.all([
+          sb.from("app_releases").select("*").eq("is_published", true).eq("channel", "stable").eq("is_latest", true).maybeSingle(),
+          sb.from("app_releases").select("*").eq("is_published", true).eq("channel", "beta").eq("is_latest", true).maybeSingle(),
+        ]);
+        if (stableRes.data) setStableRelease(stableRes.data as Release);
+        if (betaRes.data) setBetaRelease(betaRes.data as Release);
+        setFresh(true);
+        play("wax");
+        haptic(20);
+        toast("Releases updated in real-time");
       })
       .subscribe();
     return () => {
       void sb.removeChannel(ch);
     };
-  }, [release?.id]);
+  }, []);
+
+  const channelTabs = (
+    <div className="row release__header" style={{ justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
+      <div className="release__tabs" role="tablist" aria-label="Release channel">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={channel === "stable"}
+          className={`chip${channel === "stable" ? " is-active" : ""}`}
+          onClick={() => { setChannel("stable"); play("paper"); haptic(); }}
+        >
+          Stable
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={channel === "beta"}
+          className={`chip${channel === "beta" ? " is-active" : ""}`}
+          onClick={() => { setChannel("beta"); play("paper"); haptic(); }}
+        >
+          Preview / Beta
+        </button>
+      </div>
+      {fresh && <span className="chip">Just released</span>}
+    </div>
+  );
 
   if (!release) {
     return (
-      <div className="card pad stack release">
-        <p className="t-eyebrow">Early access</p>
-        <p className="t-h3">The first public build is being prepared.</p>
+      <div className="card pad stack release" aria-live="polite">
+        {channelTabs}
+        <p className="t-eyebrow">{channel === "stable" ? "Early access" : "Beta channel"}</p>
+        <p className="t-h3">{channel === "stable" ? "The first public build is being prepared." : "No active preview build."}</p>
         <p className="muted">
-          This page updates by itself the moment it is published. Leave your email below and we&rsquo;ll write once, when
-          it&rsquo;s ready.
+          {channel === "stable"
+            ? "This page updates by itself the moment it is published. Leave your email below and we’ll write once, when it’s ready."
+            : `The stable build ${stableRelease ? `(${stableRelease.version_name})` : ""} is currently the latest release. New preview builds appear here.`}
         </p>
       </div>
     );
   }
   return (
     <div className={`card pad stack release${fresh ? " is-fresh" : ""}`} aria-live="polite">
-      <div className="row" style={{ justifyContent: "space-between" }}>
-        <p className="t-eyebrow">Latest release</p>
-        {fresh && <span className="chip">Just released</span>}
-      </div>
+      {channelTabs}
+      <p className="t-eyebrow">{channel === "stable" ? "Latest stable release" : "Latest preview release"}</p>
       <p className="t-h2">
         <Wordmark /> {release.version_name}
       </p>

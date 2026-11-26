@@ -817,7 +817,7 @@ html.reduced .drawer__search {
 .pill {
   position: fixed;
   left: 50%;
-  bottom: 18px;
+  bottom: max(18px, env(safe-area-inset-bottom, 18px));
   z-index: 45;
   display: flex;
   align-items: center;
@@ -828,6 +828,7 @@ html.reduced .drawer__search {
   color: var(--c-inverse-text);
   transform: translate(-50%, 140%);
   transition: transform var(--d-entrance) var(--e-silk);
+  box-shadow: 0 12px 32px -8px rgb(0 0 0 / 0.35);
 }
 .pill.is-on {
   transform: translate(-50%, 0);
