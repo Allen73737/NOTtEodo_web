@@ -748,66 +748,56 @@ export function Orbit() {
   );
 }
 
-/* ================================================================ gears */
-
-function gearShape(teeth: number, r: number, depth: number, hole: number, spokes: number) {
-  const s = new THREE.Shape();
-  const step = TAU / teeth;
-  for (let i = 0; i < teeth; i++) {
-    const a = i * step;
-    const pts = [
-      [a, r - depth],
-      [a + step * 0.12, r],
-      [a + step * 0.45, r],
-      [a + step * 0.57, r - depth],
-    ] as const;
-    pts.forEach(([ang, rad], j) => {
-      const x = Math.cos(ang) * rad;
-      const y = Math.sin(ang) * rad;
-      if (i === 0 && j === 0) s.moveTo(x, y);
-      else s.lineTo(x, y);
-    });
-  }
-  s.closePath();
-  const axle = new THREE.Path();
-  axle.absarc(0, 0, hole, 0, TAU, true);
-  s.holes.push(axle);
-  for (let k = 0; k < spokes; k++) {
-    const a0 = (k / spokes) * TAU + 0.16;
-    const a1 = ((k + 1) / spokes) * TAU - 0.16;
-    const w = new THREE.Path();
-    w.absarc(0, 0, r * 0.72, a0, a1, false);
-    w.absarc(0, 0, hole * 1.9, a1, a0, true);
-    s.holes.push(w);
-  }
-  return s;
-}
-
-const GEARS: [number, number, [number, number], number, number][] = [
-  [64, 0.9, [0, 0], 0.25, 0],
-  [24, 0.36, [1.18, 0.35], -0.66, 0.07],
-  [40, 0.55, [-1.1, 0.6], -0.4, -0.05],
-  [18, 0.26, [-0.55, -1.0], 0.9, 0.08],
-  [30, 0.42, [0.8, -0.95], -0.55, -0.03],
-];
+/* ================================================================ focus watch timer */
 
 /**
- * An openworked watch movement that comes out of the phone's screen, assembles as the Focus act
- * scrolls, and runs faster when you scroll faster.
+ * A luxury mechanical Focus Timer Watch Widget that emerges from the phone's screen
+ * during the Focus act. Features a fluted titanium/bronze case, knurled winding crown,
+ * concentric guilloché chapter rings, 60 Swiss indices, glowing focus session arc,
+ * sweeping dauphine hands with escapement tick, and a curved sapphire crystal lens.
  */
 export function Movement() {
   const { dark, c } = usePalette();
   const root = useRef<THREE.Group>(null);
-  const parts = useRef<(THREE.Group | null)[]>([]);
-  const wheels = useRef<(THREE.Mesh | null)[]>([]);
-  const balance = useRef<THREE.Group>(null);
-  const geos = useMemo(
-    () =>
-      GEARS.map(([teeth, r]) =>
-        new THREE.ExtrudeGeometry(gearShape(teeth, r, r * 0.12, r * 0.12, r > 0.5 ? 5 : 0), { depth: 0.06, bevelEnabled: true, bevelSize: 0.008, bevelThickness: 0.008, bevelSegments: 2, curveSegments: 24 }),
-      ),
-    [],
-  );
+  const secHand = useRef<THREE.Group>(null);
+  const minHand = useRef<THREE.Group>(null);
+  const subHand = useRef<THREE.Group>(null);
+  const arcMesh = useRef<THREE.Mesh>(null);
+  const crownMesh = useRef<THREE.Mesh>(null);
+
+  const tickSec = useRef(0);
+
+  const geos = useMemo(() => {
+    return {
+      caseGeo: new THREE.CylinderGeometry(1.22, 1.28, 0.22, 64),
+      bezelGeo: new THREE.TorusGeometry(1.22, 0.045, 16, 64),
+      dialGeo: new THREE.CylinderGeometry(1.16, 1.16, 0.04, 64),
+      crownGeo: new THREE.CylinderGeometry(0.18, 0.18, 0.22, 32),
+      crownStemGeo: new THREE.CylinderGeometry(0.08, 0.08, 0.14, 16),
+      majorTickGeo: new THREE.BoxGeometry(0.038, 0.13, 0.02),
+      minorTickGeo: new THREE.BoxGeometry(0.016, 0.065, 0.015),
+      ringOuterGeo: new THREE.TorusGeometry(0.96, 0.009, 8, 64),
+      ringMidGeo: new THREE.TorusGeometry(0.72, 0.007, 8, 64),
+      ringInnerGeo: new THREE.TorusGeometry(0.48, 0.007, 8, 64),
+      subdialRingGeo: new THREE.TorusGeometry(0.28, 0.007, 8, 48),
+      subdialFaceGeo: new THREE.CylinderGeometry(0.27, 0.27, 0.02, 32),
+      progressArcGeo: new THREE.TorusGeometry(0.84, 0.032, 16, 64, Math.PI * 1.5),
+      crystalGeo: new THREE.CylinderGeometry(1.18, 1.18, 0.03, 64),
+      centerJewelGeo: new THREE.CylinderGeometry(0.07, 0.07, 0.04, 24),
+    };
+  }, []);
+
+  const indices = useMemo(() => {
+    const list: { angle: number; major: boolean; accent: boolean }[] = [];
+    for (let i = 0; i < 60; i++) {
+      const angle = (i / 60) * TAU;
+      const major = i % 5 === 0;
+      const accent = i === 0 || i === 15 || i === 30 || i === 45;
+      list.push({ angle, major, accent });
+    }
+    return list;
+  }, []);
+
   useFrame((s, dt) => {
     if (live.sleeping) return;
     const el = root.current;
@@ -815,72 +805,262 @@ export function Movement() {
     const k = ease(live.fx.gears);
     el.visible = k > 0.01;
     const p = lpOf("focus");
-    const spread = 1 - band(p, 0.0, 0.5);
-    home.set(live.portrait ? 0 : 0.42 * live.half, live.portrait ? 0.62 : 0.05, -0.4);
-    turn.setFromEuler(euler.set(-0.45 + band(p, 0, 0.55) * 0.45 + journey.pointer.y * 0.1, journey.pointer.x * 0.2, p * 0.5));
+
+    const sc = live.portrait ? 0.62 : 0.96;
+    home.set(
+      live.portrait ? 0 : 0.44 * live.half,
+      live.portrait ? 0.65 : 0.06,
+      live.portrait ? -0.1 : -0.15
+    );
+
+    turn.setFromEuler(
+      euler.set(
+        0.28 - journey.pointer.y * 0.18 + Math.sin(s.clock.elapsedTime * 1.2) * 0.02,
+        -0.42 + journey.pointer.x * 0.22,
+        0.06 + band(p, 0, 0.6) * 0.12
+      )
+    );
+
     const g = emerge(home, k, at, turn);
     el.position.copy(at);
     el.quaternion.copy(turn);
-    el.scale.setScalar((live.portrait ? 0.44 : 0.74) * g);
-    parts.current.forEach((g, i) => {
-      if (!g) return;
-      const [hx, hy] = (i < GEARS.length ? GEARS[i]![2] : i === GEARS.length ? [-1.35, -0.55] : [1.45, -0.2]) as [number, number];
-      g.position.set(hx * (1 + spread * 1.1), hy * (1 + spread * 1.1), (i % 3) * spread * 0.8);
-    });
-    const speed = 0.35 + Math.min(4, Math.abs(scrollState.velocity) * 0.08);
-    wheels.current.forEach((m, i) => m && (m.rotation.z += dt * GEARS[i]![3] * speed));
-    if (balance.current) balance.current.rotation.z = Math.sin(s.clock.elapsedTime * TAU * 2) * 1.1;
+    el.scale.setScalar(sc * g);
+
+    el.position.y += Math.sin(s.clock.elapsedTime * 1.6) * 0.035 * k;
+
+    const speed = 1.0 + Math.min(5, Math.abs(scrollState.velocity) * 0.08);
+    tickSec.current += dt * speed;
+
+    if (secHand.current) {
+      const discreteSec = Math.floor(tickSec.current * 5) / 5;
+      secHand.current.rotation.z = -((discreteSec * (TAU / 60)) % TAU);
+    }
+
+    if (minHand.current) {
+      const sessionP = (p * 0.75 + (tickSec.current / 300) * 0.25) % 1;
+      minHand.current.rotation.z = -(sessionP * TAU);
+    }
+
+    if (subHand.current) {
+      subHand.current.rotation.z = -(tickSec.current * 0.8);
+    }
+
+    if (arcMesh.current) {
+      const targetArc = THREE.MathUtils.clamp(0.2 + p * 0.8, 0.1, 1.0);
+      arcMesh.current.scale.set(targetArc, targetArc, 1);
+    }
+
+    if (crownMesh.current) {
+      crownMesh.current.rotation.x += dt * 0.5 * speed;
+    }
   });
+
   const metal = dark ? c.text : c.bronze;
-  const warm = dark ? c["text-muted"] : c.clay;
+  const caseColor = dark ? c["ink-container"] : c.surface;
+  const dialColor = dark ? c.sheet : c.linen;
+  const trackColor = dark ? c["text-muted"] : c["text-soft"];
+
   return (
-    <group ref={root} visible={false}>
-      {GEARS.map(([, , , , z], i) => (
-        <group key={i} ref={(g) => void (parts.current[i] = g)}>
-          <mesh ref={(m) => void (wheels.current[i] = m)} geometry={geos[i]} position={[0, 0, z]}>
-            <meshStandardMaterial color={i % 2 ? warm : metal} metalness={0.75} roughness={0.26} />
+    <group
+      ref={root}
+      visible={false}
+      onPointerOver={() => {
+        if (live.fx.gears > 0.4) document.body.style.cursor = "pointer";
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = "";
+      }}
+      onClick={() => {
+        play("tick");
+      }}
+    >
+      {/* Outer Watch Case */}
+      <mesh geometry={geos.caseGeo} rotation={[Math.PI / 2, 0, 0]} position={[0, 0, -0.06]}>
+        <meshStandardMaterial
+          color={caseColor}
+          metalness={0.88}
+          roughness={0.25}
+        />
+      </mesh>
+
+      {/* Stepped Polished Bezel Ring */}
+      <mesh geometry={geos.bezelGeo} position={[0, 0, 0.05]}>
+        <meshStandardMaterial
+          color={metal}
+          metalness={0.92}
+          roughness={0.18}
+        />
+      </mesh>
+
+      {/* Knurled Watch Crown at 3 o'clock */}
+      <group position={[1.28, 0, 0]}>
+        <mesh geometry={geos.crownStemGeo} rotation={[0, 0, Math.PI / 2]}>
+          <meshStandardMaterial color={metal} metalness={0.9} roughness={0.2} />
+        </mesh>
+        <mesh
+          ref={crownMesh}
+          geometry={geos.crownGeo}
+          position={[0.11, 0, 0]}
+          rotation={[0, 0, Math.PI / 2]}
+        >
+          <meshStandardMaterial
+            color={metal}
+            metalness={0.88}
+            roughness={0.22}
+          />
+        </mesh>
+        {/* Crown tip ruby jewel */}
+        <mesh position={[0.22, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+          <circleGeometry args={[0.08, 24]} />
+          <meshStandardMaterial
+            color={c.accent}
+            metalness={0.6}
+            roughness={0.2}
+            emissive={c.accent}
+            emissiveIntensity={0.25}
+          />
+        </mesh>
+      </group>
+
+      {/* Recessed Dial Bed */}
+      <mesh geometry={geos.dialGeo} rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0.02]}>
+        <meshStandardMaterial
+          color={dialColor}
+          metalness={0.12}
+          roughness={0.45}
+        />
+      </mesh>
+
+      {/* Concentric Guilloché Rings */}
+      <mesh geometry={geos.ringOuterGeo} position={[0, 0, 0.045]}>
+        <meshStandardMaterial color={trackColor} metalness={0.7} roughness={0.3} />
+      </mesh>
+      <mesh geometry={geos.ringMidGeo} position={[0, 0, 0.045]}>
+        <meshStandardMaterial color={trackColor} metalness={0.7} roughness={0.3} />
+      </mesh>
+      <mesh geometry={geos.ringInnerGeo} position={[0, 0, 0.045]}>
+        <meshStandardMaterial color={trackColor} metalness={0.7} roughness={0.3} />
+      </mesh>
+
+      {/* 60 Swiss Radial Chapter Ring Indices */}
+      {indices.map(({ angle, major, accent }, i) => {
+        const rad = 0.98;
+        const x = Math.sin(angle) * rad;
+        const y = Math.cos(angle) * rad;
+        return (
+          <mesh
+            key={i}
+            geometry={major ? geos.majorTickGeo : geos.minorTickGeo}
+            position={[x, y, 0.048]}
+            rotation={[0, 0, -angle]}
+          >
+            <meshStandardMaterial
+              color={accent ? c.accent : major ? metal : trackColor}
+              metalness={major ? 0.9 : 0.6}
+              roughness={0.2}
+              emissive={accent ? c.accent : undefined}
+              emissiveIntensity={accent ? 0.35 : 0}
+            />
+          </mesh>
+        );
+      })}
+
+      {/* Glowing Focus Session Progress Arc */}
+      <mesh ref={arcMesh} geometry={geos.progressArcGeo} position={[0, 0, 0.052]}>
+        <meshStandardMaterial
+          color={c.accent}
+          metalness={0.5}
+          roughness={0.2}
+          emissive={c.accent}
+          emissiveIntensity={0.8}
+        />
+      </mesh>
+
+      {/* Subdial Complication at 6 o'clock */}
+      <group position={[0, -0.42, 0.046]}>
+        <mesh geometry={geos.subdialFaceGeo} rotation={[Math.PI / 2, 0, 0]}>
+          <meshStandardMaterial color={caseColor} roughness={0.5} metalness={0.2} />
+        </mesh>
+        <mesh geometry={geos.subdialRingGeo} position={[0, 0, 0.012]}>
+          <meshStandardMaterial color={trackColor} metalness={0.8} roughness={0.25} />
+        </mesh>
+        {/* Subdial Needle */}
+        <group ref={subHand} position={[0, 0, 0.015]}>
+          <mesh position={[0, 0.09, 0]}>
+            <boxGeometry args={[0.018, 0.18, 0.008]} />
+            <meshStandardMaterial color={c.accent} metalness={0.8} roughness={0.2} />
           </mesh>
         </group>
-      ))}
-      <group ref={(g) => void (parts.current[GEARS.length] = g)}>
-        <group ref={balance}>
-          <mesh>
-            <torusGeometry args={[0.38, 0.025, 12, 64]} />
-            <meshStandardMaterial color={c.accent} metalness={0.8} roughness={0.3} />
-          </mesh>
-          {[0, 1, 2].map((k) => (
-            <mesh key={k} rotation={[0, 0, (k * Math.PI) / 3]}>
-              <boxGeometry args={[0.76, 0.02, 0.02]} />
-              <meshStandardMaterial color={metal} metalness={0.9} roughness={0.3} />
-            </mesh>
-          ))}
-        </group>
       </group>
-      <group ref={(g) => void (parts.current[GEARS.length + 1] = g)}>
-        <Tourbillon color={c.accent} />
+
+      {/* Faceted Dauphine Minute / Focus Hand */}
+      <group ref={minHand} position={[0, 0, 0.065]}>
+        <mesh position={[0, 0.36, 0]}>
+          <boxGeometry args={[0.055, 0.72, 0.018]} />
+          <meshStandardMaterial
+            color={metal}
+            metalness={0.95}
+            roughness={0.15}
+          />
+        </mesh>
+        <mesh position={[0, 0.73, 0]} rotation={[0, 0, Math.PI / 4]}>
+          <boxGeometry args={[0.04, 0.04, 0.018]} />
+          <meshStandardMaterial color={metal} metalness={0.95} roughness={0.15} />
+        </mesh>
+        <mesh position={[0, -0.12, 0]}>
+          <boxGeometry args={[0.04, 0.22, 0.015]} />
+          <meshStandardMaterial color={metal} metalness={0.9} roughness={0.2} />
+        </mesh>
       </group>
+
+      {/* Fine Sweeping Seconds Hand in Oxblood Accent */}
+      <group ref={secHand} position={[0, 0, 0.082]}>
+        <mesh position={[0, 0.44, 0]}>
+          <boxGeometry args={[0.016, 0.88, 0.012]} />
+          <meshStandardMaterial
+            color={c.accent}
+            metalness={0.7}
+            roughness={0.2}
+            emissive={c.accent}
+            emissiveIntensity={0.4}
+          />
+        </mesh>
+        <mesh position={[0, -0.18, 0]}>
+          <torusGeometry args={[0.045, 0.012, 8, 24]} />
+          <meshStandardMaterial color={c.accent} metalness={0.8} roughness={0.2} />
+        </mesh>
+      </group>
+
+      {/* Central Arbor Pinion & Ruby Pivot Jewel */}
+      <mesh geometry={geos.centerJewelGeo} position={[0, 0, 0.095]} rotation={[Math.PI / 2, 0, 0]}>
+        <meshStandardMaterial
+          color={c.accent}
+          metalness={0.5}
+          roughness={0.1}
+          emissive={c.accent}
+          emissiveIntensity={0.6}
+        />
+      </mesh>
+
+      {/* Domed Sapphire Crystal Glass Lens */}
+      <mesh geometry={geos.crystalGeo} position={[0, 0, 0.11]} rotation={[Math.PI / 2, 0, 0]}>
+        <meshPhysicalMaterial
+          color={dark ? c.text : c.linen}
+          transmission={0.93}
+          opacity={1}
+          transparent={true}
+          roughness={0.05}
+          ior={1.54}
+          thickness={0.28}
+          clearcoat={1.0}
+          clearcoatRoughness={0.04}
+        />
+      </mesh>
     </group>
   );
 }
 
-function Tourbillon({ color }: { color: string }) {
-  const cage = useRef<THREE.Group>(null);
-  useFrame((s) => {
-    if (live.sleeping || !cage.current) return;
-    cage.current.rotation.z = s.clock.elapsedTime * 0.5;
-    cage.current.rotation.y = s.clock.elapsedTime * 0.25;
-  });
-  return (
-    <group ref={cage}>
-      {[0, 1, 2].map((k) => (
-        <mesh key={k} rotation={[0, (k * Math.PI) / 3, 0]}>
-          <torusGeometry args={[0.3, 0.012, 8, 48]} />
-          <meshStandardMaterial color={color} metalness={0.9} roughness={0.25} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
+export const FocusDial3D = Movement;
 
 /* ================================================================= bars */
 

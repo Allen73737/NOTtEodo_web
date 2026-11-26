@@ -259,8 +259,8 @@ export default async function Home() {
 
       <Act id="focus" n="VII" word="FOCUS" title="Time, well kept." italic={["well", "kept."]} visual={<Screenshot screen="focus" />}>
         <p className="t-lede">
-          A watchmaker&rsquo;s dial for deep work, with ambient sound and lock-screen controls. Scroll faster and the movement
-          runs faster.
+          The Focus Dial emerges from the screen as a precision watchmaker&rsquo;s instrument for deep work.
+          Mechanical escapement, glowing session arc, and tactile lock-screen controls.
         </p>
         <FocusDial />
       </Act>
