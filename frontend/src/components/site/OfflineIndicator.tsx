@@ -7,14 +7,12 @@ import { haptic, play } from "@/lib/sound";
 type Status = "online" | "offline" | "restored";
 
 export function OfflineIndicator() {
-  const [status, setStatus] = useState<Status>("online");
+  const [status, setStatus] = useState<Status>(() =>
+    typeof navigator !== "undefined" && !navigator.onLine ? "offline" : "online"
+  );
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    if (typeof navigator !== "undefined" && !navigator.onLine) {
-      setStatus("offline");
-    }
-
     const onOffline = () => {
       setStatus("offline");
       setDismissed(false);

@@ -96,7 +96,7 @@ export function ViewStyleGlyph({
         width="11.5"
         height="11"
         rx="2.6"
-        fill="var(--c-sheet, #FAF8F5)"
+        fill="var(--c-sheet)"
         stroke="currentColor"
         strokeWidth="1.6"
         strokeLinecap="round"

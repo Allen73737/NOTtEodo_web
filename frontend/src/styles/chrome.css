@@ -296,18 +296,18 @@ html.reduced .nav__links::before {
   animation: offline-pill-in 340ms var(--e-silk) both;
 }
 .offline-pill--offline {
-  border-color: color-mix(in oklab, var(--c-accent) 45%, transparent);
+  border-color: color-mix(in oklab, var(--c-error) 45%, transparent);
 }
 .offline-pill--offline .offline-pill__dot {
-  background: var(--c-accent);
-  box-shadow: 0 0 0 4px color-mix(in oklab, var(--c-accent) 25%, transparent);
+  background: var(--c-error);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--c-error) 25%, transparent);
 }
 .offline-pill--restored {
-  border-color: color-mix(in oklab, #2E7D32 45%, transparent);
+  border-color: color-mix(in oklab, var(--c-accent) 45%, transparent);
 }
 .offline-pill--restored .offline-pill__dot {
-  background: #2E7D32;
-  box-shadow: 0 0 0 4px color-mix(in oklab, #2E7D32 25%, transparent);
+  background: var(--c-accent);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--c-accent) 25%, transparent);
 }
 .offline-pill__dot {
   width: 8px;
