@@ -329,6 +329,7 @@
   }
   .bento > .feature-card--poster:first-child {
     display: flex;
+    flex-direction: column;
   }
   .bento > .feature-card--poster:first-child .feature-card__poster {
     border-right: 0;

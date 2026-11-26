@@ -37,6 +37,7 @@ export function SpinPad() {
           const v = Number(e.target.value);
           journey.dragging = true;
           journey.spin = (v * Math.PI) / 180;
+          if (Math.abs(v - deg) >= 15) haptic(6);
           setDeg(v);
         }}
       />

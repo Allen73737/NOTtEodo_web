@@ -145,6 +145,38 @@ export function Simulator() {
     return () => window.removeEventListener("nt:sim-preset", onPreset);
   }, []);
 
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      touchStart.current = { x: e.touches[0]!.clientX, y: e.touches[0]!.clientY };
+    }
+  };
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStart.current || e.changedTouches.length === 0) return;
+    const dx = e.changedTouches[0]!.clientX - touchStart.current.x;
+    const dy = e.changedTouches[0]!.clientY - touchStart.current.y;
+    touchStart.current = null;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      const items = DOCK[dockSet].filter((item) => ["home", "notes", "tasks", "focus", "expenses"].includes(item.id));
+      const curIndex = items.findIndex((item) => item.id === screen);
+      if (curIndex !== -1) {
+        if (dx < 0 && curIndex < items.length - 1) {
+          const next = items[curIndex + 1]!;
+          setScreen(next.id as Screen);
+          play("tick");
+          haptic(10);
+        } else if (dx > 0 && curIndex > 0) {
+          const prev = items[curIndex - 1]!;
+          setScreen(prev.id as Screen);
+          play("tick");
+          haptic(10);
+        }
+      }
+    }
+  };
+
   return (
     <div className="sim-wrap">
       <div className={`sim sim--${view}`} data-sim-theme={theme} role="application" aria-label="NOTtEodo simulator">
@@ -170,7 +202,7 @@ export function Simulator() {
           </button>
         </header>
 
-        <main className="sim__screen" aria-live="polite">
+        <main className="sim__screen" aria-live="polite" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
           {screen === "home" && <HomeScreen s={s} setS={setS} go={setScreen} openCapture={() => setCapture(true)} />}
           {screen === "tasks" && <TasksScreen s={s} setS={setS} />}
           {screen === "notes" && <NotesScreen s={s} />}

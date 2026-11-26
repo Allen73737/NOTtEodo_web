@@ -196,10 +196,79 @@ export function FilmProvider({ children }: { children: ReactNode }) {
       journey.pointer.y = (e.clientY / innerHeight) * 2 - 1;
     };
     addEventListener("pointermove", onPointer, { passive: true });
+
+    // Mobile: subtle gyroscope parallax so holding the phone tilts the 3D canvas and catches light reflections
+    const onOrientation = (e: DeviceOrientationEvent) => {
+      if (document.documentElement.classList.contains("reduced")) return;
+      if (e.gamma === null || e.beta === null) return;
+      const gx = Math.max(-1, Math.min(1, e.gamma / 26));
+      const by = Math.max(-1, Math.min(1, (e.beta - 42) / 28));
+      journey.pointer.x = gx;
+      journey.pointer.y = by;
+    };
+    if (typeof window !== "undefined" && "DeviceOrientationEvent" in window) {
+      window.addEventListener("deviceorientation", onOrientation, { passive: true });
+    }
+
+    // Mobile: direct horizontal touch drag across the 3D stage spins the phone with fluid momentum
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isHorizontalPhoneDrag = false;
+    let canDragPhone = false;
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return;
+      const t = e.touches[0]!;
+      touchStartX = t.clientX;
+      touchStartY = t.clientY;
+      isHorizontalPhoneDrag = false;
+      canDragPhone = innerWidth < 860 && t.clientY < innerHeight * 0.55 && journey.out < 0.9;
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!canDragPhone || e.touches.length !== 1) return;
+      const t = e.touches[0]!;
+      const dx = t.clientX - touchStartX;
+      const dy = t.clientY - touchStartY;
+      if (!isHorizontalPhoneDrag) {
+        if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+          isHorizontalPhoneDrag = true;
+          journey.dragging = true;
+        } else if (Math.abs(dy) > 10) {
+          canDragPhone = false;
+        }
+      }
+      if (isHorizontalPhoneDrag) {
+        journey.spin += (dx / innerWidth) * Math.PI * 1.5;
+        touchStartX = t.clientX;
+        touchStartY = t.clientY;
+      }
+    };
+
+    const onTouchEnd = () => {
+      if (canDragPhone && isHorizontalPhoneDrag) {
+        journey.dragging = false;
+      }
+      canDragPhone = false;
+      isHorizontalPhoneDrag = false;
+    };
+
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
+    window.addEventListener("touchcancel", onTouchEnd, { passive: true });
+
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
       removeEventListener("pointermove", onPointer);
+      if (typeof window !== "undefined" && "DeviceOrientationEvent" in window) {
+        window.removeEventListener("deviceorientation", onOrientation);
+      }
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("touchcancel", onTouchEnd);
       document.documentElement.classList.remove("journey-past");
     };
   }, [mode]);

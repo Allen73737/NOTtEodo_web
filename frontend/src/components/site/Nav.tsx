@@ -185,10 +185,13 @@ export function Nav() {
                     ))}
                   </div>
                 </nav>
-                <div className="drawer__tools">
-                  <ViewToggle />
-                  <ThemeToggle />
-                  <SoundToggle />
+                <div className="drawer__footer">
+                  <p className="t-label">Appearance &amp; Sound</p>
+                  <div className="drawer__tools">
+                    <ViewToggle className="drawer__tool-btn" />
+                    <ThemeToggle className="drawer__tool-btn" />
+                    <SoundToggle className="drawer__tool-btn" />
+                  </div>
                 </div>
               </Dialog.Content>
             </Dialog.Portal>

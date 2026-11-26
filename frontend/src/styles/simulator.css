@@ -435,3 +435,26 @@
   border: 1px solid var(--c-hairline);
   color: var(--c-text);
 }
+
+@media (max-width: 440px) {
+  .sim {
+    border-width: 6px;
+    border-radius: 34px;
+    height: min(720px, 86vh);
+  }
+  .sim__screen {
+    padding: 6px 12px 90px;
+  }
+  .sim__dock {
+    left: 6px;
+    right: 6px;
+    bottom: 6px;
+    padding: 4px;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .sim-presets__keys {
+    display: none;
+  }
+}
