@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { ViewStyleGlyph } from "@/components/brand/ViewStyleGlyph";
 import { haptic, play } from "@/lib/sound";
 import { InkStrike } from "@/motion/primitives";
 import { switchView, toggleTheme } from "@/motion/theme-wash";
@@ -56,6 +57,7 @@ export function ViewSwitch() {
             key={v}
             type="button"
             aria-pressed={view === v}
+            style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
             onClick={() => {
               if (view === v) return;
               play("paper");
@@ -63,7 +65,8 @@ export function ViewSwitch() {
               switchView(v);
             }}
           >
-            {v === "cards" ? "Cards" : "Editorial"}
+            <ViewStyleGlyph editorial={v === "editorial"} size={16} />
+            <span>{v === "cards" ? "Cards" : "Editorial"}</span>
           </button>
         ))}
       </div>

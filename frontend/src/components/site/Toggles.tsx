@@ -2,6 +2,7 @@
 
 import { Moon, Sun, Volume2, VolumeX } from "lucide-react";
 import { toast } from "sonner";
+import { ViewStyleGlyph } from "@/components/brand/ViewStyleGlyph";
 import { useStoredFlag, useTheme, useView } from "@/lib/prefs";
 import { haptic, play, setSound as applySound } from "@/lib/sound";
 import { switchView, toggleTheme } from "@/motion/theme-wash";
@@ -25,24 +26,23 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
   );
 }
 
-/** The app's "Aa" pill: Cards view ↔ Editorial view, for the whole site. */
+/** The app's Cards ↔ Editorial view toggle with the updated mobile app glyph. */
 export function ViewToggle({ className = "" }: { className?: string }) {
   const editorial = useView() === "editorial";
   return (
     <button
       type="button"
-      className={`aa-pill ${className}`}
+      className={`icon-btn view-toggle ${className}`}
       aria-label={editorial ? "Switch to Cards view" : "Switch to Editorial view"}
       aria-pressed={editorial}
-      title={editorial ? "Editorial view" : "Cards view"}
+      title={editorial ? "Switch to Cards view" : "Switch to Editorial view"}
       onClick={() => {
         haptic();
         play("paper");
         switchView(editorial ? "cards" : "editorial");
       }}
     >
-      <span>A</span>
-      <span className="it">a</span>
+      <ViewStyleGlyph editorial={editorial} size={18} />
     </button>
   );
 }

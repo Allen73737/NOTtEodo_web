@@ -1,5 +1,6 @@
 "use client";
 
+import { ViewStyleGlyph } from "@/components/brand/ViewStyleGlyph";
 import { Wordmark } from "@/components/brand/Wordmark";
 import {
   BookOpen,
@@ -195,7 +196,7 @@ export function Simulator() {
             <Search size={17} />
           </button>
           <button className="sim__aa" aria-label={`Switch to ${view === "cards" ? "Editorial" : "Cards"} view`} onClick={() => switchView(view === "cards" ? "editorial" : "cards")}>
-            A<i>a</i>
+            <ViewStyleGlyph editorial={view === "editorial"} size={17} />
           </button>
           <button className="sim__icon" aria-label="Switch theme" onClick={(e) => toggleTheme({ x: e.clientX, y: e.clientY })}>
             {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}

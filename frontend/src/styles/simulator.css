@@ -59,14 +59,20 @@
   cursor: pointer;
 }
 .sim__aa {
-  display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
-  width: auto;
-  padding: 0 10px;
-  border-radius: 999px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 0;
   background: var(--c-field);
-  font: 600 0.95rem/1 var(--font-display);
+  color: var(--c-text);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color var(--d-quick);
+}
+.sim__aa:hover {
+  background: var(--c-surface-high);
 }
 .sim__screen {
   overflow: auto;

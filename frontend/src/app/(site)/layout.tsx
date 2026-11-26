@@ -4,6 +4,7 @@ import { BackToTop } from "@/components/site/BackToTop";
 import { CommandPalette } from "@/components/site/CommandPalette";
 import { Footer } from "@/components/site/Footer";
 import { Nav } from "@/components/site/Nav";
+import { OfflineIndicator } from "@/components/site/OfflineIndicator";
 import { PageSwap } from "@/components/site/PageSwap";
 import { ReleaseNote } from "@/components/site/ReleaseNote";
 import { SmoothScroll } from "@/components/site/SmoothScroll";
@@ -35,6 +36,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <Transitions />
       <SmoothScroll />
       <BackToTop />
+      <OfflineIndicator />
       {release && <ReleaseNote code={release.version_code} name={release.version_name} line={firstNote.slice(0, 140)} />}
       <Ambient
         downloadHref={config.play_live ? config.urls.play : "/download"}
