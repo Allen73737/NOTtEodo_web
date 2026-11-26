@@ -116,6 +116,7 @@ function Checksum({ value, label }: { value: string; label: string }) {
             setDone(true);
             play("tick");
             haptic();
+            toast.success(`${label} copied to clipboard`);
             setTimeout(() => setDone(false), 1600);
           }}
         >

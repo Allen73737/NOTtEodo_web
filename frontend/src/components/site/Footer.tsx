@@ -8,9 +8,9 @@ import { getConfig, getRoadmap } from "@/lib/platform";
 import { SoundToggle, ThemeToggle, ViewToggle } from "./Toggles";
 
 export async function Footer() {
-  const [config, roadmap] = await Promise.all([getConfig(), getRoadmap()]);
-  // The roadmap page only exists once an admin has published something on it.
-  const hidden = new Set(config.flags.roadmap && roadmap.length > 0 ? [] : ["/roadmap"]);
+  const [config] = await Promise.all([getConfig(), getRoadmap()]);
+  // The roadmap page is visible unless explicitly disabled in config flags.
+  const hidden = new Set(config.flags.roadmap === false ? ["/roadmap"] : []);
   const qr = await QRCode.toString(`${siteUrl}/open/release/latest`, {
     type: "svg",
     margin: 0,

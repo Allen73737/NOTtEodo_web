@@ -246,6 +246,46 @@ html.reduced .nav__links::before {
   color: inherit;
 }
 
+/* ---------- Back to Top ---------- */
+.back-to-top {
+  position: fixed;
+  right: clamp(16px, 3vw, 32px);
+  bottom: clamp(16px, 3vw, 32px);
+  z-index: 90;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font: 500 0.85rem/1 var(--font-sans);
+  color: var(--c-text);
+  background: var(--c-sheet);
+  border: 1px solid var(--c-hairline);
+  box-shadow: 0 8px 24px -6px rgb(0 0 0 / 0.15);
+  cursor: pointer;
+  animation: back-to-top-in 300ms var(--e-silk) both;
+  transition: transform var(--d-quick) var(--e-silk), background-color var(--d-quick), border-color var(--d-quick);
+}
+.back-to-top:hover {
+  transform: translateY(-2px);
+  background: var(--c-surface-high);
+  border-color: var(--c-outline);
+}
+.back-to-top:active {
+  transform: scale(0.95);
+}
+@keyframes back-to-top-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 /* ---------- Overlays ---------- */
 .scrim {
   position: fixed;

@@ -1,6 +1,7 @@
 "use client";
 
 import { Moon, Sun, Volume2, VolumeX } from "lucide-react";
+import { toast } from "sonner";
 import { useStoredFlag, useTheme, useView } from "@/lib/prefs";
 import { haptic, play, setSound as applySound } from "@/lib/sound";
 import { switchView, toggleTheme } from "@/motion/theme-wash";
@@ -58,7 +59,12 @@ export function SoundToggle({ className = "" }: { className?: string }) {
       onClick={() => {
         setSound(on ? null : "on");
         applySound(!on);
-        if (!on) play("bloom", true);
+        if (!on) {
+          play("bloom", true);
+          toast("Sound enabled: subtle synthesizer cues", { duration: 2400 });
+        } else {
+          toast("Sound muted", { duration: 2000 });
+        }
       }}
     >
       {on ? <Volume2 size={18} strokeWidth={1.6} /> : <VolumeX size={18} strokeWidth={1.6} />}
