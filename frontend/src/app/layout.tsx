@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Toaster } from "sonner";
+import { IDENTITY } from "@/content/identity";
 import { colors } from "@/content/generated/tokens";
 import { siteUrl } from "@/lib/env";
 import { bodoni, dmSans, grotesk } from "@/lib/fonts";
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
   description:
     "A private, offline-first daily organiser for Android: notes, tasks, planner, habits, focus, expenses, wardrobe, travel, journal and moodboards in one calm app. Free, no ads, no trackers.",
   applicationName: "NOTtEodo",
-  authors: [{ name: "[DEVELOPER NAME]" }],
+  authors: [{ name: IDENTITY.developer }],
   openGraph: { type: "website", siteName: "NOTtEodo", locale: "en_IN" },
   twitter: { card: "summary_large_image" },
   formatDetection: { telephone: false },

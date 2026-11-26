@@ -157,7 +157,7 @@ export default function TermsPage() {
             <p>
               These terms are governed by the laws of India. Please contact us first at{" "}
               <a href={`mailto:${IDENTITY.supportEmail}`}>{IDENTITY.supportEmail}</a>; most problems can be solved that way.
-              Otherwise the courts at [CITY], India have jurisdiction, without affecting your right to use the courts where you
+              Otherwise the courts at Kochi, Kerala, India have jurisdiction, without affecting your right to use the courts where you
               live if consumer law gives you that right.
             </p>
           ),
