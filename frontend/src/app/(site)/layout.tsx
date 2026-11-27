@@ -1,6 +1,5 @@
 import { AnnouncementBanner } from "@/components/site/AnnouncementBanner";
 import { Ambient } from "@/components/site/Ambient";
-import { BackToTop } from "@/components/site/BackToTop";
 import { CommandPalette } from "@/components/site/CommandPalette";
 import { Footer } from "@/components/site/Footer";
 import { Nav } from "@/components/site/Nav";
@@ -35,7 +34,6 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <CommandPalette />
       <Transitions />
       <SmoothScroll />
-      <BackToTop />
       <OfflineIndicator />
       {release && <ReleaseNote code={release.version_code} name={release.version_name} line={firstNote.slice(0, 140)} />}
       <Ambient

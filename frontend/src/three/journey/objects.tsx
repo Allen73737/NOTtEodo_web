@@ -748,42 +748,62 @@ export function Orbit() {
   );
 }
 
-/* ================================================================ focus watch timer */
+/* ================================================================ focus watchmaker dial */
 
 /**
- * A luxury mechanical Focus Timer Watch Widget that emerges from the phone's screen
- * during the Focus act. Features a fluted titanium/bronze case, knurled winding crown,
- * concentric guilloché chapter rings, 60 Swiss indices, glowing focus session arc,
- * sweeping dauphine hands with escapement tick, and a curved sapphire crystal lens.
+ * Authentic 3D Watchmaker Focus Dial: directly matches the Breguet watch dial inside the app.
+ * Features authentic Breguet pomme hands (moon-eye needles), 60 Swiss railroad chapter ticks
+ * with oxblood cardinal accents, center arbor collar with ruby pivot jewel, and a curved sapphire lens.
+ *
+ * Emergence & Shrink:
+ * Originates directly from the Watchmaker dial on the phone's focus timer screen, lifts off the glass
+ * along an arc into the foreground as Act VII scrolls into view, and shrinks right back into the phone screen.
  */
 export function Movement() {
   const { dark, c } = usePalette();
   const root = useRef<THREE.Group>(null);
   const secHand = useRef<THREE.Group>(null);
   const minHand = useRef<THREE.Group>(null);
-  const subHand = useRef<THREE.Group>(null);
+  const hourHand = useRef<THREE.Group>(null);
   const arcMesh = useRef<THREE.Mesh>(null);
-  const crownMesh = useRef<THREE.Mesh>(null);
 
   const tickSec = useRef(0);
 
+  // Scratch vectors for emergence (no allocations in useFrame)
+  const phoneDialLocal = useMemo(() => new THREE.Vector3(0, 0.38, PD / 2 + 0.015), []);
+  const phoneDialWorld = useMemo(() => new THREE.Vector3(), []);
+  const targetTurn = useMemo(() => new THREE.Quaternion(), []);
+
   const geos = useMemo(() => {
     return {
-      caseGeo: new THREE.CylinderGeometry(1.22, 1.28, 0.22, 64),
-      bezelGeo: new THREE.TorusGeometry(1.22, 0.045, 16, 64),
-      dialGeo: new THREE.CylinderGeometry(1.16, 1.16, 0.04, 64),
-      crownGeo: new THREE.CylinderGeometry(0.18, 0.18, 0.22, 32),
-      crownStemGeo: new THREE.CylinderGeometry(0.08, 0.08, 0.14, 16),
-      majorTickGeo: new THREE.BoxGeometry(0.038, 0.13, 0.02),
-      minorTickGeo: new THREE.BoxGeometry(0.016, 0.065, 0.015),
-      ringOuterGeo: new THREE.TorusGeometry(0.96, 0.009, 8, 64),
-      ringMidGeo: new THREE.TorusGeometry(0.72, 0.007, 8, 64),
-      ringInnerGeo: new THREE.TorusGeometry(0.48, 0.007, 8, 64),
-      subdialRingGeo: new THREE.TorusGeometry(0.28, 0.007, 8, 48),
-      subdialFaceGeo: new THREE.CylinderGeometry(0.27, 0.27, 0.02, 32),
-      progressArcGeo: new THREE.TorusGeometry(0.84, 0.032, 16, 64, Math.PI * 1.5),
-      crystalGeo: new THREE.CylinderGeometry(1.18, 1.18, 0.03, 64),
-      centerJewelGeo: new THREE.CylinderGeometry(0.07, 0.07, 0.04, 24),
+      dialFaceGeo: new THREE.CylinderGeometry(1.0, 1.0, 0.03, 64),
+      rimGeo: new THREE.TorusGeometry(1.01, 0.018, 16, 64),
+      trackRingGeo: new THREE.TorusGeometry(0.88, 0.006, 8, 64),
+      innerRingGeo: new THREE.TorusGeometry(0.52, 0.005, 8, 64),
+      majorTickGeo: new THREE.BoxGeometry(0.024, 0.095, 0.015),
+      minorTickGeo: new THREE.BoxGeometry(0.012, 0.048, 0.01),
+      progressArcGeo: new THREE.TorusGeometry(0.88, 0.022, 16, 64, Math.PI * 1.5),
+
+      // Breguet Minute Hand geometries (shaft, pomme circle, pointer tip, counterweight)
+      minShaftGeo: new THREE.BoxGeometry(0.022, 0.52, 0.012),
+      minPommeGeo: new THREE.TorusGeometry(0.065, 0.012, 16, 32),
+      minTipGeo: new THREE.BoxGeometry(0.015, 0.22, 0.012),
+      minTailGeo: new THREE.BoxGeometry(0.02, 0.12, 0.01),
+
+      // Breguet Hour/Session Hand geometries
+      hourShaftGeo: new THREE.BoxGeometry(0.022, 0.32, 0.012),
+      hourPommeGeo: new THREE.TorusGeometry(0.055, 0.012, 16, 32),
+      hourTipGeo: new THREE.BoxGeometry(0.015, 0.16, 0.012),
+      hourTailGeo: new THREE.BoxGeometry(0.02, 0.09, 0.01),
+
+      // Fine Seconds Hand geometries
+      secNeedleGeo: new THREE.BoxGeometry(0.012, 0.88, 0.01),
+      secPommeGeo: new THREE.TorusGeometry(0.035, 0.009, 8, 24),
+
+      // Center Arbor and Pivot
+      arborCollarGeo: new THREE.TorusGeometry(0.045, 0.01, 16, 32),
+      centerJewelGeo: new THREE.CylinderGeometry(0.04, 0.04, 0.03, 24),
+      crystalGeo: new THREE.CylinderGeometry(1.02, 1.02, 0.025, 64),
     };
   }, []);
 
@@ -803,61 +823,88 @@ export function Movement() {
     const el = root.current;
     if (!el) return;
     const k = ease(live.fx.gears);
-    el.visible = k > 0.01;
+    el.visible = k > 0.005;
+    if (!el.visible) return;
+
     const p = lpOf("focus");
 
-    const sc = live.portrait ? 0.62 : 0.96;
+    // Exact world coordinates of the Watchmaker dial on the phone screen
+    phoneDialWorld
+      .copy(phoneDialLocal)
+      .multiplyScalar(live.body.size)
+      .applyQuaternion(live.body.quat)
+      .add(live.body.pos);
+
+    // Resting showcase position in front of the phone
     home.set(
-      live.portrait ? 0 : 0.44 * live.half,
-      live.portrait ? 0.65 : 0.06,
-      live.portrait ? -0.1 : -0.15
+      live.portrait ? 0 : 0.42 * live.half,
+      live.portrait ? 0.62 : 0.05,
+      live.portrait ? 0.1 : 0.12
     );
 
-    turn.setFromEuler(
+    targetTurn.setFromEuler(
       euler.set(
-        0.28 - journey.pointer.y * 0.18 + Math.sin(s.clock.elapsedTime * 1.2) * 0.02,
-        -0.42 + journey.pointer.x * 0.22,
-        0.06 + band(p, 0, 0.6) * 0.12
+        0.24 - journey.pointer.y * 0.15 + Math.sin(s.clock.elapsedTime * 1.2) * 0.015,
+        -0.38 + journey.pointer.x * 0.2,
+        0.04 + band(p, 0, 0.6) * 0.08
       )
     );
 
-    const g = emerge(home, k, at, turn);
+    // Emerge curve: 0 = on the phone dial, 1 = floating in front
+    const d = 1 - Math.pow(1 - clamp01(k), 2.4);
+
+    // Position: lerp from phone screen dial to home, along a parabolic Z arc
+    at.lerpVectors(phoneDialWorld, home, d);
+    at.z += Math.sin(Math.PI * d) * 0.48 * live.body.size;
+    at.y += Math.sin(s.clock.elapsedTime * 1.5) * 0.03 * d;
+
+    // Rotation: slerp from phone screen orientation to target showcase orientation
+    turn.copy(live.body.quat).slerp(targetTurn, d);
+
+    // Scale: scales from exact dial diameter on phone screen to full showcase size
+    const phoneDialScale = (0.54 * PW / 2.0) * live.body.size;
+    const showcaseScale = live.portrait ? 0.68 : 0.98;
+    const currentScale = THREE.MathUtils.lerp(phoneDialScale, showcaseScale, d);
+
     el.position.copy(at);
     el.quaternion.copy(turn);
-    el.scale.setScalar(sc * g);
+    el.scale.setScalar(currentScale);
 
-    el.position.y += Math.sin(s.clock.elapsedTime * 1.6) * 0.035 * k;
+    // Phone screen portal glow as dial emerges and retracts
+    if (k > 0.001 && k < 0.999) {
+      live.portalNext = Math.max(live.portalNext, Math.sin(Math.PI * Math.min(1, k * 1.5)));
+    }
 
+    // Hands movement: mechanical escapement ticking, coupled with scroll speed
     const speed = 1.0 + Math.min(5, Math.abs(scrollState.velocity) * 0.08);
     tickSec.current += dt * speed;
 
     if (secHand.current) {
+      // 5-beat-per-second escapement tick
       const discreteSec = Math.floor(tickSec.current * 5) / 5;
       secHand.current.rotation.z = -((discreteSec * (TAU / 60)) % TAU);
     }
 
     if (minHand.current) {
+      // Minute hand progress
       const sessionP = (p * 0.75 + (tickSec.current / 300) * 0.25) % 1;
       minHand.current.rotation.z = -(sessionP * TAU);
     }
 
-    if (subHand.current) {
-      subHand.current.rotation.z = -(tickSec.current * 0.8);
+    if (hourHand.current) {
+      // Hour / session duration hand (e.g. indicating 25m mark)
+      const hourP = (0.416 + (tickSec.current / 3600) * 0.1) % 1;
+      hourHand.current.rotation.z = -(hourP * TAU);
     }
 
     if (arcMesh.current) {
-      const targetArc = THREE.MathUtils.clamp(0.2 + p * 0.8, 0.1, 1.0);
+      const targetArc = THREE.MathUtils.clamp(0.25 + p * 0.75, 0.1, 1.0);
       arcMesh.current.scale.set(targetArc, targetArc, 1);
-    }
-
-    if (crownMesh.current) {
-      crownMesh.current.rotation.x += dt * 0.5 * speed;
     }
   });
 
   const metal = dark ? c.text : c.bronze;
-  const caseColor = dark ? c["ink-container"] : c.surface;
-  const dialColor = dark ? c.sheet : c.linen;
+  const dialColor = dark ? c["ink-container"] : c.surface;
   const trackColor = dark ? c["text-muted"] : c["text-soft"];
 
   return (
@@ -865,7 +912,7 @@ export function Movement() {
       ref={root}
       visible={false}
       onPointerOver={() => {
-        if (live.fx.gears > 0.4) document.body.style.cursor = "pointer";
+        if (live.fx.gears > 0.3) document.body.style.cursor = "pointer";
       }}
       onPointerOut={() => {
         document.body.style.cursor = "";
@@ -874,186 +921,148 @@ export function Movement() {
         play("tick");
       }}
     >
-      {/* Outer Watch Case */}
-      <mesh geometry={geos.caseGeo} rotation={[Math.PI / 2, 0, 0]} position={[0, 0, -0.06]}>
-        <meshStandardMaterial
-          color={caseColor}
-          metalness={0.88}
-          roughness={0.25}
-        />
-      </mesh>
-
-      {/* Stepped Polished Bezel Ring */}
-      <mesh geometry={geos.bezelGeo} position={[0, 0, 0.05]}>
-        <meshStandardMaterial
-          color={metal}
-          metalness={0.92}
-          roughness={0.18}
-        />
-      </mesh>
-
-      {/* Knurled Watch Crown at 3 o'clock */}
-      <group position={[1.28, 0, 0]}>
-        <mesh geometry={geos.crownStemGeo} rotation={[0, 0, Math.PI / 2]}>
-          <meshStandardMaterial color={metal} metalness={0.9} roughness={0.2} />
-        </mesh>
-        <mesh
-          ref={crownMesh}
-          geometry={geos.crownGeo}
-          position={[0.11, 0, 0]}
-          rotation={[0, 0, Math.PI / 2]}
-        >
-          <meshStandardMaterial
-            color={metal}
-            metalness={0.88}
-            roughness={0.22}
-          />
-        </mesh>
-        {/* Crown tip ruby jewel */}
-        <mesh position={[0.22, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
-          <circleGeometry args={[0.08, 24]} />
-          <meshStandardMaterial
-            color={c.accent}
-            metalness={0.6}
-            roughness={0.2}
-            emissive={c.accent}
-            emissiveIntensity={0.25}
-          />
-        </mesh>
-      </group>
-
-      {/* Recessed Dial Bed */}
-      <mesh geometry={geos.dialGeo} rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0.02]}>
+      {/* Sleek Watchmaker Dial Disc (matches the app's charcoal dial bed) */}
+      <mesh geometry={geos.dialFaceGeo} rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0.01]}>
         <meshStandardMaterial
           color={dialColor}
-          metalness={0.12}
-          roughness={0.45}
+          metalness={0.15}
+          roughness={0.55}
         />
       </mesh>
 
-      {/* Concentric Guilloché Rings */}
-      <mesh geometry={geos.ringOuterGeo} position={[0, 0, 0.045]}>
-        <meshStandardMaterial color={trackColor} metalness={0.7} roughness={0.3} />
-      </mesh>
-      <mesh geometry={geos.ringMidGeo} position={[0, 0, 0.045]}>
-        <meshStandardMaterial color={trackColor} metalness={0.7} roughness={0.3} />
-      </mesh>
-      <mesh geometry={geos.ringInnerGeo} position={[0, 0, 0.045]}>
-        <meshStandardMaterial color={trackColor} metalness={0.7} roughness={0.3} />
+      {/* Subtle Metallic Perimeter Bezel Rim */}
+      <mesh geometry={geos.rimGeo} position={[0, 0, 0.026]}>
+        <meshStandardMaterial
+          color={metal}
+          metalness={0.88}
+          roughness={0.2}
+        />
       </mesh>
 
-      {/* 60 Swiss Radial Chapter Ring Indices */}
+      {/* Hairline Chapter Tracks */}
+      <mesh geometry={geos.trackRingGeo} position={[0, 0, 0.028]}>
+        <meshStandardMaterial color={trackColor} metalness={0.6} roughness={0.3} />
+      </mesh>
+      <mesh geometry={geos.innerRingGeo} position={[0, 0, 0.028]}>
+        <meshStandardMaterial color={trackColor} metalness={0.6} roughness={0.3} />
+      </mesh>
+
+      {/* 60 Chapter Railroad Indices (matches app: 12 cardinal/5-min + 48 hairlines) */}
       {indices.map(({ angle, major, accent }, i) => {
-        const rad = 0.98;
+        const rad = 0.88;
         const x = Math.sin(angle) * rad;
         const y = Math.cos(angle) * rad;
         return (
           <mesh
             key={i}
             geometry={major ? geos.majorTickGeo : geos.minorTickGeo}
-            position={[x, y, 0.048]}
+            position={[x, y, 0.03]}
             rotation={[0, 0, -angle]}
           >
             <meshStandardMaterial
               color={accent ? c.accent : major ? metal : trackColor}
-              metalness={major ? 0.9 : 0.6}
-              roughness={0.2}
+              metalness={major ? 0.85 : 0.5}
+              roughness={0.25}
               emissive={accent ? c.accent : undefined}
-              emissiveIntensity={accent ? 0.35 : 0}
+              emissiveIntensity={accent ? 0.4 : 0}
             />
           </mesh>
         );
       })}
 
-      {/* Glowing Focus Session Progress Arc */}
-      <mesh ref={arcMesh} geometry={geos.progressArcGeo} position={[0, 0, 0.052]}>
+      {/* Luminous Focus Session Progress Arc */}
+      <mesh ref={arcMesh} geometry={geos.progressArcGeo} position={[0, 0, 0.032]}>
         <meshStandardMaterial
           color={c.accent}
-          metalness={0.5}
+          metalness={0.4}
           roughness={0.2}
           emissive={c.accent}
-          emissiveIntensity={0.8}
+          emissiveIntensity={0.85}
         />
       </mesh>
 
-      {/* Subdial Complication at 6 o'clock */}
-      <group position={[0, -0.42, 0.046]}>
-        <mesh geometry={geos.subdialFaceGeo} rotation={[Math.PI / 2, 0, 0]}>
-          <meshStandardMaterial color={caseColor} roughness={0.5} metalness={0.2} />
+      {/* Authentic Breguet Hour Hand (with hollow moon-eye pomme) */}
+      <group ref={hourHand} position={[0, 0, 0.042]}>
+        {/* Shaft */}
+        <mesh geometry={geos.hourShaftGeo} position={[0, 0.16, 0]}>
+          <meshStandardMaterial color={metal} metalness={0.92} roughness={0.18} />
         </mesh>
-        <mesh geometry={geos.subdialRingGeo} position={[0, 0, 0.012]}>
-          <meshStandardMaterial color={trackColor} metalness={0.8} roughness={0.25} />
+        {/* Breguet Moon Pomme Eye */}
+        <mesh geometry={geos.hourPommeGeo} position={[0, 0.38, 0]}>
+          <meshStandardMaterial color={metal} metalness={0.92} roughness={0.18} />
         </mesh>
-        {/* Subdial Needle */}
-        <group ref={subHand} position={[0, 0, 0.015]}>
-          <mesh position={[0, 0.09, 0]}>
-            <boxGeometry args={[0.018, 0.18, 0.008]} />
-            <meshStandardMaterial color={c.accent} metalness={0.8} roughness={0.2} />
-          </mesh>
-        </group>
-      </group>
-
-      {/* Faceted Dauphine Minute / Focus Hand */}
-      <group ref={minHand} position={[0, 0, 0.065]}>
-        <mesh position={[0, 0.36, 0]}>
-          <boxGeometry args={[0.055, 0.72, 0.018]} />
-          <meshStandardMaterial
-            color={metal}
-            metalness={0.95}
-            roughness={0.15}
-          />
+        {/* Pointer Tip */}
+        <mesh geometry={geos.hourTipGeo} position={[0, 0.52, 0]}>
+          <meshStandardMaterial color={metal} metalness={0.92} roughness={0.18} />
         </mesh>
-        <mesh position={[0, 0.73, 0]} rotation={[0, 0, Math.PI / 4]}>
-          <boxGeometry args={[0.04, 0.04, 0.018]} />
-          <meshStandardMaterial color={metal} metalness={0.95} roughness={0.15} />
-        </mesh>
-        <mesh position={[0, -0.12, 0]}>
-          <boxGeometry args={[0.04, 0.22, 0.015]} />
+        {/* Counterweight Tail */}
+        <mesh geometry={geos.hourTailGeo} position={[0, -0.045, 0]}>
           <meshStandardMaterial color={metal} metalness={0.9} roughness={0.2} />
         </mesh>
       </group>
 
+      {/* Authentic Breguet Minute Hand (longer, with hollow moon-eye pomme) */}
+      <group ref={minHand} position={[0, 0, 0.054]}>
+        {/* Shaft */}
+        <mesh geometry={geos.minShaftGeo} position={[0, 0.26, 0]}>
+          <meshStandardMaterial color={metal} metalness={0.95} roughness={0.15} />
+        </mesh>
+        {/* Breguet Moon Pomme Eye */}
+        <mesh geometry={geos.minPommeGeo} position={[0, 0.58, 0]}>
+          <meshStandardMaterial color={metal} metalness={0.95} roughness={0.15} />
+        </mesh>
+        {/* Pointer Tip */}
+        <mesh geometry={geos.minTipGeo} position={[0, 0.74, 0]}>
+          <meshStandardMaterial color={metal} metalness={0.95} roughness={0.15} />
+        </mesh>
+        {/* Counterweight Tail */}
+        <mesh geometry={geos.minTailGeo} position={[0, -0.06, 0]}>
+          <meshStandardMaterial color={metal} metalness={0.92} roughness={0.18} />
+        </mesh>
+      </group>
+
       {/* Fine Sweeping Seconds Hand in Oxblood Accent */}
-      <group ref={secHand} position={[0, 0, 0.082]}>
-        <mesh position={[0, 0.44, 0]}>
-          <boxGeometry args={[0.016, 0.88, 0.012]} />
+      <group ref={secHand} position={[0, 0, 0.068]}>
+        <mesh geometry={geos.secNeedleGeo} position={[0, 0.38, 0]}>
           <meshStandardMaterial
             color={c.accent}
             metalness={0.7}
             roughness={0.2}
             emissive={c.accent}
-            emissiveIntensity={0.4}
+            emissiveIntensity={0.45}
           />
         </mesh>
-        <mesh position={[0, -0.18, 0]}>
-          <torusGeometry args={[0.045, 0.012, 8, 24]} />
-          <meshStandardMaterial color={c.accent} metalness={0.8} roughness={0.2} />
+        <mesh geometry={geos.secPommeGeo} position={[0, -0.14, 0]}>
+          <meshStandardMaterial color={c.accent} metalness={0.75} roughness={0.2} />
         </mesh>
       </group>
 
-      {/* Central Arbor Pinion & Ruby Pivot Jewel */}
-      <mesh geometry={geos.centerJewelGeo} position={[0, 0, 0.095]} rotation={[Math.PI / 2, 0, 0]}>
+      {/* Center Arbor Collar Ring and Ruby Pivot Jewel */}
+      <mesh geometry={geos.arborCollarGeo} position={[0, 0, 0.076]}>
+        <meshStandardMaterial color={metal} metalness={0.95} roughness={0.15} />
+      </mesh>
+      <mesh geometry={geos.centerJewelGeo} position={[0, 0, 0.08]} rotation={[Math.PI / 2, 0, 0]}>
         <meshStandardMaterial
           color={c.accent}
           metalness={0.5}
           roughness={0.1}
           emissive={c.accent}
-          emissiveIntensity={0.6}
+          emissiveIntensity={0.65}
         />
       </mesh>
 
       {/* Domed Sapphire Crystal Glass Lens */}
-      <mesh geometry={geos.crystalGeo} position={[0, 0, 0.11]} rotation={[Math.PI / 2, 0, 0]}>
+      <mesh geometry={geos.crystalGeo} position={[0, 0, 0.092]} rotation={[Math.PI / 2, 0, 0]}>
         <meshPhysicalMaterial
           color={dark ? c.text : c.linen}
-          transmission={0.93}
+          transmission={0.94}
           opacity={1}
           transparent={true}
-          roughness={0.05}
-          ior={1.54}
-          thickness={0.28}
+          roughness={0.04}
+          ior={1.52}
+          thickness={0.2}
           clearcoat={1.0}
-          clearcoatRoughness={0.04}
+          clearcoatRoughness={0.03}
         />
       </mesh>
     </group>
